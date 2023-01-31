@@ -5,8 +5,6 @@
 #' new_env = TRUE or FALSE. You must have the latest ODBC SQL driver installed for this function to
 #' work. It can be downloaded from: https://go.microsoft.com/fwlink/?linkid=2168524
 #'
-#' @importFrom dplyr collect
-#'
 #' @param type Specify whether you are connecting to a DSN or file.
 #' \describe{
 #' \item{"DSN"}{Default. DSN database. If odbc argument is not specified, will default to rocky_BE.}
@@ -64,14 +62,16 @@ importData <- function(type = c('DSN', 'file'), DSN = 'rocky_BE', path = NA, new
     } else { env = .GlobalEnv }
 
   pb = txtProgressBar(min = 0, max = 11, style = 3)
-  db <- if (type=='DSN'){
+
+  db <- if (type == 'DSN'){
     db <- DBI::dbConnect(drv = odbc::odbc(), dsn = DSN)
   }
-  else if (type=='file'){
-
+  else if (type == 'file'){
     db <- DBI::dbConnect(drv=odbc::odbc(),
-                        .connection_string=paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=",path))
+                        .connection_string =
+                          paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=", path))
   }
+
   assign("Bolts", DBI::dbReadTable(db, "qryR_FlatFile_Bolts_All"), envir = env)
   setTxtProgressBar(pb, 1)
   assign("Echinoderm_Counts", DBI::dbReadTable(db, "qryR_FlatFile_Echinoderm_Counts_wide"), envir = env)
@@ -94,8 +94,11 @@ importData <- function(type = c('DSN', 'file'), DSN = 'rocky_BE', path = NA, new
   setTxtProgressBar(pb, 10)
   assign("Quadrat_Transect", DBI::dbReadTable(db, "qryR_Quadrat_Transect"), envir = env)
   setTxtProgressBar(pb, 11)
+
   DBI::dbDisconnect(db)
+
   close(pb)
+
   noquote('database import complete')
 
 }

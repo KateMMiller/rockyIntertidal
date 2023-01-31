@@ -6,7 +6,7 @@
 \usage{
 importData(
   type = c("DSN", "file"),
-  odbc = "rocky_BE",
+  DSN = "rocky_BE",
   path = NA,
   new_env = TRUE
 )
@@ -17,7 +17,7 @@ importData(
 \item{"DSN"}{Default. DSN database. If odbc argument is not specified, will default to rocky_BE.}
 \item{"file"}{Connects to a backend based on the specified path}}}
 
-\item{odbc}{DSN of the database when using type = DSN. If not specified will defaut to "rocky_BE".}
+\item{DSN}{DSN name of the database when using type = DSN. If not specified will defaut to "rocky_BE".}
 
 \item{path}{Quoted path of database backend file, including the name of the backend.}
 
@@ -39,7 +39,7 @@ work. It can be downloaded from: https://go.microsoft.com/fwlink/?linkid=2168524
 \dontrun{
 
 # Import views using DSN
-importData(type='DSN', odbc="rocky_BE") # this is the same as importData()
+importData(type='DSN', DSN="rocky_BE") # this is the same as importData()
 
 # Import database in specific folder:
 importData(type='file', path='./Data/NETN_RockyIntertidal_Database_be_20230120.mdb')

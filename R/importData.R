@@ -50,11 +50,15 @@ importData <- function(type = c('DSN', 'file'), DSN = 'rocky_BE', path = NA, new
 
   # Check that DSN or specified file exist
   dsn_list <- odbc::odbcListDataSources()
+
   if(type == 'DSN' & !any(dsn_list$name %in% DSN)){
     stop(paste0("Specified DSN ", DSN, " is not a named database source." ))}
-  if(type == "file" & is.na(path)){stop("Must specify a path to the database for type = file option.")}
-  if(type == "file" & !file.exists(path)){stop("Specified path or database does not exist.")}
 
+  if(type == "file"){
+    if(is.na(path)){stop("Must specify a path to the database for type = file option.")
+    } else {
+    if(file.exists(path) == FALSE){stop("Specified path or database does not exist.")}}
+   }
 
   if(new_env == TRUE){
     ROCKY <<- new.env()

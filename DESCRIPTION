@@ -1,12 +1,18 @@
 Package: rockyIntertidal
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Title: Package for importing, joining, and querying NETN rocky intertidal data
+Version: 1.0
+Authors@R: c(
+    person("Miller", "Kate", , "kathryn_miller@nps.gov", role = c("aut")),
+    person("Kozlowski", "Adam", , "adam_kozlowski@nps.gov", role = "cre"))
+Description: This package contains functions that import database views from the NETN rocky intertidal backend or exported CSVs from the backend and provides functions to query and summarize NETN rocky intertidal data.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+URL: https://github.com/KateMMiller/rockyIntertidal
+BugReports: https://github.com/KateMMiller/rockyIntertidal/issues
+Suggests: 
+    DBI,
+    odbc
+Imports: 
+    dplyr

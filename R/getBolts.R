@@ -1,8 +1,8 @@
-#' @title filterBolts: filter bolt data by park, location, plot type, or plot name
+#' @title getBolts: get bolt data
 #'
 #' @importFrom dplyr filter mutate select
 #'
-#' @description This function filter bolt data by park, location, plot type or plot name.
+#' @description This function filters bolt data by park, location, plot type or plot name.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -21,20 +21,13 @@
 #' \item{"SCHPOI"}{Schoodic Point, ACAD}
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
-#' \item{"GRISL"}{Green Island, BOHA}
+#' \item{"GREISL"}{Green Island, BOHA}
 #' \item{"OUTBRE"}{Outer Brewster}
 #' }
 #'
 #' @param plotType Type of plot to filter. Options include:
 #' c("all", "Band Transect", "Benchmark", "Photoplot", "Point Intercept Transect",
 #' "Recruitment Plot", "Reference", "Temperature Logger")
-#'
-#' @param species Filter on target species. Note that "all_records" returns all options, whereas
-#' "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
-#'  Options include:
-#' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
-#' "Red Algae", "Not Applicable")
-#'
 #'
 #' @param plotName Filter on plot name. Options include:
 #'   c("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "BM",
@@ -44,28 +37,37 @@
 #'     "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
 #'     "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")
 #'
+#' @param species Filter on target species. Note that "all_records" returns all options, whereas
+#' "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
+#'  Options include:
+#' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
+#' "Red Algae", "Not Applicable")
+#'
+#'
 #' @examples
 #' \dontrun{
 #'
-#' # Default filter returns all records
-#' bolts <- filterBolts()
+#' importData()
+#'
+#' # Default, returns all records
+#' bolts <- getBolts()
 #'
 #' # Return photo plot bolts for all sites in BOHA
-#' boha_photo <- filterBolts(park = "BOHA", plotType = "Photoplot")
+#' boha_photo <- getBolts(park = "BOHA", plotType = "Photoplot")
 #'
 #' # Return bolts for algal only in ACAD's Ship Harbor and Bass Harbor
-#' acad_alg <- filterBolts(location = c("BASHAR", "SHIHAR"),
+#' acad_alg <- getBolts(location = c("BASHAR", "SHIHAR"),
 #'   species = c("Ascophyllum", "Fucus", "Red Algae"))
 #'
 #' # Return bolts for barnacle recruitment plots in ACAD
-#' acad_barn <- filterBolts(park = "ACAD", )
+#' acad_barn <- getBolts(park = "ACAD", )
 #'
 #' # Return bolts for summer barnacle recruitment photoplots at Little Hunter
-#' lihu_sb <- filterBolts(location = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))
+#' lihu_sb <- getBolts(location = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))
 #'
 #'
 #' # Return bolts for point intercept transects in Outer Brewster
-#' ob_tr <- filterBolts(location = "OUTBRE", plotType = "Point Intercept Transect")
+#' ob_tr <- getBolts(location = "OUTBRE", plotType = "Point Intercept Transect")
 #'
 #' }
 #'
@@ -73,18 +75,13 @@
 #' @return Returns a data frame of bolt data filtered by function arguments
 #' @export
 
-filterBolts <- function(park = c("all"),
-                        location = c("all"),
-                        plotType = c("all"),
-                        species = c("all_records"),
-                        plotName = c("all")
-                        ){
-
+getBolts <- function(park = "all", location = "all", plotType = "all",
+                     plotName = "all", species = "all_records"){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
-                            "SCHPOI", "SHIHAR", "CALISL", "GRISL", "OUTBRE"))
+                            "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotType %in% c("all", "Band Transect", "Benchmark", "Photoplot", "Point Intercept Transect",
     "Recruitment Plot", "Reference", "Temperature logger"))
   stopifnot(species %in% c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus",
@@ -103,11 +100,11 @@ filterBolts <- function(park = c("all"),
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
   tryCatch(bolts <- get("Bolts", envir = env) |>
-             dplyr::mutate(Park_Code = ifelse(Site_Name == "Acadia NP", "ACAD", "BOHA")),
+             dplyr::mutate(Site_Code = ifelse(Site_Name == "Acadia NP", "ACAD", "BOHA")),
            error = function(e){stop("Bolts data frame not found. Please import rocky intertidal data.")})
 
   bolts_park <- if(any(park %in% 'all')){ bolts
-  } else {filter(bolts, Park_Code %in% park)}
+  } else {filter(bolts, Site_Code %in% park)}
 
   bolts_loc <- if(any(location %in% 'all')){ bolts_park
   } else {filter(bolts_park, Loc_Code %in% location)}
@@ -121,11 +118,14 @@ filterBolts <- function(park = c("all"),
   bolts_pname <- if(any(plotName %in% 'all')){ bolts_species
   } else {filter(bolts_species, Plot_Name %in% plotName)}
 
-  bolts_final <- bolts_pname |> select(Site_Name, Park_Code, State_Code, Loc_Name, Loc_Code,
+  bolts_final <- bolts_pname |> select(Site_Name, Site_Code, State_Code, Loc_Name, Loc_Code,
                                        Plot_Name, Plot_Type, Target_Species, Label,
                                        Bolt_UTM_E, Bolt_UTM_N, Bolt_UTM_Datum,
                                        Bolt_UTM_Zone, Bolt_NAVD88_Elev, Bolt_MLLW_Elev,
                                        ListOrder, Notes, Bolt_ID, Plot_ID)
+
+  if(nrow(bolts_final) == 0){stop("Specified arguments returned an empty data frame.")}
+
   return(bolts_pname)
 
 }

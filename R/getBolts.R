@@ -99,8 +99,8 @@ getBolts <- function(park = "all", location = "all", plotType = "all",
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
-  tryCatch(bolts <- get("Bolts", envir = env) |>
-             dplyr::mutate(Site_Code = ifelse(Site_Name == "Acadia NP", "ACAD", "BOHA")),
+  tryCatch(bolts <- get("Bolts", envir = env), #|>
+             #dplyr::mutate(Site_Code = ifelse(Site_Name == "Acadia NP", "ACAD", "BOHA")),
            error = function(e){stop("Bolts data frame not found. Please import rocky intertidal data.")})
 
   bolts_park <- if(any(park %in% 'all')){ bolts

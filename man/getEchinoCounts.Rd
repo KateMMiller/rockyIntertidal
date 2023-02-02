@@ -46,7 +46,7 @@ returns all events, including QAQC events.}
 Returns a data frame of echinoderm count data in wide form filtered by function arguments.
 }
 \description{
-This function filters echinoderm count data by park, location, plot name, and species. The returned data frame lists counts of each species detected for each sampling event and plot. If a given species was not detected during a visit, its count is 0. Species codes are: ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star); HENSAN = Henricia sanguinolenta (blood sea star); and STRDRO = Strongylocentrotus droebachiensis (sea urchin).
+This function filters echinoderm count data by park, location, and plot name. The returned data frame lists counts of each species detected for each sampling event and plot. If a given species was not detected during a visit, its count is 0. Species codes are: ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star); HENSAN = Henricia sanguinolenta (blood sea star); and STRDRO = Strongylocentrotus droebachiensis (sea urchin).
 }
 \examples{
 \dontrun{

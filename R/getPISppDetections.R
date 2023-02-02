@@ -37,6 +37,9 @@
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
+#' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
+#' returns all events, including QAQC events.
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -55,6 +58,7 @@
 #' spp_fuc <- getPISppDetections(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
 #' spp_5yr <- getPISppDetections(years = 2016:2021)
 #' spp_first_last <- getPISppDetections(years = c(2013, 2021))
+#' spp21_with_qaqc <- getPISppDetections(years = 2021, QAQC = TRUE)
 #'
 #' }
 #'
@@ -63,7 +67,8 @@
 #' @export
 
 getPISppDetections <- function(park = "all", location = "all", plotName = "all",
-                               species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
+                               species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                               QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -75,12 +80,12 @@ getPISppDetections <- function(park = "all", location = "all", plotName = "all",
                            "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
                            "UNIDEN", "WATER"))
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
-  stopifnot(class(years) == "integer", years >= 2013)
+  stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
   tryCatch(sppdet <- get("PointIntercept_SppDetections", envir = env) |>
-             mutate(Year = as.numeric(format(Start_Date, "%Y"))),
+             dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("PointIntercept_SppDetections data frame not found. Please import rocky intertidal data.")})
 
   sppdet_park <- if(any(park %in% 'all')){ sppdet
@@ -97,8 +102,11 @@ getPISppDetections <- function(park = "all", location = "all", plotName = "all",
 
   sppdet_year <- filter(sppdet_species, Year %in% years)
 
-  sppdet_final <- sppdet_year |>
-    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, Plot_Name,
+  sppdet_qaqc <- if(QAQC == TRUE){sppdet_year
+    } else {filter(sppdet_year, QAQC == FALSE)}
+
+  sppdet_final <- sppdet_qaqc |>
+    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name,
            PI_Distance, Spp_Code, Spp_Name, Event_ID, Plot_ID)
 
   if(nrow(sppdet_final) == 0){stop("Specified arguments returned an empty data frame.")}

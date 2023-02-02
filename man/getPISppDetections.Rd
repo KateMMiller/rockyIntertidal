@@ -9,7 +9,8 @@ getPISppDetections(
   location = "all",
   plotName = "all",
   species = "all",
-  years = 2013:as.numeric(format(Sys.Date(), "\%Y"))
+  years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  QAQC = FALSE
 )
 }
 \arguments{
@@ -44,6 +45,9 @@ c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
+returns all events, including QAQC events.}
 }
 \value{
 Returns a data frame of point intercept species detection data filtered by function arguments
@@ -70,6 +74,7 @@ spp_BOHA2 <- getPISppDetections(location = c("CALISL", "GREISL"))
 spp_fuc <- getPISppDetections(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
 spp_5yr <- getPISppDetections(years = 2016:2021)
 spp_first_last <- getPISppDetections(years = c(2013, 2021))
+spp21_with_qaqc <- getPISppDetections(years = 2021, QAQC = TRUE)
 
 }
 

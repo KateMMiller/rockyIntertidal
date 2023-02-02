@@ -2,6 +2,8 @@
 
 export(getBolts)
 export(getEchinoCounts)
+export(getEchinoMeasurements)
+export(getPIBoltDistance)
 export(getPISppDetections)
 export(importData)
 importFrom(dplyr,filter)

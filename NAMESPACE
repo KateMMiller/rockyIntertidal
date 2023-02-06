@@ -2,7 +2,8 @@
 
 export(getBolts)
 export(getEchinoCounts)
-export(getEchinoMeasurements)
+export(getEchinoMeas)
+export(getMotileInvertCounts)
 export(getPIBoltDistance)
 export(getPISppDetections)
 export(importData)

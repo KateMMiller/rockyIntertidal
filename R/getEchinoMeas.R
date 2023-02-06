@@ -1,4 +1,4 @@
-#' @title getEchinoMeasurements: get Echinoderm measurement data
+#' @title getEchinoMeas: get Echinoderm measurement data
 #'
 #' @importFrom dplyr filter mutate select
 #'
@@ -42,19 +42,19 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' ech <- getEchinoMeasurements()
+#' ech <- getEchinoMeas()
 #'
 #' # Echino counts for ACAD only sites
-#' ech_acad <- getEchinoMeasurements(park = "ACAD")
+#' ech_acad <- getEchinoMeas(park = "ACAD")
 #'
 #' # Echino counts for specific sites, plots, species, and years
 #'
-#' ech_t3 <- getEchinoMeasurements(park = "ACAD", plotName = "X3")
-#' ech_BOHA2 <- getEchinoMeasurements(location = c("CALISL", "GREISL"))
-#' ech_5yr <- getEchinoMeasurements(years = 2016:2021)
-#' ech_first_last <- getEchinoMeasurements(years = c(2013, 2021))
-#' ech21_qaqc <- getEchinoMeasurements(years = 2021, QAQC = TRUE)
-#' ech21_ASTFOR <- getEchinoMeasurements(species = "ASTFOR")
+#' ech_t3 <- getEchinoMeas(park = "ACAD", plotName = "X3")
+#' ech_BOHA2 <- getEchinoMeas(location = c("CALISL", "GREISL"))
+#' ech_5yr <- getEchinoMeas(years = 2016:2021)
+#' ech_first_last <- getEchinoMeas(years = c(2013, 2021))
+#' ech21_qaqc <- getEchinoMeas(years = 2021, QAQC = TRUE)
+#' ech21_ASTFOR <- getEchinoMeas(species = "ASTFOR")
 #'
 #' }
 #'
@@ -62,9 +62,9 @@
 #' @return Returns a data frame of echinoderm measurement data filtered by function arguments.
 #' @export
 
-getEchinoMeasurements <- function(park = "all", location = "all", plotName = "all",
-                                  species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                  QAQC = FALSE){
+getEchinoMeas <- function(park = "all", location = "all", plotName = "all",
+                          species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                          QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -81,7 +81,7 @@ getEchinoMeasurements <- function(park = "all", location = "all", plotName = "al
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("Echinoderm_Measurments data frame not found. Please import rocky intertidal data.")})
 
-  echino_park <- if(any(park %in% 'all')){ echino
+  echino_park <- if(any(park %in% 'all')){ filter(echino, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(echino, Site_Code %in% park)}
 
   echino_loc <- if(any(location %in% 'all')){ echino_park

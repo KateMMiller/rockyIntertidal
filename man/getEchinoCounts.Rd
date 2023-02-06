@@ -34,7 +34,7 @@ getEchinoCounts(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name. Options include: c("X1", "X2", and "X3")}
+\item{plotName}{Filter on plot name. Options include: c("all", "X1", "X2", and "X3")}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}

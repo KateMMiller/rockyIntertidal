@@ -35,7 +35,7 @@ getPISppDetections(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name. Options include: c("T1", "T2", and "T3")}
+\item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
 
 \item{species}{Filter on species code. Options include:
 c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",

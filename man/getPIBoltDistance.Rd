@@ -35,7 +35,7 @@ getPIBoltDistance(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name. Options include: c("T1", "T2", and "T3")}
+\item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}

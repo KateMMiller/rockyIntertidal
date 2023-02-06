@@ -25,7 +25,7 @@
 #' \item{"OUTBRE"}{Outer Brewster}
 #' }
 #'
-#' @param plotName Filter on plot name. Options include: c("T1", "T2", and "T3")
+#' @param plotName Filter on plot name. Options include: c("all", "T1", "T2", and "T3")
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
@@ -76,7 +76,7 @@ getPIBoltDistance <- function(park = "all", location = "all", plotName = "all",
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("PointIntercept_BoltDist_C data frame not found. Please import rocky intertidal data.")})
 
-  bolt_park <- if(any(park %in% 'all')){ bolt |> filter(!is.na(Site_Code)) #drops non-park sites
+  bolt_park <- if(any(park %in% 'all')){ filter(bolt, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(bolt, Site_Code %in% park)}
 
   bolt_loc <- if(any(location %in% 'all')){ bolt_park

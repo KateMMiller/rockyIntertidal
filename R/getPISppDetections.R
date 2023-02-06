@@ -26,7 +26,7 @@
 #' \item{"OUTBRE"}{Outer Brewster}
 #' }
 #'
-#' @param plotName Filter on plot name. Options include: c("T1", "T2", and "T3")
+#' @param plotName Filter on plot name. Options include: c("all", "T1", "T2", and "T3")
 #'
 #' @param species Filter on species code. Options include:
 #' c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
@@ -88,7 +88,7 @@ getPISppDetections <- function(park = "all", location = "all", plotName = "all",
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("PointIntercept_SppDetections data frame not found. Please import rocky intertidal data.")})
 
-  sppdet_park <- if(any(park %in% 'all')){ sppdet
+  sppdet_park <- if(any(park %in% 'all')){ filter(sppdet, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(sppdet, Site_Code %in% park)}
 
   sppdet_loc <- if(any(location %in% 'all')){ sppdet_park

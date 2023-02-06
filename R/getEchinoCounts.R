@@ -25,7 +25,7 @@
 #' \item{"OUTBRE"}{Outer Brewster}
 #' }
 #'
-#' @param plotName Filter on plot name. Options include: c("X1", "X2", and "X3")
+#' @param plotName Filter on plot name. Options include: c("all", "X1", "X2", and "X3")
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
@@ -76,7 +76,7 @@ getEchinoCounts <- function(park = "all", location = "all", plotName = "all",
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("Echinoderm_Counts data frame not found. Please import rocky intertidal data.")})
 
-  echino_park <- if(any(park %in% 'all')){ echino
+  echino_park <- if(any(park %in% 'all')){ filter(echino, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(echino, Site_Code %in% park)}
 
   echino_loc <- if(any(location %in% 'all')){ echino_park

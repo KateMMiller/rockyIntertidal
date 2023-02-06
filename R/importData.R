@@ -96,8 +96,8 @@ importData <- function(type = c('DSN', 'file'), DSN = 'rocky_BE', path = NA, new
   setTxtProgressBar(pb, 9)
   assign("PointIntercept_SppDetections", DBI::dbReadTable(db, "qryR_FlatFile_PointIntercept_SppDetections"), envir = env)
   setTxtProgressBar(pb, 10)
-  assign("Quadrat_Transect", DBI::dbReadTable(db, "qryR_Quadrat_Transect"), envir = env)
-  setTxtProgressBar(pb, 11)
+  # assign("Quadrat_Transect", DBI::dbReadTable(db, "qryR_Quadrat_Transect"), envir = env)
+  # setTxtProgressBar(pb, 11)
 
   DBI::dbDisconnect(db)
 

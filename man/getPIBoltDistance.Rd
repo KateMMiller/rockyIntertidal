@@ -44,11 +44,10 @@ Can specify a vector of years.}
 returns all events, including QAQC events.}
 }
 \value{
-Returns a data frame of point intercept species detection data filtered by function arguments
+Returns a data frame of point intercept bolt data filtered by function arguments
 }
 \description{
-This function filters point intercept bolt data data by park,
-location, plot name, and species.
+This function filters point intercept bolt data by park, location, plot name, and species.
 }
 \examples{
 \dontrun{
@@ -56,19 +55,18 @@ location, plot name, and species.
 importData()
 
 # Default filter returns all records
-spp <- getPIBoltDistance()
+bolt <- getPIBoltDistance()
 
-# Species detections for ACAD only sites
-spp <- getPIBoltDistance(park = "ACAD")
+# PI Bolt distances for ACAD only sites
+bolt <- getPIBoltDistance(park = "ACAD")
 
-# Species detections for specific sites, plots, species, and years
+# PI Bolt distances for specific parks, locations, plots, and years
 
-spp_t3 <- getPIBoltDistance(park = "ACAD", plotName = "T3")
-spp_BOHA2 <- getPIBoltDistance(location = c("CALISL", "GREISL"))
-spp_fuc <- getPIBoltDistance(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
-spp_5yr <- getPIBoltDistance(years = 2016:2021)
-spp_first_last <- getPIBoltDistance(years = c(2013, 2021))
-spp21_with_qaqc <- getPIBoltDistance(years = 2021, QAQC = TRUE)
+bolt_t3 <- getPIBoltDistance(park = "ACAD", plotName = "T3")
+bolt_BOHA2 <- getPIBoltDistance(location = c("CALISL", "GREISL"))
+bolt_5yr <- getPIBoltDistance(years = 2016:2021)
+bolt_first_last <- getPIBoltDistance(years = c(2013, 2021))
+bolt_with_qaqc <- getPIBoltDistance(years = 2021, QAQC = TRUE)
 
 }
 

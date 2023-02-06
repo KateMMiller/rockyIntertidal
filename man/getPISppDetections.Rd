@@ -41,7 +41,8 @@ getPISppDetections(
 c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
 "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
-"UNIDEN", "WATER")}
+"UNIDEN", "WATER"). If a new species is added, the function will warn the user
+that an unrecognized species was specified in case it was an error.}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}

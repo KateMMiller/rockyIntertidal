@@ -67,8 +67,8 @@
 #' @export
 
 getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all",
-                                  species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                  QAQC = FALSE){
+                                species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                                QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -81,8 +81,10 @@ getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all"
 
   unmatch_spp <- setdiff(species, c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"))
   if(length(unmatch_spp) > 0){
-    warning(paste0("An unrecognized species was specified in the species argument: ", unmatch_spp,
-                   ". Check that this wasn't a typo."))
+    warning(paste0("Unrecognized species were specified in the species argument: ",
+                   paste0(unmatch_spp, collapse = ", "),
+                   "\n",
+                   "Check that this wasn't a typo."))
   }
 
 

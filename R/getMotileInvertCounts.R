@@ -81,8 +81,10 @@ getMotileInvertCounts <- function(park = "all", location = "all", plotName = "al
 
   unmatch_spp <- setdiff(species, c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"))
   if(length(unmatch_spp) > 0){
-    warning(paste0("An unrecognized species was specified in the species argument: ", unmatch_spp,
-                   ". Check that this wasn't a typo."))
+    warning(paste0("Unrecognized species were specified in the species argument: ",
+                   paste0(unmatch_spp, collapse = ", "),
+                   "\n",
+                   "Check that this wasn't a typo."))
   }
 
 

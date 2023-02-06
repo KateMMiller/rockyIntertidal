@@ -32,7 +32,8 @@
 #' c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 #' "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
 #' "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
-#' "UNIDEN", "WATER")
+#' "UNIDEN", "WATER"). If a new species is added, the function will warn the user
+#' that an unrecognized species was specified in case it was an error.
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
@@ -75,10 +76,19 @@ getPISppDetections <- function(park = "all", location = "all", plotName = "all",
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
-  stopifnot(species %in% c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
-                           "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
-                           "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
-                           "UNIDEN", "WATER"))
+
+  unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
+                                    "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
+                                    "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
+                                    "UNIDEN", "WATER"))
+
+  if(length(unmatch_spp) > 0){
+    warning(paste0("Unrecognized species were specified in the species argument: ",
+                   paste0(unmatch_spp, collapse = ", "),
+                   "\n",
+                   "Check that this wasn't a typo."))
+  }
+
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 

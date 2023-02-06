@@ -53,19 +53,19 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' spp <- getPISppDetections()
+#' cov <- getPhotoCover()
 #'
-#' # Species detections for ACAD only sites
-#' spp <- getPISppDetections(park = "ACAD")
+#' # Photoplot cover for ACAD only sites
+#' cov <- getPhotoCover(park = "ACAD")
 #'
 #' # Species detections for specific sites, plots, species, and years
 #'
-#' spp_t3 <- getPISppDetections(park = "ACAD", plotName = "T3")
-#' spp_BOHA2 <- getPISppDetections(location = c("CALISL", "GREISL"))
-#' spp_fuc <- getPISppDetections(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
-#' spp_5yr <- getPISppDetections(years = 2016:2021)
-#' spp_first_last <- getPISppDetections(years = c(2013, 2021))
-#' spp21_with_qaqc <- getPISppDetections(years = 2021, QAQC = TRUE)
+#' cov_t3 <- getPhotoCover(park = "ACAD", plotName = "T3")
+#' cov_BOHA2 <- getPhotoCover(location = c("CALISL", "GREISL"))
+#' cov_ab <- getPhotoCover(park = "BOHA", species = c("ALGBRO"))
+#' cov_5yr <- getPhotoCover(years = 2016:2021)
+#' cov_first_last <- getPhotoCover(years = c(2013, 2021))
+#' cov21_with_qaqc <- getPhotoCover(years = 2021, QAQC = TRUE)
 #'
 #' }
 #'

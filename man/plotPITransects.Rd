@@ -37,7 +37,7 @@ plotPITransects(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
+\item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
 
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Distance (m)'}
 
@@ -56,8 +56,8 @@ elevation and distances and drops bolts that are not bolt 1 but have a distance 
 Returns a data frame of point intercept species detection data filtered by function arguments
 }
 \description{
-This function relates bolt elevation data with point intercept species detection data by park,
-location, plot name, and species.
+This function plots bolt distance and elevation data by transect for each park,
+location, and year.
 }
 \examples{
 \dontrun{

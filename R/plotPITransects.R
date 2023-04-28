@@ -43,6 +43,9 @@
 #'
 #' @param ylab Quoted text label for y axis. If not specified, defaults to 'Elevation MLLW (m)'
 #'
+#' @param facet_scales Quoted options are "fixed", "free", "free_y", or "free_x", and controls whether axes in
+#' the facets are all the same, or different (free).
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -53,7 +56,7 @@
 #'
 #' # Other variations
 #' plotPITransects(years = 2018:2021)
-#' plotPITransects(park = "ACAD", years = 2019)
+#' plotPITransects(park = "ACAD", years = 2019, facet_scales = 'fixed')
 #' plotPITransects(location = "GREISL", xlab = 'dist', ylab = 'elev')
 #' plotPITransects(location = "BASHAR", plotName = "T1", drop_missing = FALSE)
 #'
@@ -66,7 +69,7 @@
 plotPITransects <- function(park = "all", location = "all", plotName = "all",
                             xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
                             years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                            QAQC = FALSE, drop_missing = TRUE){
+                            QAQC = FALSE, drop_missing = TRUE, facet_scales = "free"){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -87,11 +90,11 @@ plotPITransects <- function(park = "all", location = "all", plotName = "all",
        geom_line(lwd = 1) +
        labs(x = xlab, y = ylab) +
        {if(length(unique(dat$Plot_Name)) > 1 & length(unique(dat$Loc_Code)) > 1)
-           facet_wrap(~Loc_Code + Plot_Name)} +
+           facet_wrap(~Loc_Code + Plot_Name, scales = facet_scales)} +
        {if(length(unique(dat$Plot_Name)) == 1 & length(unique(dat$Loc_Code)) > 1)
-           facet_wrap(~Loc_Code)}+
+           facet_wrap(~Loc_Code, scales = facet_scales)}+
        {if(length(unique(dat$Plot_Name)) > 1 & length(unique(dat$Loc_Code)) == 1)
-           facet_wrap(~Plot_Name)}+
+           facet_wrap(~Plot_Name, scales = facet_scales)}+
        scale_color_brewer("Year", type = 'div', palette = 'Dark2') +
        {if(length(unique(dat$Year)) == 1)
            theme(legend.position = 'none')} +

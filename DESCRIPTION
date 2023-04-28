@@ -32,4 +32,5 @@ Collate:
     'importData.R'
     'sumPISppDetections.R'
     'plotPITransects.R'
+    'plotPITransectSpecies.R'
     'theme_rocky.R'

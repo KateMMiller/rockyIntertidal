@@ -65,9 +65,13 @@ location, plot name, and species.
 importData()
 
 # Default filter returns all records
-trans <- sumPItransDetections()
+plotPITransects()
 
-plotPITransects(park = "ACAD", location = "BASHAR", years = 2019)
+# Other variations
+plotPITransects(years = 2018:2021)
+plotPITransects(park = "ACAD", years = 2019)
+plotPITransects(location = "GREISL", xlab = 'dist', ylab = 'elev')
+plotPITransects(location = "BASHAR", plotName = "T1", drop_missing = FALSE)
 
 }
 

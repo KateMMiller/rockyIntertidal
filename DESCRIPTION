@@ -17,4 +17,19 @@ Suggests:
     DBI,
     odbc
 Imports: 
-    dplyr
+    dplyr,
+    data.table,
+    ggplot2
+Collate: 
+    'getBolts.R'
+    'getEchinoCounts.R'
+    'getEchinoMeas.R'
+    'getMotileInvertCounts.R'
+    'getMotileInvertMeas.R'
+    'getPIBoltDistance.R'
+    'getPISppDetections.R'
+    'getPhotoCover.R'
+    'importData.R'
+    'sumPISppDetections.R'
+    'plotPITransects.R'
+    'theme_rocky.R'

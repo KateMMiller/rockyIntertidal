@@ -74,7 +74,8 @@ getPIBoltDistance <- function(park = "all", location = "all", plotName = "all",
 
   tryCatch(bolt <- get("PointIntercept_BoltDist_C", envir = env) |>
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
-           error = function(e){stop("PointIntercept_BoltDist_C data frame not found. Please import rocky intertidal data.")})
+           error = function(e){
+             stop("PointIntercept_BoltDist_C data frame not found. Please import rocky intertidal data.")})
 
   bolt_park <- if(any(park %in% 'all')){ filter(bolt, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(bolt, Site_Code %in% park)}

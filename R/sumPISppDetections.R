@@ -3,7 +3,7 @@
 #' @include getPIBoltDistance.R
 #' @include getPISppDetections.R
 #'
-#' @importFrom dplyr arrange filter group_by lead mutate row_number select
+#' @importFrom dplyr arrange filter group_by lead mutate select
 #' @importFrom data.table setkeyv setDT
 #'
 #' @description This function relates bolt elevation data with point intercept species detection data by park,
@@ -158,17 +158,18 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
     arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label, dist_pi) |>
     mutate(dist_pi_last = dplyr::lag(dist_pi, 1, default = NA)) |>
     group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name, transID, Label) |>
-    mutate(rank = dplyr::row_number(),
-           sign = ifelse(elev_first - elev_last > 0, 1, -1),
+    mutate(sign = ifelse(elev_first - elev_last > 0, 1, -1),
            num_pis = n(),
            elev_step_pi = (dist_pi - dist_bolt_first) * cos(asin(dist_hor/dist_slope)),
            elev_pi = elev_first - elev_step_pi * sign
            ) |> as.data.frame() |>
-    select(Site_Code, Loc_Code, Start_Date, Plot_Name, Label, Spp_Name,
+    select(Site_Code, Loc_Code, Start_Date, QAQC, Year, Plot_Name, Label, Spp_Name, Spp_Code,
            Elevation_MLLW_m, elev_first, elev_last, elev_change,
            Distance_m, PI_Distance = dist_pi,
            PI_Elevation = elev_pi)
 
+  spp_final <- if(all(species == "all")){spp_merge
+    } else {spp_merge |> filter(Spp_Code %in% species)}
 
-  return(spp_merge)
+  return(spp_final)
 }

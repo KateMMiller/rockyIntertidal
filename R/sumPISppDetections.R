@@ -3,7 +3,7 @@
 #' @include getPIBoltDistance.R
 #' @include getPISppDetections.R
 #'
-#' @importFrom dplyr arrange filter group_by lead mutate select
+#' @importFrom dplyr arrange filter group_by lead mutate row_number select
 #' @importFrom data.table setkeyv setDT
 #'
 #' @description This function relates bolt elevation data with point intercept species detection data by park,
@@ -114,6 +114,7 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
     boltdist1
   }
 
+  suppressWarnings(
   boltdist <- boltdist2 |>
     arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label) |>
     mutate(transID = paste0(Loc_Code, "_", Plot_Name, "_", Year,
@@ -129,11 +130,13 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
            dist_slope = dist_bolt_last - dist_bolt_first,
            dist_slope2 = dist_slope^2,
            elev_change2 = elev_change^2,
-           dist_hor = sqrt(dist_slope2 - elev_change2),
-           slope_pct = (elev_change/dist_hor) * 100,
-           slope_deg = atan(elev_change/dist_hor))
+           dist_hor = sqrt(abs(dist_slope2 - elev_change2)), # dist is sometimes < elev change
+           slope_rad = asin(dist_hor/dist_slope))
+  )
 
-  sppdist <- force(getPISppDetections(park = park, location = location, plotName = plotName, species = species,
+
+  sppdist <- force(getPISppDetections(park = park, location = location, plotName = plotName,
+                                      species = 'all', # join all spp. for geometry to work; filter spp later
                                       years = years, QAQC = QAQC)) |>
               select(-Event_ID, -Plot_ID) |>
               arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, PI_Distance) |>
@@ -152,35 +155,20 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
                                         "dist_last" = "PI_Distance"), roll = -Inf]
 
   spp_merge <- spp_merge1 |>
-    #filter(!Distance_m > dist_last) |>  # drops the last record which starts over at 0
-    mutate(elev_max = Elevation_MLLW_m,
-           elev_min = elev_last) |>
-    select(-dist_last) # changes to pi distance in join, so drop
-
-  spp_merge$elev_med = apply(spp_merge[,c("elev_max", "elev_min")], 1, median)
-
-  spp_merge <- spp_merge |>
+    arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label, dist_pi) |>
     mutate(dist_pi_last = dplyr::lag(dist_pi, 1, default = NA)) |>
-    group_by(transID, Label) |>
-    mutate(sign = ifelse(elev_first - elev_last > 0, 1, -1),
-           elev_change_pi1 = (dist_pi_last - dist_pi) * # dist b/t pi measurments
-                              sin(slope_deg),
-           elev_change_pi = ifelse(is.na(elev_change_pi1), 0, elev_change_pi1 * sign),
-           elev_pi = elev_first + cumsum(elev_change_pi)) |> as.data.frame()
+    group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name, transID, Label) |>
+    mutate(rank = dplyr::row_number(),
+           sign = ifelse(elev_first - elev_last > 0, 1, -1),
+           num_pis = n(),
+           elev_step_pi = (dist_pi - dist_bolt_first) * cos(asin(dist_hor/dist_slope)),
+           elev_pi = elev_first - elev_step_pi * sign
+           ) |> as.data.frame() |>
+    select(Site_Code, Loc_Code, Start_Date, Plot_Name, Label, Spp_Name,
+           Elevation_MLLW_m, elev_first, elev_last, elev_change,
+           Distance_m, PI_Distance = dist_pi,
+           PI_Elevation = elev_pi)
 
 
-  #++++ ENDED HERE. THE LAST THING TO FIX IS STARTING ELEVATION FOR PI OVER AT EACH BOLT
-  # OR THERE MAY STILL BE AN ISSUE WHERE THE CALCULATED ELEVATION FOR EACH POINT INTERCEPT
-  # ISN'T QUITE RIGHT, BECAUSE IT'S ALWAYS EXCEEDING THE BOLT ELEVATION IN THE LAST MEASUREMENT
-  # PERHAPS SOMETHING IN THE CUMSUM()?
-
-  #spp_merge$elev_pi[is.na(spp_merge$elev_pi)] <- spp_merge$elev_first[is.na(spp_merge$elev_pi)]
-  head(spp_merge)
-
-  write.csv(spp_merge |> select(Loc_Code, Year, QAQC, Plot_Name, Label, Spp_Code, Elevation_MLLW_m,
-                                Distance_m, dist_bolt_first, dist_bolt_last, elev_first,
-                                elev_last, elev_change, dist_hor, slope_deg,
-                                dist_pi, elev_change_pi, elev_pi, sign),
-            "./testing_scripts/spp_merge2.csv", row.names = F)
   return(spp_merge)
 }

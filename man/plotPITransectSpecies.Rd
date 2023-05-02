@@ -6,12 +6,15 @@
 \usage{
 plotPITransectSpecies(
   park = "all",
-  location = "all",
+  location = "BASHAR",
   plotName = "all",
   species = "all",
+  palette = c("default", "viridis"),
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  facet = FALSE,
+  title = TRUE,
   QAQC = FALSE,
   drop_missing = TRUE
 )
@@ -25,6 +28,28 @@ plotPITransectSpecies(
 }}
 
 \item{location}{Include data from all locations, or choose specific locations based on location code.
+Can only specify one location for each function call.}
+
+\item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
+
+\item{species}{Filter on species code. Options include:
+c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
+"BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
+"OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
+"UNIDEN", "WATER"). If a new species is added, the function will warn the user
+that an unrecognized species was specified in case it was an error. The default
+color palette will also need to be updated, if a new species is added. The viridis palette
+will work with new species without adaptation, but labels will only be species codes.}
+
+\item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
+Viridis uses a color-blind friendly palette of blues, purples and yellows.}
+
+\item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Distance (m)'}
+
+\item{ylab}{Quoted text label for y axis. If not specified, defaults to 'Elevation MLLW (m)'}
+
+\item{years}{Filter on year of data collected. Default is 2013 to current year.
+
 \describe{
 \item{'all'}{Includes all locations returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
@@ -38,21 +63,11 @@ plotPITransectSpecies(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
+\item{facet}{Logical. If TRUE, will plot species in separate facets. FALSE (default) plots all species
+on one figure.}
 
-\item{species}{Filter on species code. Options include:
-c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
-"BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
-"OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
-"UNIDEN", "WATER"). If a new species is added, the function will warn the user
-that an unrecognized species was specified in case it was an error.}
-
-\item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Distance (m)'}
-
-\item{ylab}{Quoted text label for y axis. If not specified, defaults to 'Elevation MLLW (m)'}
-
-\item{years}{Filter on year of data collected. Default is 2013 to current year.
-Can specify a vector of years.}
+\item{title}{If TRUE (Default) prints the full site name on the figure. If FALSE, does not
+include plot title.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
@@ -64,22 +79,27 @@ elevation and distances and drops bolts that are not bolt 1 but have a distance 
 Returns a data frame of point intercept species detection data filtered by function arguments
 }
 \description{
-This function plots species detections by bolt distance and elevation data by transect for each park,
-location, and year.
+This function plots species by bolt elevation a given park, location, and years.
+The point for each species is the median elevation across the three transects for that year.
+The thicker lines on the error bars are the 25\% and 75\% quartiles of elevation across the transects.
+The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
+along the three transects.
 }
 \examples{
 \dontrun{
 
 importData()
 
-# Default filter returns all records
-plotPITransects()
+# Default filter returns a plot for BASHAR (have to pick a site)
+plotPITransectSpecies()
 
 # Other variations
-plotPITransects(years = 2018:2021)
-plotPITransects(park = "ACAD", years = 2019)
-plotPITransects(location = "GREISL", xlab = 'dist', ylab = 'elev')
-plotPITransects(location = "BASHAR", plotName = "T1", drop_missing = FALSE)
+spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
+plotPITransectSpecies(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+                      species = spp)
+
+plotPITransectSpecies(location = "SHIHAR", palette = "default",
+                      facet = FALSE, species = c("BARSPP"))
 
 }
 

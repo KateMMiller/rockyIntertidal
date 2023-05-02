@@ -114,7 +114,6 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
     boltdist1
   }
 
-  suppressWarnings(
   boltdist <- boltdist2 |>
     arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label) |>
     mutate(transID = paste0(Loc_Code, "_", Plot_Name, "_", Year,
@@ -131,9 +130,7 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
            dist_slope2 = dist_slope^2,
            elev_change2 = elev_change^2,
            dist_hor = sqrt(abs(dist_slope2 - elev_change2)), # dist is sometimes < elev change
-           slope_rad = asin(dist_hor/dist_slope))
-  )
-
+           slope_rad = suppressWarnings(asin(dist_hor/dist_slope)))
 
   sppdist <- force(getPISppDetections(park = park, location = location, plotName = plotName,
                                       species = 'all', # join all spp. for geometry to work; filter spp later
@@ -163,10 +160,9 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
            elev_step_pi = (dist_pi - dist_bolt_first) * cos(asin(dist_hor/dist_slope)),
            elev_pi = elev_first - elev_step_pi * sign
            ) |> as.data.frame() |>
-    select(Site_Code, Loc_Code, Start_Date, QAQC, Year, Plot_Name, Label, Spp_Name, Spp_Code,
-           Elevation_MLLW_m, elev_first, elev_last, elev_change,
-           Distance_m, PI_Distance = dist_pi,
-           PI_Elevation = elev_pi)
+    select(Site_Code, Loc_Code, Loc_Name, Start_Date, QAQC, Year, Plot_Name,
+           Label, Spp_Name, Spp_Code, Elevation_MLLW_m, elev_first, elev_last, elev_change,
+           Distance_m, PI_Distance = dist_pi, PI_Elevation = elev_pi)
 
   spp_final <- if(all(species == "all")){spp_merge
     } else {spp_merge |> filter(Spp_Code %in% species)}

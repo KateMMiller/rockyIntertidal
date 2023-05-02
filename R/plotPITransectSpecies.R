@@ -88,7 +88,7 @@
 #' @export
 
 plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = "all",
-                            species = "all", palette = c('default', 'viridis'),
+                            species = "all", palette = c('default'),
                             xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
                             years = 2013:as.numeric(format(Sys.Date(), "%Y")),
                             facet = FALSE, title = TRUE,
@@ -171,8 +171,8 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
   dat_sum$Spp_Code <- factor(dat_sum$Spp_Code, levels = sppcode) |> droplevels()
   spp <- levels(dat_sum$Spp_Code)
 
-  cols <- cols[spp]
-  labels <- labels[spp]
+  # cols <- cols[spp]
+  # labels <- labels[spp]
 
   p <-
   ggplot(dat_sum, aes(x = Year, y = desc(elev_max),

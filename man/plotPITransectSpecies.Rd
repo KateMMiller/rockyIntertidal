@@ -9,7 +9,7 @@ plotPITransectSpecies(
   location = "BASHAR",
   plotName = "all",
   species = "all",
-  palette = c("default", "viridis"),
+  palette = c("default"),
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),

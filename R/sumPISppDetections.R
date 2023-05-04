@@ -3,7 +3,7 @@
 #' @include getPIBoltDistance.R
 #' @include getPISppDetections.R
 #'
-#' @importFrom dplyr arrange filter group_by lead mutate select
+#' @importFrom dplyr arrange filter group_by last_dplyr_warnings lead mutate n select ungroup
 #' @importFrom data.table setkeyv setDT
 #'
 #' @description This function relates bolt elevation data with point intercept species detection data by park,
@@ -114,6 +114,7 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
     boltdist1
   }
 
+  suppressWarnings(
   boltdist <- boltdist2 |>
     arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label) |>
     mutate(transID = paste0(Loc_Code, "_", Plot_Name, "_", Year,
@@ -130,7 +131,22 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
            dist_slope2 = dist_slope^2,
            elev_change2 = elev_change^2,
            dist_hor = sqrt(abs(dist_slope2 - elev_change2)), # dist is sometimes < elev change
-           slope_rad = suppressWarnings(asin(dist_hor/dist_slope)))
+           slope_rad = asin(dist_hor/dist_slope)) |> ungroup()
+  )
+
+    warns <- last_dplyr_warnings()
+
+    if(length(warns) >= 1){warning(paste0("There were ", length(warns), " bolt distance/elevation combinations are impossible and cannot calculate slope between bolts. Either the tape didn't follow ground contour between this and the following bolt or a recording error occured. Slope was converted to 0 for these values. Bolt errors are provided in bolt_checks data.frame in your global environment. \n"))} else {}
+
+
+  bolt_checks <- boltdist |> dplyr::filter(is.na(slope_rad)) |>
+    select(Loc_Code, Year, Label, QAQC, Elevation_MLLW_m, Distance_m) |>
+    arrange(Loc_Code, Year, Label, QAQC)
+
+  if(nrow(bolt_checks)>0){assign("bolt_checks", bolt_checks, envir = .GlobalEnv)}
+
+  #boltdist$slope_rad[is.nan(boltdist$slope_rad)] <- 0
+  boltdist$slope_rad[is.na(boltdist$slope_rad)] <- 0
 
   sppdist <- force(getPISppDetections(park = park, location = location, plotName = plotName,
                                       species = 'all', # join all spp. for geometry to work; filter spp later
@@ -151,19 +167,23 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
                                         "Year", "QAQC", "Plot_Name", "transID",
                                         "dist_last" = "PI_Distance"), roll = -Inf]
 
-  spp_merge <- spp_merge1 |>
+  suppressWarnings( #warnings covered by tryCatch above
+    spp_merge <- spp_merge1 |>
     arrange(Site_Code, Loc_Code, Start_Date, Plot_Name, Label, dist_pi) |>
     mutate(dist_pi_last = dplyr::lag(dist_pi, 1, default = NA)) |>
     group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name, transID, Label) |>
     mutate(sign = ifelse(elev_first - elev_last > 0, 1, -1),
-           num_pis = n(),
-           elev_step_pi = (dist_pi - dist_bolt_first) * cos(asin(dist_hor/dist_slope)),
-           elev_pi = elev_first - elev_step_pi * sign
-           ) |> as.data.frame() |>
+           num_pis = sum(!is.na(dist_pi)),
+           asin_angle = ifelse(is.na(asin(dist_hor/dist_slope)), 0, asin(dist_hor/dist_slope)),
+           elev_step_pi = (dist_pi - dist_bolt_first) * cos(asin_angle),
+           elev_pi = elev_first - elev_step_pi * sign) |> as.data.frame() |>
     select(Site_Code, Loc_Code, Loc_Name, Start_Date, QAQC, Year, Plot_Name,
            Label, Spp_Name, Spp_Code, Elevation_MLLW_m, elev_first, elev_last, elev_change,
            Distance_m, PI_Distance = dist_pi, PI_Elevation = elev_pi)
+  )
 
+
+  #write.csv(spp_merge, "./testing_scripts/spp_merge.csv", row.names = F)
   spp_final <- if(all(species == "all")){spp_merge
     } else {spp_merge |> filter(Spp_Code %in% species)}
 

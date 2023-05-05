@@ -95,7 +95,7 @@ getEventNotes <- function(park = "all", location = "all", plotName = "all", plot
            error = function(e){stop("Event_Notes data frame not found. Please import rocky intertidal data.")})
 
   notes_park <- if(any(park %in% 'all')){ filter(notes, Site_Code %in% c("ACAD", "BOHA"))
-  } else {filter(sppdet, Site_Code %in% park)}
+  } else {filter(notes, Site_Code %in% park)}
 
   notes_loc <- if(any(location %in% 'all')){ notes_park
   } else {filter(notes_park, Loc_Code %in% location)}

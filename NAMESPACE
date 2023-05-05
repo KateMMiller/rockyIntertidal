@@ -3,6 +3,7 @@
 export(getBolts)
 export(getEchinoCounts)
 export(getEchinoMeas)
+export(getEventNotes)
 export(getMotileInvertCounts)
 export(getMotileInvertMeas)
 export(getPIBoltDistance)

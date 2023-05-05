@@ -24,6 +24,7 @@ Collate:
     'getBolts.R'
     'getEchinoCounts.R'
     'getEchinoMeas.R'
+    'getEventNotes.R'
     'getMotileInvertCounts.R'
     'getMotileInvertMeas.R'
     'getPIBoltDistance.R'

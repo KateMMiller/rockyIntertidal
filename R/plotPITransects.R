@@ -46,6 +46,9 @@
 #' @param facet_scales Quoted options are "fixed", "free", "free_y", or "free_x", and controls whether axes in
 #' the facets are all the same, or different (free).
 #'
+#' @param title If TRUE (Default) prints the full site name on the figure. If FALSE, does not
+#' include plot title.
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -69,6 +72,7 @@
 plotPITransects <- function(park = "all", location = "all", plotName = "all",
                             xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
                             years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                            title = TRUE,
                             QAQC = FALSE, drop_missing = TRUE, facet_scales = "free"){
 
 
@@ -81,14 +85,16 @@ plotPITransects <- function(park = "all", location = "all", plotName = "all",
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
-  dat <- force(sumPISppDetections(park = park, location = location, plotName = plotName,
+  dat <- suppressWarnings(force(sumPISppDetections(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing)) |>
-         select(Site_Name:slope_deg) |> unique() # only concerned with bolts, not spp pi in fxn
+         select(Site_Code:Label, Elevation_MLLW_m, Distance_m) |> unique()) # only concerned with bolts, not spp pi in fxn
 
-  p <- ggplot(dat, aes(x = dist_bolt_first, y = elev_first,
+  ptitle <- ifelse(all(title == TRUE) & length(location) == 1 & location != "all", unique(dat$Loc_Name), "")
+
+  p <- ggplot(dat, aes(x = Distance_m, y = Elevation_MLLW_m,
                        group = as.factor(Year), color = as.factor(Year))) +
        geom_line(lwd = 1) +
-       labs(x = xlab, y = ylab) +
+       labs(x = xlab, y = ylab, title = ptitle) +
        {if(length(unique(dat$Plot_Name)) > 1 & length(unique(dat$Loc_Code)) > 1)
            facet_wrap(~Loc_Code + Plot_Name, scales = facet_scales)} +
        {if(length(unique(dat$Plot_Name)) == 1 & length(unique(dat$Loc_Code)) > 1)

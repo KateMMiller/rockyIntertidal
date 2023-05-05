@@ -11,6 +11,7 @@ plotPITransects(
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  title = TRUE,
   QAQC = FALSE,
   drop_missing = TRUE,
   facet_scales = "free"
@@ -46,6 +47,9 @@ plotPITransects(
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{title}{If TRUE (Default) prints the full site name on the figure. If FALSE, does not
+include plot title.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}

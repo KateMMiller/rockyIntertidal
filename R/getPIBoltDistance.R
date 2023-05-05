@@ -68,7 +68,8 @@ getPIBoltDistance <- function(park = "all", location = "all", plotName = "all",
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
-  stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+  stopifnot(class(years) == "numeric" | class(years) == "integer",
+    years >= 2013)
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -93,7 +94,7 @@ getPIBoltDistance <- function(park = "all", location = "all", plotName = "all",
 
   bolt_final <- bolt_qaqc |>
     select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name,
-           Label, Elevation_MLLW_m, Distance_m)
+           Label, Elevation_MLLW_m, Distance_m, Notes_Event)
 
   if(nrow(bolt_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

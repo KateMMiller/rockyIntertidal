@@ -103,7 +103,8 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
 
-  boltdist1 <- force(getPIBoltDistance(park = park, location = location, plotName = plotName, species = species,
+  boltdist1 <- force(getPIBoltDistance(park = park, location = location,
+                                       plotName = plotName, species = species,
                                        years = years, QAQC = QAQC))
 
   boltdist2 <- if(drop_missing == TRUE){
@@ -138,9 +139,8 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
 
     if(length(warns) >= 1){warning(paste0("There were ", length(warns), " bolt distance/elevation combinations are impossible and cannot calculate slope between bolts. Either the tape didn't follow ground contour between this and the following bolt or a recording error occured. Slope was converted to 0 for these values. Bolt errors are provided in bolt_checks data.frame in your global environment. \n"))} else {}
 
-
   bolt_checks <- boltdist |> dplyr::filter(is.na(slope_rad)) |>
-    select(Loc_Code, Year, Label, QAQC, Elevation_MLLW_m, Distance_m) |>
+    select(Loc_Code, Year, Label, QAQC, Elevation_MLLW_m, Distance_m, Notes_Event) |>
     arrange(Loc_Code, Year, Label, QAQC)
 
   if(nrow(bolt_checks)>0){assign("bolt_checks", bolt_checks, envir = .GlobalEnv)}

@@ -109,8 +109,9 @@ getEventNotes <- function(park = "all", location = "all", plotName = "all", plot
     } else {filter(notes_year, QAQC == FALSE)}
 
   notes_final <- notes_qaqc |>
-    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name,
-           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp, Event_ID, Plot_ID)
+    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
+           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp) |>
+    unique()
 
   if(nrow(notes_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

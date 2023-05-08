@@ -70,7 +70,7 @@
 #' }
 #'
 #'
-#' @return Returns a data frame of point intercept species detection data filtered by function arguments
+#' @return Returns a data frame of photo plot percent cover data filtered by function arguments
 #' @export
 
 getPhotoCover <- function(park = "all", location = "all", plotName = "all",

@@ -58,7 +58,7 @@ Can specify a vector of years.}
 returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
 }
 \value{
-Returns a data frame of point intercept species detection data filtered by function arguments
+Returns a data frame of photo plot percent cover data filtered by function arguments
 }
 \description{
 This function filters photo quadrat percent cover data by park,

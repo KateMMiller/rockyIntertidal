@@ -61,8 +61,8 @@ returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid a
 Returns a data frame of location-level photo plot percent cover data filtered by function arguments
 }
 \description{
-This function summarizes location-level percent cover data by park,
-location, plot name, and species.
+This function summarizes location-level average, min and max percent
+cover data by park, location, plot name, and species.
 }
 \examples{
 \dontrun{

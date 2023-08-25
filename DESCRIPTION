@@ -35,4 +35,5 @@ Collate:
     'plotPITransects.R'
     'plotPITransectSpecies.R'
     'sumPhotoCover.R'
+    'plotPhotoCover.R'
     'theme_rocky.R'

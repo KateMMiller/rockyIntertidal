@@ -61,7 +61,7 @@ elevation and distances and drops bolts that are not bolt 1 but have a distance 
 the facets are all the same, or different (free).}
 }
 \value{
-Returns a data frame of point intercept species detection data filtered by function arguments
+Returns a ggplot object of point intercept species detection data filtered by function arguments
 }
 \description{
 This function plots bolt distance and elevation data by transect for each park,

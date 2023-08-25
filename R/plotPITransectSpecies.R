@@ -84,7 +84,7 @@
 #' }
 #'
 #'
-#' @return Returns a data frame of point intercept species detection data filtered by function arguments
+#' @return Returns a ggplot object of point intercept species detection data filtered by function arguments
 #' @export
 
 plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = "all",
@@ -195,7 +195,7 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
          scale_x_reverse(breaks = c(unique(dat_sum$Year)))+
          coord_flip() +
          theme_rocky() +
-         labs(y = "Elevation MLLW (m)", x = "Year", title = ptitle)
+         labs(y = ylab, x = xlab, title = ptitle)
 
   return(p)
 

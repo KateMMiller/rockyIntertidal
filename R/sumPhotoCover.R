@@ -4,8 +4,8 @@
 #'
 #' @importFrom dplyr group_by select summarize
 #'
-#' @description This function summarizes location-level percent cover data by park,
-#' location, plot name, and species.
+#' @description This function summarizes location-level average, min and max percent
+#' cover data by park, location, plot name, and species.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -110,7 +110,13 @@ sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
 
   cov_sum <- cover |> group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
                                Target_Species, Spp_Code, Spp_Name) |>
-                      summarize(avg_cover = mean(Perc_Cover, na.rm = T), .groups = 'drop')
+                      summarize(avg_cover = mean(Perc_Cover, na.rm = T),
+                                min_cover = min(Perc_Cover, na.rm = T),
+                                max_cover = max(Perc_Cover, na.rm = T),
+                                q25_cover = quantile(Perc_Cover, probs = 0.25, na.rm = T),
+                                q75_cover = quantile(Perc_Cover, probs = 0.75, na.rm = T),
+                                .groups = 'drop'
+                                )
 
   return(cov_sum)
 }

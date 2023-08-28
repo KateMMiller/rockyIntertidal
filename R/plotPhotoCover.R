@@ -76,7 +76,7 @@
 #'
 #' importData()
 #'
-#' # Default filter returns a plot for BASHAR (have to pick a site)
+#' # Default filter returns a plot faceted on location and target species group
 #' plotPhotoCover()
 #'
 #' # Other variations
@@ -84,8 +84,9 @@
 #' plotPhotoCover(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
 #'                species = spp)
 #'
+#' # Return only the top 3 species for barnacle photo plots
 #' plotPhotoCover(location = "SHIHAR", palette = "default",
-#'                facet = FALSE, species = c("BARSPP"))
+#'                facet = FALSE, target_species = "Barnacle", top_spp = 3)
 #'
 #' }
 #'

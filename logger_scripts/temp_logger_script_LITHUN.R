@@ -1,12 +1,13 @@
-#---------------------------------------
-# Preliminary code to start working with temperature logger data
-#---------------------------------------
+#------------------------------------------------------------------------
+# Compiling water temperature data by filtering logger temperature data
+# within +/- 2 hours of high tide for LITHUN
+#   Code written by Kate Miller 5/19/2023
+#------------------------------------------------------------------------
 
-# Once I figure out how to extract the high tide temperatures, and how best to deal with the replicates,
-# or lost loggers, I'll build this out to a function.
 
-# The temp data will also need to be consistently named and organized from year to year, so easier to pull
-# in and bind together in package function.
+# Logger issues vary from year to year and is hard to come up with a function to generalize
+# finding and fixing issues. The solution for now is to run this function every year to compile
+# a csv of water temperature data. Summary and plotting functions will then point to these csvs.
 
 library(noaaoceans)
 library(lubridate)

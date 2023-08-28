@@ -1,12 +1,12 @@
-#---------------------------------------
-# Preliminary code to start working with temperature logger data
-#---------------------------------------
+#------------------------------------------------------------------------
+# Compiling water temperature data by filtering logger temperature data
+# within +/- 2 hours of high tide for BASHAR
+#   Code written by Kate Miller 5/19/2023
+#------------------------------------------------------------------------
 
-# Once I figure out how to extract the high tide temperatures, and how best to deal with the replicates,
-# or lost loggers, I'll build this out to a function.
-
-# The temp data will also need to be consistently named and organized from year to year, so easier to pull
-# in and bind together in package function.
+# Logger issues vary from year to year and is hard to come up with a function to generalize
+# finding and fixing issues. The solution for now is to run this function every year to compile
+# a csv of water temperature data. Summary and plotting functions will then point to these csvs.
 
 library(noaaoceans)
 library(lubridate)
@@ -29,21 +29,21 @@ tide_dat$timestamp <- as.POSIXct(tide_dat$t,
 high_tide <- tide_dat |> filter(type == "H") |> select(timestamp, v) |>
   mutate(timestamp_tide = timestamp) # backup for data.table join
 
-# Fix dates and Temp units for BASHAR_T1_2017
-path = "../data/rocky/temp_data/collected_2017/"
-filename = "BASHAR_TEMP1_2017_10404528.csv"
-
-bas17 <- read.table(paste0(path, filename), skip = 1, sep = ",", header = T)[1:3]
-colnames(bas17) <- c("row", "timestamp_orig", "Degrees_C")
-bas17$timestamp_orig <- as.POSIXct(bas17$timestamp_orig,
-                                   format = "%m/%d/%y %I:%M:%S %p",
-                                   tz = "America/New_York") #Sys.timezone() also works
-
-bas17$timestamp <- bas17$timestamp_orig - lubridate::years(25) +
-  lubridate::days(25) -
-  lubridate::hours(8)
-
-bas17$Degrees_F <- bas17$Degrees_C * (9/5) + 32
+# Fix dates and Temp units for BASHAR_T1_2017- uncomment if you need to run this, otherwise already done
+# path = "../data/rocky/temp_data/collected_2017/"
+# filename = "BASHAR_TEMP1_2017_10404528.csv"
+#
+# bas17 <- read.table(paste0(path, filename), skip = 1, sep = ",", header = T)[1:3]
+# colnames(bas17) <- c("row", "timestamp_orig", "Degrees_C")
+# bas17$timestamp_orig <- as.POSIXct(bas17$timestamp_orig,
+#                                    format = "%m/%d/%y %I:%M:%S %p",
+#                                    tz = "America/New_York") #Sys.timezone() also works
+#
+# bas17$timestamp <- bas17$timestamp_orig - lubridate::years(25) +
+#   lubridate::days(25) -
+#   lubridate::hours(8)
+#
+# bas17$Degrees_F <- bas17$Degrees_C * (9/5) + 32
 
 # write.csv(bas17[, c("row", "timestamp", "Degrees_F", "timestamp_orig", "Degrees_C")],
 #           paste0(path, "BASHAR_TEMP1_2017_10404528_corr.csv"), row.names = F)

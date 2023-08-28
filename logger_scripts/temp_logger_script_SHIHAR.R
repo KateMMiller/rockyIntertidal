@@ -1,9 +1,8 @@
 #------------------------------------------------------------------------
 # Compiling water temperature data by filtering logger temperature data
-# within +/- 2 hours of high tide for OUTBRE
+# within +/- 2 hours of high tide for SHIBAR
 #   Code written by Kate Miller 5/19/2023
 #------------------------------------------------------------------------
-
 
 # Logger issues vary from year to year and is hard to come up with a function to generalize
 # finding and fixing issues. The solution for now is to run this function every year to compile
@@ -17,13 +16,17 @@ library(data.table)
 # Get tide data from noaaoceans
 # ACAD gauge 8413320; BOHA gauge:8443970
 
+# Have to break up into chunks to download from the server.
 tide_dat <- rbind(
-  query_coops_data(station_id = "8443970", start_date = "20100101", end_date = "20121231",
+  query_coops_data(station_id = "8413320", start_date = "20110101", end_date = "20121231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
-                   time_zone = 'lst_ldt'), # loGRE daylight savings time
-  query_coops_data(station_id = "8443970", start_date = "20130101", end_date = "20221231",
+                   time_zone = 'lst_ldt'), # local daylight savings time
+  query_coops_data(station_id = "8413320", start_date = "20130101", end_date = "20191231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
-                   time_zone = 'lst_ldt') # loGRE daylight savings time
+                   time_zone = 'lst_ldt'), # local daylight savings time
+  query_coops_data(station_id = "8413320", start_date = "20200101", end_date = "20221231",
+                   data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
+                   time_zone = 'lst_ldt') # local daylight savings time
 )
 
 tide_dat$timestamp <- as.POSIXct(tide_dat$t,
@@ -32,22 +35,30 @@ tide_dat$timestamp <- as.POSIXct(tide_dat$t,
 high_tide <- tide_dat |> filter(type == "H") |> select(timestamp, v) |>
   mutate(timestamp_tide = timestamp) # backup for data.table join
 
-# Fixing 2016-2017
-path = "../data/rocky/temp_data/collected_2017/"
-list.files(path)
-filename = "OUTBRE_TEMP2_2017_10404524.csv" # T1 timestamp was bad
+# Fix dates and Temp units for BASHAR_T1_2017- uncomment if you need to run this, otherwise already done
+# path = "../data/rocky/temp_data/collected_2017/"
+# filename = "SHIHAR_TEMP1_2017_10404529.csv"
+# #
+# shi17 <- read.table(paste0(path, filename), skip = 1, sep = ",", header = T)[1:3]
+# colnames(shi17) <- c("row", "timestamp_orig", "Degrees_C")
+# shi17$timestamp_orig <- as.POSIXct(shi17$timestamp_orig,
+#                                    format = "%m/%d/%y %I:%M:%S %p",
+#                                    tz = "America/New_York") #Sys.timezone() also works
+#
+# # 2017 logger launched 20160629 13:00
+# shi17$timestamp <- shi17$timestamp_orig - lubridate::years(25) +
+#   lubridate::days(25) -
+#   lubridate::hours(8)
+#
+# shi17$Degrees_F <- shi17$Degrees_C * (9/5) + 32
+#
+# head(shi17)
+# write.csv(shi17[, c("row", "timestamp", "Degrees_F", "timestamp_orig", "Degrees_C")],
+#            paste0(path, "SHIHAR_TEMP1_2017_10404529_corr.csv"), row.names = F)
 
-OUT17 <- read.table(paste0(path, filename), skip = 1, sep = ",", header = T)[1:3]
-
-colnames(OUT17) <- c("row", "timestamp", "Degrees_C")
-head(OUT17)
-
-OUT17$timestamp <- as.POSIXct(OUT17$timestamp,
-                              format = "%m/%d/%y %I:%M:%S %p",
-                              tz = "America/New_York") #Sys.timezone() also works
-
-OUT17$timestamp_temp <- OUT17$timestamp
-OUT17$Degrees_F <- OUT17$Degrees_C * (9/5) + 32
+shi17 <- read.csv("../data/rocky/temp_data/collected_2017/SHIHAR_TEMP1_2017_10404529_corr.csv") |>
+  mutate(timestamp_temp = timestamp) |>
+  select(row, timestamp, Degrees_F, timestamp_temp)
 
 # Pull in hobo logger data
 temp11 <- list.files("../data/rocky/temp_data/collected_2011", pattern = ".csv")
@@ -56,13 +67,12 @@ temp13 <- list.files("../data/rocky/temp_data/collected_2013", pattern = ".csv")
 temp14 <- list.files("../data/rocky/temp_data/collected_2014", pattern = ".csv")
 temp15 <- list.files("../data/rocky/temp_data/collected_2015", pattern = ".csv")
 temp16 <- list.files("../data/rocky/temp_data/collected_2016", pattern = ".csv")
-temp17 <- list.files("../data/rocky/temp_data/collected_2017", pattern = ".csv")[2:8]# drops uncor BASHAR T1
+temp17 <- list.files("../data/rocky/temp_data/collected_2017", pattern = ".csv")[c(2:6, 8)]# drops uncor BASHAR T1
 temp18 <- list.files("../data/rocky/temp_data/collected_2018", pattern = ".csv")
 temp19 <- list.files("../data/rocky/temp_data/collected_2019", pattern = ".csv")
 temp20 <- list.files("../data/rocky/temp_data/collected_2020", pattern = ".csv")
 temp21 <- list.files("../data/rocky/temp_data/collected_2021", pattern = ".csv")
 temp22 <- list.files("../data/rocky/temp_data/collected_2022", pattern = ".csv")
-
 
 # Function to prepare temp data for rbind
 prep_tempdata <- function(path, filename){
@@ -72,45 +82,46 @@ prep_tempdata <- function(path, filename){
                               format = "%m/%d/%y %I:%M:%S %p",
                               tz = "America/New_York") #Sys.timezone() also works
   dat$timestamp_temp <- dat$timestamp # backup for dt merge
+  #print(head(dat))
   return(dat)
 
 }
 
 # Streamline this
-OUTBRE <- rbind(
+SHIHAR <- rbind(
   prep_tempdata(path = "../data/rocky/temp_data/collected_2011/",
-                filename = temp11[grepl("OUTBRE.TEMP1", temp11, ignore.case = TRUE)]),
-  # prep_tempdata(path = "../data/rocky/temp_data/collected_2012/",
-  #                filename = temp12[grepl("OUTBRE.TEMP1", temp12, ignore.case = TRUE)]), # No 2012 data
+                filename = temp11[grepl("SHIHAR.TEMP1", temp11, ignore.case = TRUE)]),
+  prep_tempdata(path = "../data/rocky/temp_data/collected_2012/",
+                 filename = temp12[grepl("SHIHAR.TEMP1", temp12, ignore.case = TRUE)]),
   # prep_tempdata(path = "../data/rocky/temp_data/collected_2013/",
-  #               filename = temp13[grepl("OUTBRE.TEMP1", temp13, ignore.case = TRUE)]), # No 2013 data
+  #               filename = temp13[grepl("SHIHAR.TEMP1", temp13, ignore.case = TRUE)]),
   prep_tempdata(path = "../data/rocky/temp_data/collected_2014/",
-                filename = temp14[grepl("OUTBRE.TEMP1", temp14, ignore.case = TRUE)]),
-  prep_tempdata(path = "../data/rocky/temp_data/collected_2015/",
-                filename = temp15[grepl("OUTBRE.TEMP1", temp15, ignore.case = TRUE)]),
+                filename = temp14[grepl("SHIHAR.TEMP1", temp14, ignore.case = TRUE)]),
+  # prep_tempdata(path = "../data/rocky/temp_data/collected_2015/",
+  #               filename = temp15[grepl("SHIHAR.TEMP1", temp15, ignore.case = TRUE)]),
   prep_tempdata(path = "../data/rocky/temp_data/collected_2016/",
-                filename = temp16[grepl("OUTBRE.TEMP1", temp16, ignore.case = TRUE)]),
+                filename = temp16[grepl("SHIHAR.TEMP1", temp16, ignore.case = TRUE)]),
   # prep_tempdata(path = "../data/rocky/temp_data/collected_2017/",
-  #               filename = temp17[grepl("OUTBRE.TEMP2", temp17, ignore.case = TRUE)]), # bad T1 timestamp
-  OUT17 |> select(row, timestamp, Degrees_F, timestamp_temp),
+  #               filename = temp17[grepl("SHIHAR.TEMP1", temp17, ignore.case = TRUE)]),
+  shi17,
   prep_tempdata(path = "../data/rocky/temp_data/collected_2018/",
-                filename = temp18[grepl("OUTBRE.TEMP1", temp18, ignore.case = TRUE)]),
+                filename = temp18[grepl("SHIHAR.TEMP1", temp18, ignore.case = TRUE)]),
   prep_tempdata(path = "../data/rocky/temp_data/collected_2019/",
-                filename = temp19[grepl("OUTBRE.TEMP1", temp19, ignore.case = TRUE)]),
-  # prep_tempdata(path = "../data/rocky/temp_data/collected_2020/",
-  #               filename = temp20[grepl("OUTBRE.TEMP1", temp20, ignore.case = TRUE)]), # No 2020 data
+                filename = temp19[grepl("SHIHAR.TEMP1", temp19, ignore.case = TRUE)]),
+  prep_tempdata(path = "../data/rocky/temp_data/collected_2020/",
+                filename = temp20[grepl("SHIHAR.TEMP1", temp20, ignore.case = TRUE)]),
   prep_tempdata(path = "../data/rocky/temp_data/collected_2021/",
-                filename = temp21[grepl("OUBRE.TEMP1", temp21, ignore.case = TRUE)])#, # Note misspelling
+                filename = temp21[grepl("SHIHAR.TEMP1", temp21, ignore.case = TRUE)])#,
   # prep_tempdata(path = "../data/rocky/temp_data/collected_2022/",
-  #               filename = temp22[grepl("OUTBRE.TEMP1", temp22, ignore.case = TRUE)]) # No 2022
+  #               filename = temp22[grepl("SHIHAR.TEMP1", temp22, ignore.case = TRUE)])
   )
 
 setDT(high_tide)
-setDT(OUTBRE)
+setDT(SHIHAR)
 
 # Rolling join will join the nearest temp timestamp with the nearest high tide timestamp.
 # Then have to delete records that differ by more than an hour.
-ht_temp <- high_tide[OUTBRE, on = 'timestamp', roll = "nearest"]
+ht_temp <- high_tide[SHIHAR, on = 'timestamp', roll = "nearest"]
 
 ht_temp <- ht_temp |> mutate(time_diff = difftime(timestamp_tide, timestamp_temp, units = 'hours')) |>
   filter(abs(time_diff) <= lubridate::hours(2)) # pull in temps within 2 hours of high tide
@@ -118,7 +129,7 @@ ht_temp <- ht_temp |> mutate(time_diff = difftime(timestamp_tide, timestamp_temp
 ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_line() + rockyIntertidal::theme_rocky() +
   scale_x_datetime(breaks = scales::breaks_width("3 months"), date_labels = "%m/%y") +
-  labs(x = NULL, y = "High Tide Water Temp (F) OUTBRE T1")+
+  labs(x = NULL, y = "High Tide Water Temp (F) SHIHAR T1")+
   theme(axis.text.x = element_text(angle = 90)) +
   geom_vline(xintercept = as.POSIXct(as.Date("2011-01-01")), linetype = 2, color = 'red') +
   geom_vline(xintercept = as.POSIXct(as.Date("2012-01-01")), linetype = 2, color = 'red') +
@@ -133,7 +144,7 @@ ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_vline(xintercept = as.POSIXct(as.Date("2021-01-01")), linetype = 2, color = 'red') +
   geom_vline(xintercept = as.POSIXct(as.Date("2022-01-01")), linetype = 2, color = 'red')
 
-ggsave("./testing_scripts/OUTBRE_T1_high_tide_water_level_F.jpg")
+ggsave("./testing_scripts/SHIHAR_T1_high_tide_water_level_F.jpg")
 
 tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
-write.csv(ht_temp, paste0(tpath, "OUTBRE_T1-3_2011-2022.csv"), row.names = F)
+write.csv(ht_temp, paste0(tpath, "SHIHAR_T1-3_2011-2022.csv"), row.names = F)

@@ -81,7 +81,7 @@ Returns a ggplot object of point intercept species detection data filtered by fu
 \description{
 This function plots species by bolt elevation a given park, location, and years.
 The point for each species is the median elevation across the three transects for that year.
-The thicker lines on the error bars are the 25\% and 75\% quartiles of elevation across the transects.
+The thicker lines on the error bars are the 25\% and 75\% quantiles of elevation across the transects.
 The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
 along the three transects.
 }

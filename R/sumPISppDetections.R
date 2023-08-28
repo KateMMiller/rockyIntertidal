@@ -8,7 +8,8 @@
 #'
 #' @description This function relates bolt elevation data with point intercept species detection data by park,
 #' location, plot name, and species. Returned values include elevation change between bolts, median elevation
-#' between bolts, min/max elevation between bolts, distance between bolts, slope percent and degree between bolts, #' horizontal distance between bolts, and interpolated elevation for point intercept sampling locations.
+#' between bolts, min/max elevation between bolts, distance between bolts, slope percent and degree between bolts,
+#' horizontal distance between bolts, and interpolated elevation for point intercept sampling locations.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{

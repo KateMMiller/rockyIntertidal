@@ -10,6 +10,7 @@ sumPhotoCover(
   plotName = "all",
   species = "all",
   category = "all",
+  target_species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE
 )
@@ -50,6 +51,9 @@ that an unrecognized species was specified in case it was an error.}
 
 \item{category}{Filter on category. Options include:
 c("all", "Genus", "Species", "Species Group", and "Substrate")}
+
+\item{target_species}{Filter on target species (ie photoplot). Options include:
+c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}

@@ -6,7 +6,7 @@
 #'
 #' @description This function plots species by bolt elevation a given park, location, and years.
 #' The point for each species is the median elevation across the three transects for that year.
-#' The thicker lines on the error bars are the 25% and 75% quartiles of elevation across the transects.
+#' The thicker lines on the error bars are the 25% and 75% quantiles of elevation across the transects.
 #' The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
 #' along the three transects.
 #'
@@ -127,10 +127,27 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
   cols = c("ALGBRO" = "#A4755B", "ALGGRE" = "#C4E133", "ALGRED" = "#FF4C53", "ARTCOR" = "#D78AAE",
            "ASCEPI" = "#85733B", "ASCNOD" = "#C5B47B", "BARSPP" = "#A9A9A9", "CHOMAS" = "#772C27",
            "CRUCOR" = "#F9F5A1", "NONCOR" = "#9565C9","FUCEPI" = "#D5A82A", "FUCSPP" = "#FFD560",
-           "KELP"   = "#4DA551", "MUSSPP" = "#6F88BF", "OTHINV" = "#F59617", "OTHSUB" = "#000000",
+           "KELP"   = "#4DA551", "MUSSPP" = "#6F88BF", "OTHINV" = "#F59617", "OTHSUB" = "#8A838A",
            "PALPAL" = "#5E5571", "PORSPP" = "#8E3B4A", "ULVENT" = "#699052", "ULVINT" = "#9FCF87",
            "ULVLAC" = "#73EB31", "UNIDEN" = "#696969", "BOLT"   = "#EAEAEA", "ROCK"   = "#FED5FF",
            "WATER"  = "#7FC7E1")
+
+  shps = c("ALGBRO" = 21, "ALGGRE" = 23, "ALGRED" = 24, "ARTCOR" = 25,
+           "ASCEPI" = 21, "ASCNOD" = 23, "BARSPP" = 24, "CHOMAS" = 25,
+           "CRUCOR" = 21, "NONCOR" = 23,"FUCEPI" = 24, "FUCSPP" = 25,
+           "KELP"   = 21, "MUSSPP" = 23, "OTHINV" = 24, "OTHSUB" = 25,
+           "PALPAL" = 21, "PORSPP" = 23, "ULVENT" = 24, "ULVINT" = 25,
+           "ULVLAC" = 21, "UNIDEN" = 23, "BOLT"   = 24, "ROCK"   = 25,
+           "WATER"  = 21)
+
+  sz = c("ALGBRO" = 3, "ALGGRE" = 2.5, "ALGRED" = 2, "ARTCOR" = 2,
+         "ASCEPI" = 3, "ASCNOD" = 2.5, "BARSPP" = 2, "CHOMAS" = 2,
+         "CRUCOR" = 3, "NONCOR" = 2.5,"FUCEPI" = 2, "FUCSPP" = 2,
+         "KELP"   = 3, "MUSSPP" = 2.5, "OTHINV" = 2, "OTHSUB" = 2,
+         "PALPAL" = 3, "PORSPP" = 2.5, "ULVENT" = 2, "ULVINT" = 2,
+         "ULVLAC" = 3, "UNIDEN" = 2.5, "BOLT"   = 2, "ROCK"   = 2,
+         "WATER"  = 3)
+
 
   labels = c("ALGBRO" = "Algae - Brown", "ALGGRE" = "Algae - Green", "ALGRED" = "Algae - Red",
              "ARTCOR" = "Articulated Corallines", "ASCEPI" = "Ascophyllum epibiont",
@@ -138,7 +155,7 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
              "CRUCOR" = "Crustose coraline", "NONCOR" = "Crustose non-coraline",
              "BARSPP" = "Barnacles",
              "FUCEPI" = "Fucus epibiont", "FUCSPP" = "Fucus spp. (Rockweed)",
-             "KELP"   = "Kelp", "MUSSPP" = "Muscles",
+             "KELP"   = "Kelp", "MUSSPP" = "Mussels",
              "OTHINV" = "Other invertebrates", "OTHSUB" = "Other substrate",
              "PALPAL" = "Dulse", "PORSPP" = "Laver", "ULVENT" = "Ulva/Enteromorpha",
              "ULVINT" = "Ulva intestinalis (Grass kelp)", "ULVLAC" = "Ulva lactuca (Sea lettuce)",
@@ -176,13 +193,22 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
 
   p <-
   ggplot(dat_sum, aes(x = Year, y = desc(elev_max),
-                        group = Spp_Code, color = Spp_Code, fill = Spp_Code)) +
+                      group = Spp_Code, color = Spp_Code, fill = Spp_Code,
+                      shape = Spp_Code, size = Spp_Code)) +
          geom_errorbar(aes(ymin = elev_l25, ymax = elev_u75),
-                       position = position_dodge(width = 1), width = 0, linewidth = 1.5) +
+                       #position = position_dodge(width = 1),
+                       width = 0, linewidth = 1.5) +
          geom_errorbar(aes(ymin = elev_min, ymax = elev_max),
-                      position = position_dodge(width = 1), linewidth = 0.5) +
-         geom_point(aes(x = Year, y = elev_med),
-                    position = position_dodge(width = 1), size = 3, shape = 21, color = 'black') +
+                      #position = position_dodge(width = 1),
+                      linewidth = 0.5) +
+         geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
+                        size = Spp_Code, shape = Spp_Code),
+                    #position = position_dodge(width = 1),
+                    color = 'black') +
+         scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
+                            labels = labels) +
+         scale_size_manual(values = sz, name = "Species", breaks = names(sz),
+                            labels = labels) +
          {if(all(palette == 'default'))
            scale_color_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +

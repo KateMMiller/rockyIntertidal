@@ -41,6 +41,9 @@
 #' @param category Filter on category. Options include:
 #' c("all", "Genus", "Species", "Species Group", and "Substrate")
 #'
+#' @param target_species Filter on target species (ie photoplot). Options include:
+#' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
+#'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
@@ -74,7 +77,7 @@
 #' @export
 
 getPhotoCover <- function(park = "all", location = "all", plotName = "all",
-                          species = "all", category = "all",
+                          species = "all", category = "all", target_species = 'all',
                           years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE){
 
 
@@ -82,6 +85,7 @@ getPhotoCover <- function(park = "all", location = "all", plotName = "all",
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
+  stopifnot(target_species %in% c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
                                     "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
                                     "OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",
@@ -118,17 +122,21 @@ getPhotoCover <- function(park = "all", location = "all", plotName = "all",
   cov_species <- if(any(species %in% 'all')){ cov_pname
   } else {filter(cov_pname, Spp_Code %in% species)}
 
-  cov_cat <- if(any(category %in% 'all')){ cov_species
-  } else {filter(cov_species, Category %in% category)}
+  cov_targ <- if(any(target_species %in% "all")){cov_species
+  } else{filter(cov_species, Target_Species %in% target_species)}
+
+  cov_cat <- if(any(category %in% 'all')){ cov_targ
+  } else {filter(cov_targ, Category %in% category)}
 
   cov_year <- filter(cov_cat, Year %in% years)
 
   cov_qaqc <- if(QAQC == TRUE){cov_year |>
-      select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, Date_Scored, QAQC, Plot_Name,
-             Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover, Notes, Scorer,
-             Notes, Event_ID, Plot_ID, QAQC_SameGrid, QAQC_NewGrid)
+      select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, Date_Scored,
+             QAQC, Plot_Name, Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover,
+             Notes, Scorer, Event_ID, Plot_ID, QAQC_SameGrid, QAQC_NewGrid)
   } else {cov_year |> filter(QAQC == FALSE) |>
-      select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, Date_Scored, QAQC, Plot_Name,
+      select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year,
+             Date_Scored, QAQC, Plot_Name,
              Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover, Notes,
              Scorer, Event_ID, Plot_ID)}
 

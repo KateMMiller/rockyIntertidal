@@ -43,6 +43,9 @@
 #' @param category Filter on category. Options include:
 #' c("all", "Genus", "Species", "Species Group", and "Substrate")
 #'
+#' @param target_species Filter on target species (ie photoplot). Options include:
+#' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
+#'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
@@ -76,7 +79,7 @@
 #' @export
 
 sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
-                          species = "all", category = "all",
+                          species = "all", category = "all", target_species = 'all',
                           years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE){
 
 
@@ -84,6 +87,7 @@ sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
+  stopifnot(target_species %in% c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
                                     "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
                                     "OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",
@@ -104,17 +108,19 @@ sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
   cover <- force(getPhotoCover(park = park, location = location, plotName = plotName,
-                               species = species, category = category, years = years, QAQC = QAQC)) |>
+                               species = species, target_species = target_species,
+                               category = category, years = years, QAQC = QAQC)) |>
     select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, Date_Scored, QAQC, Plot_Name,
            Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover, Notes)
 
   cov_sum <- cover |> group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
-                               Target_Species, Spp_Code, Spp_Name) |>
+                               Target_Species, Spp_Code, Spp_Name, Category) |>
                       summarize(avg_cover = mean(Perc_Cover, na.rm = T),
+                                median_cover = median(Perc_Cover, na.rm = T),
                                 min_cover = min(Perc_Cover, na.rm = T),
                                 max_cover = max(Perc_Cover, na.rm = T),
-                                q25_cover = quantile(Perc_Cover, probs = 0.25, na.rm = T),
-                                q75_cover = quantile(Perc_Cover, probs = 0.75, na.rm = T),
+                                # q25_cover = quantile(Perc_Cover, probs = 0.25, na.rm = T),
+                                # q75_cover = quantile(Perc_Cover, probs = 0.75, na.rm = T),
                                 .groups = 'drop'
                                 )
 

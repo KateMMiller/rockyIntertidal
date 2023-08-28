@@ -6,16 +6,17 @@
 \usage{
 plotPhotoCover(
   park = "all",
-  location = "BASHAR",
+  location = "all",
   plotName = "all",
   species = "all",
   category = "all",
+  target_species = "all",
+  top_spp = NULL,
   palette = c("default"),
   xlab = "Year",
   ylab = "\% Cover",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  facet = FALSE,
-  title = TRUE,
+  plot_title = NULL,
   QAQC = FALSE,
   drop_missing = TRUE
 )
@@ -46,6 +47,14 @@ The viridis palette will work with new species without adaptation, but labels wi
 \item{category}{Filter on category. Options include:
 c("all", "Genus", "Species", "Species Group", and "Substrate")}
 
+\item{target_species}{Filter on target species (ie photoplot). Options include:
+c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
+
+\item{top_spp}{Integer. If specified, only plots the top n species by cover for each target species. If not
+specified, plots all species, or only the species specified in the species argument. Note that species ties are
+included, so could include more than the number specified. Species with less than 0.1\% total cover are also
+dropped when a top_spp is specififed.}
+
 \item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
 Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
@@ -68,11 +77,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{facet}{Logical. If TRUE, will plot species in separate facets. FALSE (default) plots all species
-on one figure.}
-
-\item{title}{If TRUE (Default) prints the full site name on the figure. If FALSE, does not
-include plot title.}
+\item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
@@ -81,11 +86,11 @@ returns all events, including QAQC events.}
 Returns a ggplot object of percent cover from photos filtered by function arguments
 }
 \description{
-This function plots average cover by species for a given park, location, and years.
-+++++The point for each species is the median elevation across the three transects for that year.
-The thicker lines on the error bars are the 25\% and 75\% quartiles of elevation across the transects.
-The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
-along the three transects.+++++
+This function plots median percent cover by species for a given park, location, years and
+target species. The point for each species is the median cover across the photoplots that site, year
+and target species. The error bars are the minimum and maximum cover recorded in photoplots for a target
+species. Note that if more than 1 location is specified, more than one target species is specified, or both,
+the resulting figure will facet on those variables.
 }
 \examples{
 \dontrun{

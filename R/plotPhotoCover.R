@@ -79,12 +79,12 @@
 #'
 #' # Other variations
 #' spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-#' plotPhotoCover(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+#' plotPhotoCover(location = "CALISL", palette = "default", title = FALSE,
 #'                species = spp)
 #'
 #' # Return only the top 3 species for barnacle photo plots
 #' plotPhotoCover(location = "SHIHAR", palette = "default",
-#'                facet = FALSE, target_species = "Barnacle", top_spp = 3)
+#'                target_species = "Barnacle", top_spp = 3)
 #'
 #' }
 #'
@@ -164,6 +164,10 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
              "UNIDEN" = "Unidentified", "BOLT" = "Bolt", "ROCK" = "Rock", "WATER"  = "Water",
              "SAND" = "Sand", "TAR" = "Tar")
 
+  loc_labs <- c("BASHAR" = "Bass Harbor", "LITHUN" = "Little Hunter", "LITMOO" = "Little Moose",
+                "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
+                "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
+
   dat1 <- suppressWarnings(force(sumPhotoCover(park = park, location = location, plotName = plotName,
                                               category = category, years = years, QAQC = QAQC,
                                               species = species, target_species = target_species))) |>
@@ -217,8 +221,8 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
                               breaks = names(cols), labels = labels)} +
          {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
          {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code)} +
-         {if(facet_loc == TRUE) facet_wrap(~Loc_Code)} +
-         {if(facet_targ == TRUE) facet_wrap(~Target_Species)} +
+         {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
+         {if(facet_targ == TRUE) facet_wrap(~Target_Species, labeller = as_labeller(labels))} +
          scale_x_continuous(breaks = c(unique(dat$Year)))+
          #coord_flip() +
          theme_rocky() +

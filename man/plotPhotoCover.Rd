@@ -100,12 +100,12 @@ plotPhotoCover()
 
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-plotPhotoCover(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+plotPhotoCover(location = "CALISL", palette = "default", title = FALSE,
                species = spp)
 
 # Return only the top 3 species for barnacle photo plots
 plotPhotoCover(location = "SHIHAR", palette = "default",
-               facet = FALSE, target_species = "Barnacle", top_spp = 3)
+               target_species = "Barnacle", top_spp = 3)
 
 }
 

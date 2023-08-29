@@ -40,7 +40,7 @@
 #'
 #' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
 #'
-#' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
+#' @param palette Choices are "default", "viridis", or "black". Default assigns logical colors to common species.
 #' Viridis uses a color-blind friendly palette of blues, purples and yellows.
 #'
 #' @param facet Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
@@ -71,6 +71,7 @@
 
 plotWaterTemp <- function(park = "all", location = "all", palette = c('default'),
                           xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
+                          facet = TRUE,
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
                           plot_title = NULL){
 
@@ -79,7 +80,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
   stopifnot(location %in% c("all", "BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2011)
-
+  stopifnot(palette %in% c("default", "viridis", "black"))
   # if(!requireNamespace("mgcv", quietly = TRUE) & gam == TRUE){
   #   stop("Package 'mgcv' needed for this function to work. Please install it.", call. = FALSE)
   # }
@@ -130,7 +131,10 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
     {if(all(palette == 'default'))
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
-    {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels))} +
+    {if(all(palette == "black")) scale_color_manual(values = "black")} +
+    {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code)} +
+    {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
+    {if(facet_targ == TRUE) facet_wrap(~Target_Species, labeller = as_labeller(labels))} +
     labs(y = ylab, x = xlab, title = plot_title)+
     theme(legend.position = leg_position,
           axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))

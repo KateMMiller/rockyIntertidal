@@ -1,4 +1,4 @@
-#' @title plotPITransectSpecies: plots species detections by transect distance and elevation
+#' @title plotPITransectSpecies: plots species detections by elevation and year for individual sites.
 #'
 #' @include plotPITransects.R
 #'
@@ -17,8 +17,7 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Choose specific location based on location code. Can only specify one
-#' location for each function call.
+#' @param location Choose specific location based on location code.
 #' \describe{
 #' \item{'all'}{Includes all locations returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
@@ -51,6 +50,9 @@
 #'
 #' @param facet Logical. If TRUE, will plot species in separate facets. FALSE (default) plots all species
 #' on one figure.
+#'
+#' @param rev_axis Logical. If TRUE (default), the Y axis will be year and the x axis will be elevation. If
+#' FALSE, the Y axis will be elevation and x will be year.
 #'
 #' @param QAQC Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
@@ -87,11 +89,11 @@
 #' @return Returns a ggplot object of point intercept species detection data filtered by function arguments
 #' @export
 
-plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = "all",
+plotPITransectSpecies <- function(park = "all", location = "all", plotName = "all",
                             species = "all", palette = c('default'),
-                            xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
+                            xlab = "Year", ylab = "Elevation MLLW (m)",
                             years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                            facet = FALSE, title = TRUE,
+                            facet = FALSE, title = TRUE, rev_axis = TRUE,
                             QAQC = FALSE, drop_missing = TRUE){
 
 
@@ -102,14 +104,15 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
+  stopifnot(is.logical(facet))
 
   unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
                                     "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
                                     "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
                                     "UNIDEN", "WATER"))
 
-  if(length(location) > 1){
-    stop('Must only specify one location or one year, cannot plot multiple locations and years.')}
+  # if(length(location) > 1){
+  #   stop('Must only specify one location or one year, cannot plot multiple locations and years.')}
 
   if(length(unmatch_spp) > 0){
     warning(paste0("Unrecognized species were specified in the species argument: ",
@@ -119,8 +122,6 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
   }
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
-
-
 
   # create color palette by species code
 
@@ -161,6 +162,10 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
              "ULVINT" = "Ulva intestinalis (Grass kelp)", "ULVLAC" = "Ulva lactuca (Sea lettuce)",
              "UNIDEN" = "Unidentified", "BOLT"   = "Bolt", "ROCK"   = "Rock", "WATER"  = "Water")
 
+  loc_labs <- c("BASHAR" = "Bass Harbor", "LITHUN" = "Little Hunter", "LITMOO" = "Little Moose",
+                "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
+                "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
+
   dat <- suppressWarnings(force(sumPISppDetections(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing,
                                   species = species))) |>
@@ -191,7 +196,18 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
   # cols <- cols[spp]
   # labels <- labels[spp]
 
-  p <-
+  locs <-
+    if(all(location == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
+                                 "SHIHAR", "CALISL", "GREISL", "OUTBRE")
+    } else {location}
+
+  facet_loc_spp <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) > 1) {TRUE} else {FALSE}
+  facet_loc <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) == 1) {TRUE} else {FALSE}
+  facet_spp <- if(facet_loc == FALSE & facet_loc_spp == FALSE & facet == TRUE) {TRUE} else {FALSE}
+
+  leg_position <- ifelse(any(facet_loc_spp, facet_loc, facet_spp) == TRUE, 'none', 'right')
+
+  p <- suppressWarnings( #for geom_line(only 1 group warning)
   ggplot(dat_sum, aes(x = Year, y = desc(elev_max),
                       group = Spp_Code, color = Spp_Code, fill = Spp_Code,
                       shape = Spp_Code, size = Spp_Code)) +
@@ -201,6 +217,8 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
          geom_errorbar(aes(ymin = elev_min, ymax = elev_max),
                       #position = position_dodge(width = 1),
                       linewidth = 0.5) +
+         {if(rev_axis == FALSE)
+           geom_line(aes(x = Year, y = elev_med, group = Spp_Code), linewidth = 0.5)} +
          geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
                         size = Spp_Code, shape = Spp_Code),
                     #position = position_dodge(width = 1),
@@ -209,6 +227,7 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
                             labels = labels) +
          scale_size_manual(values = sz, name = "Species", breaks = names(sz),
                             labels = labels) +
+         theme(legend.position = leg_position) +
          {if(all(palette == 'default'))
            scale_color_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
@@ -216,13 +235,18 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
            scale_fill_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
          {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
-         {if(facet == TRUE) facet_wrap(~Spp_Code, labeller = as_labeller(labels))} +
-         scale_y_reverse(limits = c(max(dat_sum$elev_max), min(dat_sum$elev_min))) +
-         scale_x_reverse(breaks = c(unique(dat_sum$Year)))+
-         coord_flip() +
+         {if(facet_spp == TRUE) facet_wrap(~Spp_Code, labeller = as_labeller(labels))} +
+         {if(facet_loc_spp == TRUE) facet_wrap(~Spp_Code + Loc_Code)} +
+         {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
+         {if(rev_axis == TRUE) scale_y_continuous(limits = c(min(dat_sum$elev_min), max(dat_sum$elev_max)))} +
+         {if(rev_axis == TRUE) scale_x_reverse(breaks = c(unique(dat_sum$Year)))} +
+         {if(rev_axis == TRUE) coord_flip()} +
+         {if(rev_axis == FALSE) scale_y_continuous(limits = c(min(dat_sum$elev_min), max(dat_sum$elev_max)))} +
+         {if(rev_axis == FALSE) scale_x_continuous(breaks = c(unique(dat_sum$Year)))} +
          theme_rocky() +
          labs(y = ylab, x = xlab, title = ptitle)
+  )
 
-  return(p)
+  return(suppressWarnings(p))
 
 }

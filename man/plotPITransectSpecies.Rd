@@ -2,19 +2,20 @@
 % Please edit documentation in R/plotPITransectSpecies.R
 \name{plotPITransectSpecies}
 \alias{plotPITransectSpecies}
-\title{plotPITransectSpecies: plots species detections by transect distance and elevation}
+\title{plotPITransectSpecies: plots species detections by elevation and year for individual sites.}
 \usage{
 plotPITransectSpecies(
   park = "all",
-  location = "BASHAR",
+  location = "all",
   plotName = "all",
   species = "all",
   palette = c("default"),
-  xlab = "Distance (m)",
+  xlab = "Year",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   facet = FALSE,
   title = TRUE,
+  rev_axis = TRUE,
   QAQC = FALSE,
   drop_missing = TRUE
 )
@@ -27,8 +28,7 @@ plotPITransectSpecies(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Choose specific location based on location code. Can only specify one
-location for each function call.
+\item{location}{Choose specific location based on location code.
 \describe{
 \item{'all'}{Includes all locations returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
@@ -67,6 +67,9 @@ on one figure.}
 
 \item{title}{If TRUE (Default) prints the full site name on the figure. If FALSE, does not
 include plot title.}
+
+\item{rev_axis}{Logical. If TRUE (default), the Y axis will be year and the x axis will be elevation. If
+FALSE, the Y axis will be elevation and x will be year.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}

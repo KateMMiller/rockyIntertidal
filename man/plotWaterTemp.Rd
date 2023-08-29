@@ -11,6 +11,7 @@ plotWaterTemp(
   xlab = "Year",
   ylab = "High Tide Water Temp (F)",
   gam = FALSE,
+  facet = TRUE,
   years = 2011:as.numeric(format(Sys.Date(), "\%Y")),
   plot_title = NULL
 )
@@ -38,7 +39,7 @@ plot lines on the same plot unless facet = TRUE. Note that plotting data from al
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
+\item{palette}{Choices are "default", "viridis", or "black". Default assigns logical colors to common species.
 Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Year'}
@@ -48,12 +49,12 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{gam}{Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
 derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL}
 
+\item{facet}{Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
+on one figure.}
+
 \item{years}{Filter on year of data collected. Default is 2011 to current year.}
 
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
-
-\item{facet}{Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
-on one figure.}
 }
 \value{
 Returns a ggplot object of water temperature data

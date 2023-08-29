@@ -27,8 +27,20 @@ plotPITransectSpecies(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
-Can only specify one location for each function call.}
+\item{location}{Choose specific location based on location code. Can only specify one
+location for each function call.
+\describe{
+\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{"BASHAR"}{Bass Harbor, ACAD}
+\item{"LITHUN"}{Little Hunter, ACAD}
+\item{"LITMOO"}{Little Moose, ACAD}
+\item{"OTTPOI"}{Otter Point, ACAD}
+\item{"SCHPOI"}{Schoodic Point, ACAD}
+\item{"SHIHAR"}{Ship Harbor, ACAD}
+\item{"CALISL"}{Calf Island, BOHA}
+\item{"GREISL"}{Green Island, BOHA}
+\item{"OUTBRE"}{Outer Brewster}
+}}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
 
@@ -48,20 +60,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{ylab}{Quoted text label for y axis. If not specified, defaults to 'Elevation MLLW (m)'}
 
-\item{years}{Filter on year of data collected. Default is 2013 to current year.
-
-\describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
-\item{"BASHAR"}{Bass Harbor, ACAD}
-\item{"LITHUN"}{Little Hunter, ACAD}
-\item{"LITMOO"}{Little Moose, ACAD}
-\item{"OTTPOI"}{Otter Point, ACAD}
-\item{"SCHPOI"}{Schoodic Point, ACAD}
-\item{"SHIHAR"}{Ship Harbor, ACAD}
-\item{"CALISL"}{Calf Island, BOHA}
-\item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
-}}
+\item{years}{Filter on year of data collected. Default is 2013 to current year.}
 
 \item{facet}{Logical. If TRUE, will plot species in separate facets. FALSE (default) plots all species
 on one figure.}

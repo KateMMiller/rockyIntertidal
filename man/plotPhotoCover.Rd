@@ -30,7 +30,18 @@ plotPhotoCover(
 }}
 
 \item{location}{Include data from all locations, or choose specific locations based on location code.
-Can only specify one location for each function call.}
+\describe{
+\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{"BASHAR"}{Bass Harbor, ACAD}
+\item{"LITHUN"}{Little Hunter, ACAD}
+\item{"LITMOO"}{Little Moose, ACAD}
+\item{"OTTPOI"}{Otter Point, ACAD}
+\item{"SCHPOI"}{Schoodic Point, ACAD}
+\item{"SHIHAR"}{Ship Harbor, ACAD}
+\item{"CALISL"}{Calf Island, BOHA}
+\item{"GREISL"}{Green Island, BOHA}
+\item{"OUTBRE"}{Outer Brewster}
+}}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
 
@@ -62,20 +73,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{ylab}{Quoted text label for y axis. If not specified, defaults to '\% Cover'}
 
-\item{years}{Filter on year of data collected. Default is 2013 to current year.
-
-\describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
-\item{"BASHAR"}{Bass Harbor, ACAD}
-\item{"LITHUN"}{Little Hunter, ACAD}
-\item{"LITMOO"}{Little Moose, ACAD}
-\item{"OTTPOI"}{Otter Point, ACAD}
-\item{"SCHPOI"}{Schoodic Point, ACAD}
-\item{"SHIHAR"}{Ship Harbor, ACAD}
-\item{"CALISL"}{Calf Island, BOHA}
-\item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
-}}
+\item{years}{Filter on year of data collected. Default is 2013 to current year.}
 
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
 
@@ -97,7 +95,7 @@ the resulting figure will facet on those variables.
 
 importData()
 
-# Default filter returns a plot for BASHAR (have to pick a site)
+# Default filter returns a plot faceted on location and target species group
 plotPhotoCover()
 
 # Other variations
@@ -105,8 +103,9 @@ spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
 plotPhotoCover(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
                species = spp)
 
+# Return only the top 3 species for barnacle photo plots
 plotPhotoCover(location = "SHIHAR", palette = "default",
-               facet = FALSE, species = c("BARSPP"))
+               facet = FALSE, target_species = "Barnacle", top_spp = 3)
 
 }
 

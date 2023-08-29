@@ -19,7 +19,8 @@ Suggests:
 Imports: 
     dplyr,
     data.table,
-    ggplot2
+    ggplot2,
+    scales
 Collate: 
     'getBolts.R'
     'getEchinoCounts.R'
@@ -31,9 +32,11 @@ Collate:
     'getPISppDetections.R'
     'getPhotoCover.R'
     'importData.R'
+    'importWaterTemp.R'
     'sumPISppDetections.R'
     'plotPITransects.R'
     'plotPITransectSpecies.R'
     'sumPhotoCover.R'
     'plotPhotoCover.R'
+    'plotWaterTemp.R'
     'theme_rocky.R'

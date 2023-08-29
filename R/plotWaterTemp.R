@@ -1,0 +1,139 @@
+#' @title plotWaterTemp: plots water temperature at high tide time series
+#'
+#' @import ggplot2
+#' @importFrom dplyr mutate
+#' @importFrom purrr map_dfr
+#' @importFrom scales breaks_width
+#'
+#' @description This function plots water temperature at high tide by location. Note that function works on
+#' compiled logger data, rather than working off the raw logger data. Compiled datasets should be imported
+#' using importWaterTemp(). To speed up plotting of multiple locations or long time-series, plot the simplified
+#' water temperature data derived from importWaterTemp(simplify = TRUE).
+#'
+#' @param park Include data from all parks, or choose one.
+#' \describe{
+#' \item{'all'}{Includes all parks monitored in the network}
+#' \item{'ACAD'}{Includes only sites in Acadia National Park}
+#' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
+#' }
+#'
+#' @param location Specify location to generate water temperature plot. If more than one location chosen, will
+#' plot lines on the same plot unless facet = TRUE. Note that plotting data from all locations will be slow.
+#'  \describe{
+#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{"BASHAR"}{Bass Harbor, ACAD}
+#' \item{"LITHUN"}{Little Hunter, ACAD}
+#' \item{"LITMOO"}{Little Moose, ACAD}
+#' \item{"OTTPOI"}{Otter Point, ACAD}
+#' \item{"SCHPOI"}{Schoodic Point, ACAD}
+#' \item{"SHIHAR"}{Ship Harbor, ACAD}
+#' \item{"CALISL"}{Calf Island, BOHA}
+#' \item{"GREISL"}{Green Island, BOHA}
+#' \item{"OUTBRE"}{Outer Brewster}
+#' }
+#'
+#' @param years Filter on year of data collected. Default is 2011 to current year.
+#'
+#' @param xlab Quoted text label for x axis. If not specified, defaults to 'Year'
+#'
+#' @param ylab Quoted text label for y axis. If not specified, defaults to 'High Tide Temp (F)'
+#'
+#' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
+#'
+#' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
+#' Viridis uses a color-blind friendly palette of blues, purples and yellows.
+#'
+#' @param facet Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
+#' on one figure.
+#'
+#' @param gam Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
+#' derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL
+#'
+#' @examples
+#' \dontrun{
+#'
+#' path <- "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+#' importWaterTemp(path, simplify = TRUE)
+#'
+#' # Default filter returns a plot for BASHAR
+#' plotWaterTemp()
+#'
+#' # Other variations
+#' plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island")
+#'
+#' # Plot gam trend line (not functional yet)
+#' plotWaterTemp(location = "SHIHAR", years = 2011:2022, plot_title = "Ship Harbor", gam = T)
+#'
+#' }
+#'
+#' @return Returns a ggplot object of water temperature data
+#' @export
+
+plotWaterTemp <- function(park = "all", location = "all", palette = c('default'),
+                          xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
+                          years = 2011:as.numeric(format(Sys.Date(), "%Y")),
+                          plot_title = NULL){
+
+  # Match args and class; match.args only checks first match in vector, so have to do it more manually.
+  stopifnot(park %in% c("all", "ACAD", "BOHA"))
+  stopifnot(location %in% c("all", "BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+                            "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
+  stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2011)
+
+  # if(!requireNamespace("mgcv", quietly = TRUE) & gam == TRUE){
+  #   stop("Package 'mgcv' needed for this function to work. Please install it.", call. = FALSE)
+  # }
+
+  env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
+
+  # Check for loaded logger data. It won't catch everything, but will catch when no logger files have been loaded.
+   if(!any(c("BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE") %in% ls(envir = env))){
+     stop("Must have at least one compiled logger file loaded in global environment and named its location code in all uppercase.")
+   }
+
+  locs <-
+    if(all(location == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
+                            "SHIHAR", "CALISL", "GREISL", "OUTBRE")
+      } else {location}
+
+  cols <- c("BASHAR" = "#440154", "LITHUN" = "#472D7B", "LITMOO" = "#3B528B",
+            "OTTPOI" = "#2C728E", "SCHPOI" = "#21908c", "SHIHAR" = "#27ad81",
+            "CALISL" = "#5dc863", "GREISL" = "#aadc32", "OUTBRE" = "#fde725")
+  #scales::show_col(show_col::viridis_pal()(9))
+
+  labels <- c("BASHAR" = "Bass Harbor", "LITHUN" = "Little Hunter", "LITMOO" = "Little Moose",
+              "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
+              "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
+
+
+  # row bind all the locations specified together into 1 data frame
+  ht_temp <- purrr::map_dfr(locs, function(x){get(x, envir = env)})
+
+  # Set Loc_Code as factor, so facet is ordered by park
+  ht_temp$Loc_Code <- factor(ht_temp$Loc_Code, levels = c("BASHAR", "LITHUN", "LITMOO",
+                                                          "OTTPOI", "SCHPOI", "SHIHAR",
+                                                          "CALISL", "GREISL", "OUTBRE"))
+
+  # Filter data based on fxn arguments
+  ht_temp_park <- if(any(park == 'all')){ht_temp
+  } else {filter(ht_temp, Site_Code %in% park)}
+
+  ht_temp_years <- filter(ht_temp_park, Year %in% years)
+
+  leg_position <- ifelse(facet == TRUE, 'none', 'right')
+
+  p <-
+    ggplot(ht_temp_years, aes(x = timestamp, y = Degrees_F, color = Loc_Code, group = Loc_Code)) +
+    geom_line(aes(color = Loc_Code)) + theme_rocky() +
+    scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y") +
+    {if(all(palette == 'default'))
+      scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
+    {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
+    {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels))} +
+    labs(y = ylab, x = xlab, title = plot_title)+
+    theme(legend.position = leg_position,
+          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+  return(p)
+
+}

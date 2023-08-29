@@ -17,8 +17,6 @@
 #' @param new_env Logical. Specifies which environment to store views in. If \code{TRUE}(Default), stores
 #' views in ROCKY environment. If \code{FALSE}, stores views in global environment
 #'
-#' @return Assigns database tables to global environment
-#'
 #' @examples
 #' \dontrun{
 #'

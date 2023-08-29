@@ -17,11 +17,8 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Include data from all locations, or choose specific locations based on location code.
-#' Can only specify one location for each function call.
-#'
-#' @param years Filter on year of data collected. Default is 2013 to current year.
-#'
+#' @param location Choose specific location based on location code. Can only specify one
+#' location for each function call.
 #' \describe{
 #' \item{'all'}{Includes all locations returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
@@ -34,6 +31,9 @@
 #' \item{"GREISL"}{Green Island, BOHA}
 #' \item{"OUTBRE"}{Outer Brewster}
 #' }
+#'
+#'
+#' @param years Filter on year of data collected. Default is 2013 to current year.
 #'
 #' @param plotName Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")
 #'

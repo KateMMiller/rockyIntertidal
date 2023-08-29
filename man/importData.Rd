@@ -25,8 +25,6 @@ importData(
 views in ROCKY environment. If \code{FALSE}, stores views in global environment}
 }
 \value{
-Assigns database tables to global environment
-
 Rocky intertidal database views in specified environment
 }
 \description{

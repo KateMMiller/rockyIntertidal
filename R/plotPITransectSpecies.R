@@ -216,7 +216,7 @@ plotPITransectSpecies <- function(park = "all", location = "BASHAR", plotName = 
            scale_fill_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
          {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
-         {if(facet == TRUE) facet_wrap(~Spp_Code)} +
+         {if(facet == TRUE) facet_wrap(~Spp_Code, labeller = as_labeller(labels))} +
          scale_y_reverse(limits = c(max(dat_sum$elev_max), min(dat_sum$elev_min))) +
          scale_x_reverse(breaks = c(unique(dat_sum$Year)))+
          coord_flip() +

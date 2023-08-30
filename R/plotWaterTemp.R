@@ -132,9 +132,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
     {if(all(palette == "black")) scale_color_manual(values = "black")} +
-    {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code)} +
-    {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
-    {if(facet_targ == TRUE) facet_wrap(~Target_Species, labeller = as_labeller(labels))} +
+    {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels))} +
     labs(y = ylab, x = xlab, title = plot_title)+
     theme(legend.position = leg_position,
           axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))

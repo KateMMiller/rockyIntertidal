@@ -3,7 +3,7 @@
 #' @include sumPhotoCover.R
 #'
 #' @import ggplot2
-#' @importFrom dplyr arrange group_by slice_max summarize
+#' @importFrom dplyr arrange filter group_by slice_max summarize
 #'
 #' @description This function plots median percent cover by species for a given park, location, years and
 #' target species. The point for each species is the median cover across the photoplots that site, year
@@ -109,7 +109,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(category %in% c("all", "Genus", "Species", "Species Group", "Substrate"))
   stopifnot(target_species %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
-  stopifnot(is.numeric(top_spp))
+  stopifnot(is.numeric(top_spp) | is.null(top_spp))
 
   unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
                                     "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
@@ -175,7 +175,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
 
   if(!is.null(top_spp)){
     # Create df of top 4 species per target_species by cover
-    top4_df <- dat1 |>
+    top_df <- dat1 |>
       group_by(Site_Code, Loc_Code, Target_Species, Spp_Code) |>
       summarize(tot_cov = sum(median_cover, na.rm = TRUE), .groups = 'drop') |>
       ungroup() |>
@@ -185,7 +185,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
       unique()
 
     # left join dat 1 top 4 to drop less abundant species
-    dat <- left_join(top4_df, dat1, by = c("Site_Code", "Loc_Code", "Target_Species", "Spp_Code"))
+    dat <- left_join(top_df, dat1, by = c("Site_Code", "Loc_Code", "Target_Species", "Spp_Code"))
     } else {dat <- dat1}
 
   # This is all to make NONCOR species name sort alphabetically with Cs
@@ -222,7 +222,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
          {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
          {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code)} +
          {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
-         {if(facet_targ == TRUE) facet_wrap(~Target_Species, labeller = as_labeller(labels))} +
+         {if(facet_targ == TRUE) facet_wrap(~Target_Species)} +
          scale_x_continuous(breaks = c(unique(dat$Year)))+
          #coord_flip() +
          theme_rocky() +

@@ -3,6 +3,7 @@
 #' @include plotPITransects.R
 #'
 #' @import ggplot2
+#' @importFrom dplyr desc filter group_by summarize
 #'
 #' @description This function plots species by bolt elevation a given park, location, and years.
 #' The point for each species is the median elevation across the three transects for that year.
@@ -166,10 +167,11 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
                 "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
-  dat <- suppressWarnings(force(sumPISppDetections(park = park, location = location, plotName = plotName,
+  dat <- suppressWarnings(
+    force(sumPISppDetections(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing,
-                                  species = species))) |>
-    filter(!is.na(PI_Elevation))
+                                  species = species)) |>
+          filter(!is.na(PI_Elevation)))
 
   ptitle <- ifelse(title == TRUE, unique(dat$Loc_Name), "")
 
@@ -207,18 +209,18 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
 
   leg_position <- ifelse(any(facet_loc_spp, facet_loc, facet_spp) == TRUE, 'none', 'right')
 
-  p <- suppressWarnings( #for geom_line(only 1 group warning)
+  p <- #suppressWarnings( #for geom_line(only 1 group warning)
   ggplot(dat_sum, aes(x = Year, y = desc(elev_max),
                       group = Spp_Code, color = Spp_Code, fill = Spp_Code,
-                      shape = Spp_Code, size = Spp_Code)) +
+                      shape = Spp_Code)) +
          geom_errorbar(aes(ymin = elev_l25, ymax = elev_u75),
                        #position = position_dodge(width = 1),
                        width = 0, linewidth = 1.5) +
          geom_errorbar(aes(ymin = elev_min, ymax = elev_max),
                       #position = position_dodge(width = 1),
                       linewidth = 0.5) +
-         {if(rev_axis == FALSE)
-           geom_line(aes(x = Year, y = elev_med, group = Spp_Code), linewidth = 0.5)} +
+         #{if(rev_axis == FALSE)
+           #geom_line(aes(x = Year, y = elev_med, group = Spp_Code), linewidth = 0.5)} +
          geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
                         size = Spp_Code, shape = Spp_Code),
                     #position = position_dodge(width = 1),
@@ -245,8 +247,8 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
          {if(rev_axis == FALSE) scale_x_continuous(breaks = c(unique(dat_sum$Year)))} +
          theme_rocky() +
          labs(y = ylab, x = xlab, title = ptitle)
-  )
+  #)
 
-  return(suppressWarnings(p))
+  return(p)
 
 }

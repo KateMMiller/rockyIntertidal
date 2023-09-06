@@ -4,12 +4,14 @@
 #'
 #' @import ggplot2
 #' @importFrom dplyr desc filter group_by summarize
+#' @importFrom plotly ggplotly
 #'
 #' @description This function plots species by bolt elevation a given park, location, and years.
-#' The point for each species is the median elevation across the three transects for that year.
+#' The point for each species is the median elevation across the three transects for that year. The
+#' ribbon represents upper 75% and lower 25% elevation recorded for a species within a given year.
 #' The thicker lines on the error bars are the 25% and 75% quantiles of elevation across the transects.
-#' The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
-#' along the three transects.
+#' The thinner error bars that end with vertical lines are the minimum and maximum elevation detected along
+#' the three transects.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -46,8 +48,18 @@
 #' color palette will also need to be updated, if a new species is added. The viridis palette
 #' will work with new species without adaptation, but labels will only be species codes.
 #'
+#' @param main_groups Logical. If TRUE, only plots red algae (combined Irish moss and red algae group), Fucus spp.,
+#' Ascophyllum nodosum, mussels, and barnacles. If FALSE (Default), plots all species or only species specified. If species
+#' are specified, this argument will be ignored.
+#'
 #' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
 #' Viridis uses a color-blind friendly palette of blues, purples and yellows.
+#'
+#' @param ribbon Logical. If TRUE plots a min/max ribbon around the median elevation for an individual species.
+#' If FALSE (default), plots points and error bars for each species. Ribbon only works if multiple years are plotted.
+#'
+#' @param plotly Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
+#' plots a ggplot object.
 #'
 #' @param facet Logical. If TRUE, will plot species in separate facets. FALSE (default) plots all species
 #' on one figure.
@@ -67,6 +79,7 @@
 #'
 #' @param title If TRUE (Default) prints the full site name on the figure. If FALSE, does not
 #' include plot title.
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -91,11 +104,12 @@
 #' @export
 
 plotPITransectSpecies <- function(park = "all", location = "all", plotName = "all",
-                            species = "all", palette = c('default'),
-                            xlab = "Year", ylab = "Elevation MLLW (m)",
-                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                            facet = FALSE, title = TRUE, rev_axis = TRUE,
-                            QAQC = FALSE, drop_missing = TRUE){
+                                  species = NA, palette = c('default'), ribbon = FALSE,
+                                  main_groups = FALSE, plotly = FALSE,
+                                  xlab = "Year", ylab = "Elevation MLLW (m)",
+                                  years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                                  facet = FALSE, title = TRUE, rev_axis = TRUE,
+                                  QAQC = FALSE, drop_missing = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -106,11 +120,26 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(is.logical(facet))
+  stopifnot(is.logical(ribbon))
 
-  unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
-                                    "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
-                                    "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
-                                    "UNIDEN", "WATER"))
+  if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
+    stop("Package 'plotly' needed for this function for plotly = TRUE. Please install it or set plotly = FALSE.", call. = FALSE)
+  }
+
+  if(length(years) == 1 & ribbon == TRUE){
+    warning("Must specify at least 2 years to plot a ribbon. Setting ribbon = FALSE and plotting error bars.")
+    ribbon = FALSE}
+
+  spp_list <- c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
+                "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
+                "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
+                "UNIDEN", "WATER")
+
+  if(all(species %in% spp_list) & main_groups == TRUE){
+    warning("Can't specify species and set main_groups to TRUE. Only plotting the 4 main species groups.")
+  }
+
+  unmatch_spp <- setdiff(species, c(spp_list, NA))
 
   # if(length(location) > 1){
   #   stop('Must only specify one location or one year, cannot plot multiple locations and years.')}
@@ -124,6 +153,16 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
+  if(all(is.na(species)) & main_groups == FALSE){
+    warning("Species not specified. Plotting all species.")
+    species <- 'all'
+  }
+
+  if(all(is.na(species)) & main_groups == TRUE){
+    species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
+  }
+
+
   # create color palette by species code
 
   cols = c("ALGBRO" = "#A4755B", "ALGGRE" = "#C4E133", "ALGRED" = "#FF4C53", "ARTCOR" = "#D78AAE",
@@ -132,7 +171,7 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
            "KELP"   = "#4DA551", "MUSSPP" = "#6F88BF", "OTHINV" = "#F59617", "OTHSUB" = "#8A838A",
            "PALPAL" = "#5E5571", "PORSPP" = "#8E3B4A", "ULVENT" = "#699052", "ULVINT" = "#9FCF87",
            "ULVLAC" = "#73EB31", "UNIDEN" = "#696969", "BOLT"   = "#EAEAEA", "ROCK"   = "#FED5FF",
-           "WATER"  = "#7FC7E1")
+           "WATER"  = "#7FC7E1", "REDGRP" = "#FF4C53")
 
   shps = c("ALGBRO" = 21, "ALGGRE" = 23, "ALGRED" = 24, "ARTCOR" = 25,
            "ASCEPI" = 21, "ASCNOD" = 23, "BARSPP" = 24, "CHOMAS" = 25,
@@ -140,7 +179,7 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
            "KELP"   = 21, "MUSSPP" = 23, "OTHINV" = 24, "OTHSUB" = 25,
            "PALPAL" = 21, "PORSPP" = 23, "ULVENT" = 24, "ULVINT" = 25,
            "ULVLAC" = 21, "UNIDEN" = 23, "BOLT"   = 24, "ROCK"   = 25,
-           "WATER"  = 21)
+           "WATER"  = 21, "REDGRP" = 25)
 
   sz = c("ALGBRO" = 3, "ALGGRE" = 2.5, "ALGRED" = 2, "ARTCOR" = 2,
          "ASCEPI" = 3, "ASCNOD" = 2.5, "BARSPP" = 2, "CHOMAS" = 2,
@@ -148,7 +187,7 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
          "KELP"   = 3, "MUSSPP" = 2.5, "OTHINV" = 2, "OTHSUB" = 2,
          "PALPAL" = 3, "PORSPP" = 2.5, "ULVENT" = 2, "ULVINT" = 2,
          "ULVLAC" = 3, "UNIDEN" = 2.5, "BOLT"   = 2, "ROCK"   = 2,
-         "WATER"  = 3)
+         "WATER"  = 3, "REDGRP" = 2)
 
 
   labels = c("ALGBRO" = "Algae - Brown", "ALGGRE" = "Algae - Green", "ALGRED" = "Algae - Red",
@@ -161,17 +200,25 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
              "OTHINV" = "Other invertebrates", "OTHSUB" = "Other substrate",
              "PALPAL" = "Dulse", "PORSPP" = "Laver", "ULVENT" = "Ulva/Enteromorpha",
              "ULVINT" = "Ulva intestinalis (Grass kelp)", "ULVLAC" = "Ulva lactuca (Sea lettuce)",
-             "UNIDEN" = "Unidentified", "BOLT"   = "Bolt", "ROCK"   = "Rock", "WATER"  = "Water")
+             "UNIDEN" = "Unidentified", "BOLT"   = "Bolt", "ROCK"   = "Rock", "WATER"  = "Water",
+             "REDGRP" = "Red algae group")
 
   loc_labs <- c("BASHAR" = "Bass Harbor", "LITHUN" = "Little Hunter", "LITMOO" = "Little Moose",
                 "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
-  dat <- suppressWarnings(
+  dat1 <- suppressWarnings(
     force(sumPISppDetections(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing,
                                   species = species)) |>
-          filter(!is.na(PI_Elevation)))
+          dplyr::filter(!is.na(PI_Elevation)))
+
+  dat <-
+  if(main_groups == TRUE){
+    dat1 |> dplyr::mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
+                          Spp_Name = ifelse(Spp_Code %in% "REDGRP", "Red algae group", Spp_Name)) |>
+            dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP"))
+  } else {dat1}
 
   ptitle <- ifelse(title == TRUE, unique(dat$Loc_Name), "")
 
@@ -190,11 +237,16 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
   sppcode <- c("ALGBRO", "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD",
                "BARSPP", "CHOMAS", "CRUCOR", "NONCOR", "FUCEPI", "FUCSPP", "KELP",
                "MUSSPP", "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ULVENT", "ULVINT",
-               "ULVLAC", "UNIDEN", "BOLT", "ROCK", "WATER")
+               "ULVLAC", "UNIDEN", "BOLT", "ROCK", "WATER", "REDGRP")
 
   dat_sum$Spp_Code <- factor(dat_sum$Spp_Code, levels = sppcode) |> droplevels()
   spp <- levels(dat_sum$Spp_Code)
 
+  # Ordering sites from west to east
+  dat_sum$Loc_Code <- factor(dat_sum$Loc_Code,
+                             levels = c("CALISL", "GREISL", "OUTBRE",
+                                        "BASHAR", "SHIHAR", "LITHUN",
+                                        "OTTPOI", "SCHPOI", "LITMOO"))
   # cols <- cols[spp]
   # labels <- labels[spp]
 
@@ -203,40 +255,59 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
                                  "SHIHAR", "CALISL", "GREISL", "OUTBRE")
     } else {location}
 
-  facet_loc_spp <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) > 1) {TRUE} else {FALSE}
+  facet_loc_spp <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) > 1 & ribbon == FALSE) {TRUE} else {FALSE}
+  facet_loc_ribbon <- if(length(locs) > 1 & ribbon == TRUE) {TRUE} else {FALSE}
   facet_loc <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) == 1) {TRUE} else {FALSE}
   facet_spp <- if(facet_loc == FALSE & facet_loc_spp == FALSE & facet == TRUE) {TRUE} else {FALSE}
 
   leg_position <- ifelse(any(facet_loc_spp, facet_loc, facet_spp) == TRUE, 'none', 'right')
 
-  p <- #suppressWarnings( #for geom_line(only 1 group warning)
-  ggplot(dat_sum, aes(x = Year, y = desc(elev_max),
+  p <- suppressWarnings( #suppress tooltip warning
+  ggplot(dat_sum, aes(x = Year, y = elev_med, #desc(elev_max),
                       group = Spp_Code, color = Spp_Code, fill = Spp_Code,
-                      shape = Spp_Code)) +
+                      shape = Spp_Code, size = Spp_Code)) +
+         {if(ribbon == TRUE) geom_ribbon(aes(ymax = elev_u75, ymin = elev_l25, #group = Spp_Code,
+                                             #color = Spp_Code, fill = Spp_Code,
+                                             text = paste0("Upper 75% and lower 25% elev.", "<br>",
+                                                           "Species: ", Spp_Name, "<br>")),
+                                         alpha = 0.2, linewidth = 0.5)}+
+         {if(ribbon == TRUE) geom_line(aes(x = Year, y = elev_med, #group = Spp_Code,
+                                           linewidth = 0.5,
+                                           #color = Spp_Code,
+                                           #fill = Spp_Code,
+                                           text = paste0("Median elev.", "<br>",
+                                                         "Species: ", Spp_Name, "<br>")),
+                                       linewidth = 0.5)} +
+         {if(ribbon == TRUE) geom_point(aes(x = Year, y = elev_med, #fill = Spp_Code, color = Spp_Code,
+                                            #size = Spp_Code, #shape = Spp_Code, group = Spp_Code,
+                                            text = paste0("Median elevation: ", round(elev_med, 2), "<br>",
+                                                          "Species: ", Spp_Name, "<br>",
+                                                          "Year: ", Year)))} +#,
+         {if(ribbon == FALSE)
          geom_errorbar(aes(ymin = elev_l25, ymax = elev_u75),
                        #position = position_dodge(width = 1),
-                       width = 0, linewidth = 1.5) +
+                       width = 0, linewidth = 1.5)} +
+         {if(ribbon == FALSE)
          geom_errorbar(aes(ymin = elev_min, ymax = elev_max),
                       #position = position_dodge(width = 1),
-                      linewidth = 0.5) +
-         #{if(rev_axis == FALSE)
-           #geom_line(aes(x = Year, y = elev_med, group = Spp_Code), linewidth = 0.5)} +
-         geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
-                        size = Spp_Code, shape = Spp_Code),
-                    #position = position_dodge(width = 1),
-                    color = 'black') +
+                      linewidth = 0.5)} +
+         {if(ribbon == FALSE)
+          geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
+                     size = Spp_Code, shape = Spp_Code), color = 'black')} +
          scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
                             labels = labels) +
          scale_size_manual(values = sz, name = "Species", breaks = names(sz),
                             labels = labels) +
          theme(legend.position = leg_position) +
+         {if(rev_axis == FALSE) theme(axis.text.x = element_text(angle = 45))} +
          {if(all(palette == 'default'))
            scale_color_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
          {if(all(palette == 'default'))
            scale_fill_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
-         {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
+         {if(all(palette == 'viridis')) scale_color_viridis_d("Species")} +
+         {if(facet_loc_ribbon == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
          {if(facet_spp == TRUE) facet_wrap(~Spp_Code, labeller = as_labeller(labels))} +
          {if(facet_loc_spp == TRUE) facet_wrap(~Spp_Code + Loc_Code)} +
          {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
@@ -247,8 +318,11 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
          {if(rev_axis == FALSE) scale_x_continuous(breaks = c(unique(dat_sum$Year)))} +
          theme_rocky() +
          labs(y = ylab, x = xlab, title = ptitle)
-  #)
+  )
 
-  return(p)
+  pp <-
+  if(plotly == TRUE){plotly::ggplotly(p, tooltip = 'text', layerData = 1, originalData = F)} else {p}
 
-}
+  suppressWarnings(print(pp))
+
+  }

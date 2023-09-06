@@ -8,8 +8,11 @@ plotPITransectSpecies(
   park = "all",
   location = "all",
   plotName = "all",
-  species = "all",
+  species = NA,
   palette = c("default"),
+  ribbon = FALSE,
+  main_groups = FALSE,
+  plotly = FALSE,
   xlab = "Year",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -56,6 +59,16 @@ will work with new species without adaptation, but labels will only be species c
 \item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
 Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
+\item{ribbon}{Logical. If TRUE plots a min/max ribbon around the median elevation for an individual species.
+If FALSE (default), plots points and error bars for each species. Ribbon only works if multiple years are plotted.}
+
+\item{main_groups}{Logical. If TRUE, only plots red algae (combined Irish moss and red algae group), Fucus spp.,
+Ascophyllum nodosum, mussels, and barnacles. If FALSE (Default), plots all species or only species specified. If species
+are specified, this argument will be ignored.}
+
+\item{plotly}{Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
+plots a ggplot object.}
+
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Distance (m)'}
 
 \item{ylab}{Quoted text label for y axis. If not specified, defaults to 'Elevation MLLW (m)'}
@@ -82,10 +95,11 @@ Returns a ggplot object of point intercept species detection data filtered by fu
 }
 \description{
 This function plots species by bolt elevation a given park, location, and years.
-The point for each species is the median elevation across the three transects for that year.
+The point for each species is the median elevation across the three transects for that year. The
+ribbon represents upper 75\% and lower 25\% elevation recorded for a species within a given year.
 The thicker lines on the error bars are the 25\% and 75\% quantiles of elevation across the transects.
-The thinner error bars that end with vertical lines are the minimum and maximum elevation detected
-along the three transects.
+The thinner error bars that end with vertical lines are the minimum and maximum elevation detected along
+the three transects.
 }
 \examples{
 \dontrun{

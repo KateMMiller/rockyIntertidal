@@ -1,7 +1,7 @@
 #' @title plotWaterTemp: plots water temperature at high tide time series
 #'
 #' @import ggplot2
-#' @importFrom dplyr mutate
+#' @importFrom dplyr group_by filter left_join mutate right_join select summarize
 #' @importFrom purrr map_dfr
 #' @importFrom scales breaks_width
 #'
@@ -46,6 +46,10 @@
 #' @param facet Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
 #' on one figure.
 #'
+#' @param plot_tmin Logical. If TRUE, will plot a line connecting minimum recorded temperatures across years.
+#'
+#' @param plot_tmax Logical. If TRUE, will plot a line connecting maximum recorded temperatures across years.
+#'
 #' @param gam Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
 #' derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL
 #'
@@ -71,7 +75,7 @@
 
 plotWaterTemp <- function(park = "all", location = "all", palette = c('default'),
                           xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
-                          facet = TRUE,
+                          facet = TRUE, plot_tmin = FALSE, plot_tmax = FALSE,
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
                           plot_title = NULL){
 
@@ -81,6 +85,9 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2011)
   stopifnot(palette %in% c("default", "viridis", "black"))
+  stopifnot(is.logical(plot_tmin))
+  stopifnot(is.logical(plot_tmax))
+
   # if(!requireNamespace("mgcv", quietly = TRUE) & gam == TRUE){
   #   stop("Package 'mgcv' needed for this function to work. Please install it.", call. = FALSE)
   # }
@@ -120,22 +127,43 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
   ht_temp_park <- if(any(park == 'all')){ht_temp
   } else {filter(ht_temp, Site_Code %in% park)}
 
-  ht_temp_years <- filter(ht_temp_park, Year %in% years)
+  ht_temp_loc <- if(any(location == 'all')){ht_temp_park
+  } else {filter(ht_temp_park, Loc_Code %in% location)}
+
+  ht_temp_years <- filter(ht_temp_loc, Year %in% years)
+
+  temp_stats <- ht_temp_years |> group_by(Site_Code, Loc_Code, Year) |>
+    summarize(tmax = max(Degrees_F, na.rm = T),
+              tmin = min(Degrees_F, na.rm = T),
+              tmed = median(Degrees_F, na.rm = T),
+              .groups = 'drop')
+
+  # Left join to find date of tmax and tmin
+  ht_tmax <- left_join(temp_stats |> select(-tmin), ht_temp_years,
+                        by = c("Site_Code", "Loc_Code", "Year", "tmax" = "Degrees_F"))
+  ht_tmin <- left_join(temp_stats |> select(-tmax), ht_temp_years,
+                        by = c("Site_Code", "Loc_Code", "Year", "tmin" = "Degrees_F"))
 
   leg_position <- ifelse(facet == TRUE, 'none', 'right')
 
   p <-
     ggplot(ht_temp_years, aes(x = timestamp, y = Degrees_F, color = Loc_Code, group = Loc_Code)) +
     geom_line(aes(color = Loc_Code)) + theme_rocky() +
-    scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y") +
+    {if(length(years) > 3) scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")}+
+    {if(length(years) <= 3 & length(years) > 1)
+      scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
+    {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}+
     {if(all(palette == 'default'))
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
     {if(all(palette == "black")) scale_color_manual(values = "black")} +
     {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels))} +
+    {if(plot_tmax == TRUE) geom_line(data = ht_tmax, aes(x = timestamp, y = tmax), linetype = 'dashed')} +
+    {if(plot_tmin == TRUE) geom_line(data = ht_tmin, aes(x = timestamp, y = tmin), linetype = 'dashed')} +
     labs(y = ylab, x = xlab, title = plot_title)+
     theme(legend.position = leg_position,
           axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
-  return(p)
+
+    return(p)
 
 }

@@ -12,6 +12,8 @@ plotWaterTemp(
   ylab = "High Tide Water Temp (F)",
   gam = FALSE,
   facet = TRUE,
+  plot_tmin = FALSE,
+  plot_tmax = FALSE,
   years = 2011:as.numeric(format(Sys.Date(), "\%Y")),
   plot_title = NULL
 )
@@ -51,6 +53,10 @@ derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL}
 
 \item{facet}{Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
 on one figure.}
+
+\item{plot_tmin}{Logical. If TRUE, will plot a line connecting minimum recorded temperatures across years.}
+
+\item{plot_tmax}{Logical. If TRUE, will plot a line connecting maximum recorded temperatures across years.}
 
 \item{years}{Filter on year of data collected. Default is 2011 to current year.}
 

@@ -1,4 +1,4 @@
-#' @title getPISppDetections: get point intercept species detection data
+#' @title getPISpecies: get point intercept species detection data
 #'
 #' @importFrom dplyr filter mutate select
 #'
@@ -47,19 +47,19 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' spp <- getPISppDetections()
+#' spp <- getPISpecies()
 #'
 #' # Species detections for ACAD only sites
-#' spp <- getPISppDetections(park = "ACAD")
+#' spp <- getPISpecies(park = "ACAD")
 #'
 #' # Species detections for specific sites, plots, species, and years
 #'
-#' spp_t3 <- getPISppDetections(park = "ACAD", plotName = "T3")
-#' spp_BOHA2 <- getPISppDetections(location = c("CALISL", "GREISL"))
-#' spp_fuc <- getPISppDetections(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
-#' spp_5yr <- getPISppDetections(years = 2016:2021)
-#' spp_first_last <- getPISppDetections(years = c(2013, 2021))
-#' spp21_with_qaqc <- getPISppDetections(years = 2021, QAQC = TRUE)
+#' spp_t3 <- getPISpecies(park = "ACAD", plotName = "T3")
+#' spp_BOHA2 <- getPISpecies(location = c("CALISL", "GREISL"))
+#' spp_fuc <- getPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
+#' spp_5yr <- getPISpecies(years = 2016:2021)
+#' spp_first_last <- getPISpecies(years = c(2013, 2021))
+#' spp21_with_qaqc <- getPISpecies(years = 2021, QAQC = TRUE)
 #'
 #' }
 #'
@@ -67,7 +67,7 @@
 #' @return Returns a data frame of point intercept species detection data filtered by function arguments
 #' @export
 
-getPISppDetections <- function(park = "all", location = "all", plotName = "all",
+getPISpecies <- function(park = "all", location = "all", plotName = "all",
                                species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
                                QAQC = FALSE){
 

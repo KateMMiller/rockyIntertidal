@@ -1,7 +1,7 @@
-#' @title sumPISppDetections: summarize point intercept species detection data by species and elevation band
+#' @title sumPISpecies: summarize point intercept species detection data by species and elevation band
 #'
 #' @include getPIBoltDistance.R
-#' @include getPISppDetections.R
+#' @include getPISpecies.R
 #'
 #' @importFrom dplyr arrange filter group_by last_dplyr_warnings lead mutate n select ungroup
 #' @importFrom data.table setkeyv setDT
@@ -56,20 +56,20 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' spp <- sumPISppDetections()
+#' spp <- sumPISpecies()
 #'
 #' # Species detections for ACAD only sites
-#' spp <- sumPISppDetections(park = "ACAD")
+#' spp <- sumPISpecies(park = "ACAD")
 #'
 #' # Species detections for specific sites, plots, species, and years
 #'
-#' spp_t3 <- sumPISppDetections(park = "ACAD", plotName = "T3")
-#' spp_BOHA2 <- sumPISppDetections(location = c("CALISL", "GREISL"))
-#' spp_fuc <- sumPISppDetections(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
-#' spp_5yr <- sumPISppDetections(years = 2016:2021)
-#' spp_first_last <- sumPISppDetections(years = c(2013, 2021))
-#' spp21_with_qaqc <- sumPISppDetections(years = 2021, QAQC = TRUE)
-#' spp_no_drops <- sumPISppDetections(drop_missing = FALSE)
+#' spp_t3 <- sumPISpecies(park = "ACAD", plotName = "T3")
+#' spp_BOHA2 <- sumPISpecies(location = c("CALISL", "GREISL"))
+#' spp_fuc <- sumPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
+#' spp_5yr <- sumPISpecies(years = 2016:2021)
+#' spp_first_last <- sumPISpecies(years = c(2013, 2021))
+#' spp21_with_qaqc <- sumPISpecies(years = 2021, QAQC = TRUE)
+#' spp_no_drops <- sumPISpecies(drop_missing = FALSE)
 #'
 #' }
 #'
@@ -77,7 +77,7 @@
 #' @return Returns a data frame of point intercept species detection data filtered by function arguments
 #' @export
 
-sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
+sumPISpecies <- function(park = "all", location = "all", plotName = "all",
                                species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
                                QAQC = FALSE, drop_missing = TRUE){
 
@@ -149,7 +149,7 @@ sumPISppDetections <- function(park = "all", location = "all", plotName = "all",
   #boltdist$slope_rad[is.nan(boltdist$slope_rad)] <- 0
   boltdist$slope_rad[is.na(boltdist$slope_rad)] <- 0
 
-  sppdist <- force(getPISppDetections(park = park, location = location, plotName = plotName,
+  sppdist <- force(getPISpecies(park = park, location = location, plotName = plotName,
                                       species = 'all', # join all spp. for geometry to work; filter spp later
                                       years = years, QAQC = QAQC)) |>
               select(-Event_ID, -Plot_ID) |>

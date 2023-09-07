@@ -1,6 +1,6 @@
 #' @title plotPITransects: plots transect distance by elevation by location, year and transect
 #'
-#' @include sumPISppDetections.R
+#' @include sumPISpecies.R
 #'
 #' @import ggplot2
 #'
@@ -85,7 +85,7 @@ plotPITransects <- function(park = "all", location = "all", plotName = "all",
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
-  dat <- suppressWarnings(force(sumPISppDetections(park = park, location = location, plotName = plotName,
+  dat <- suppressWarnings(force(sumPISpecies(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing)) |>
          select(Site_Code:Label, Elevation_MLLW_m, Distance_m) |> unique()) # only concerned with bolts, not spp pi in fxn
 

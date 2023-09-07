@@ -1,4 +1,4 @@
-#' @title plotPITransectSpecies: plots species detections by elevation and year for individual sites.
+#' @title plotPISpecies: plots species detections by elevation and year for individual sites.
 #'
 #' @include plotPITransects.R
 #'
@@ -87,14 +87,14 @@
 #' importData()
 #'
 #' # Default filter returns a plot for BASHAR (have to pick a site)
-#' plotPITransectSpecies()
+#' plotPISpecies()
 #'
 #' # Other variations
 #' spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-#' plotPITransectSpecies(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+#' plotPISpecies(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
 #'                       species = spp)
 #'
-#' plotPITransectSpecies(location = "SHIHAR", palette = "default",
+#' plotPISpecies(location = "SHIHAR", palette = "default",
 #'                       facet = FALSE, species = c("BARSPP"))
 #'
 #' }
@@ -103,7 +103,7 @@
 #' @return Returns a ggplot object of point intercept species detection data filtered by function arguments
 #' @export
 
-plotPITransectSpecies <- function(park = "all", location = "all", plotName = "all",
+plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                                   species = NA, palette = c('default'), ribbon = FALSE,
                                   main_groups = FALSE, plotly = FALSE,
                                   xlab = "Year", ylab = "Elevation MLLW (m)",
@@ -208,7 +208,7 @@ plotPITransectSpecies <- function(park = "all", location = "all", plotName = "al
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
   dat1 <- suppressWarnings(
-    force(sumPISppDetections(park = park, location = location, plotName = plotName,
+    force(sumPISpecies(park = park, location = location, plotName = plotName,
                                   years = years, QAQC = QAQC, drop_missing = drop_missing,
                                   species = species)) |>
           dplyr::filter(!is.na(PI_Elevation)))

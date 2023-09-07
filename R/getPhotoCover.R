@@ -1,6 +1,8 @@
 #' @title getPhotoCover: get percent cover data from photo quadrats
 #'
-#' @importFrom dplyr filter mutate select
+#' @include getBolts.R
+#'
+#' @importFrom dplyr filter left_join mutate select
 #'
 #' @description This function filters photo quadrat percent cover data by park,
 #' location, plot name, and species.
@@ -106,12 +108,16 @@ getPhotoCover <- function(park = "all", location = "all", plotName = "all",
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
-  tryCatch(cov <- get("PhotoQuadrats_Cover", envir = env) |>
+  tryCatch(cover <- get("PhotoQuadrats_Cover", envir = env) |>
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("PhotoQuadrats_Cover data frame not found. Please import rocky intertidal data.")})
 
-  cov_park <- if(any(park %in% 'all')){ filter(cov, Site_Code %in% c("ACAD", "BOHA"))
-  } else {filter(cov, Site_Code %in% park)}
+  bolts <- force(getBolts(park = park, location = location, plotName = plotName, species = 'all_records',
+                          plotType = 'Photoplot')) |>
+    filter(grepl("label", Label))
+
+    cov_park <- if(any(park %in% 'all')){ filter(cover, Site_Code %in% c("ACAD", "BOHA"))
+  } else {filter(cover, Site_Code %in% park)}
 
   cov_loc <- if(any(location %in% 'all')){ cov_park
   } else {filter(cov_park, Loc_Code %in% location)}
@@ -140,9 +146,15 @@ getPhotoCover <- function(park = "all", location = "all", plotName = "all",
              Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover, Notes,
              Scorer, Event_ID, Plot_ID)}
 
-  if(nrow(cov_qaqc) == 0){stop("Specified arguments returned an empty data frame.")}
+  # Join bolt elevation with cover data
+  cov_comb <- left_join(bolts |> select(Site_Code, Loc_Code, Plot_Name, Target_Species,
+                                        Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev) |> unique(),
+                    cov_qaqc,
+                    by = c("Site_Code", "Loc_Code", "Plot_Name", "Target_Species"))
 
-  return(cov_qaqc)
+  if(nrow(cov_comb) == 0){stop("Specified arguments returned an empty data frame.")}
+
+  return(cov_comb)
 
 
 }

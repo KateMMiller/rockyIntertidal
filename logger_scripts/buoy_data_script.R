@@ -78,6 +78,7 @@ wdir_44013 <- combine_buoy_data(buoyid = "44013", variable = "WDIR", inDir = "..
 wvht_44013 <- combine_buoy_data(buoyid = "44013", variable = "WVHT", inDir = "../data/rocky/temp_data/") |>
   add_hour()
 
+table(comb_44013$DATE)
 comb_44013 <- purrr::reduce(list(wtmp_44013, wspd_44013, wdir_44013, wvht_44013),
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 

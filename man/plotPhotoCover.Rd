@@ -11,11 +11,14 @@ plotPhotoCover(
   species = "all",
   category = "all",
   target_species = "all",
+  heatmap = FALSE,
   top_spp = NULL,
   palette = c("default"),
   xlab = "Year",
   ylab = "\% Cover",
+  main_groups = FALSE,
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  nrow = 1,
   plot_title = NULL,
   QAQC = FALSE,
   drop_missing = TRUE
@@ -61,10 +64,14 @@ c("all", "Genus", "Species", "Species Group", and "Substrate")}
 \item{target_species}{Filter on target species (ie photoplot). Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
+\item{heatmap}{Logical. If FALSE (Default), will plot species cover (y) by year (x) as points with error bars,
+and faceted on target species. If TRUE, will plot results as heat map with species as y, year by x, and color
+values representing percent cover.}
+
 \item{top_spp}{Integer. If specified, only plots the top n species by cover for each target species. If not
 specified, plots all species, or only the species specified in the species argument. Note that species ties are
-included, so could include more than the number specified. Species with less than 0.1\% total cover are also
-dropped when a top_spp is specififed.}
+included, so could include more than the number specified. Species with less than 0.1\% total cover are
+dropped when a top_spp is specified. This argument overrides the species argument.}
 
 \item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
 Viridis uses a color-blind friendly palette of blues, purples and yellows.}
@@ -73,7 +80,13 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{ylab}{Quoted text label for y axis. If not specified, defaults to '\% Cover'}
 
+\item{main_groups}{Logical. If TRUE, only plots red algae (combined Irish moss and red algae group), Fucus spp.,
+Ascophyllum nodosum, mussels, and barnacles. If FALSE (Default), plots all species or only species specified. If species
+are specified, this argument will override it and only plot main species groups.}
+
 \item{years}{Filter on year of data collected. Default is 2013 to current year.}
+
+\item{nrow}{Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected and heatmap = T.}
 
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
 
@@ -88,7 +101,8 @@ This function plots median percent cover by species for a given park, location, 
 target species. The point for each species is the median cover across the photoplots that site, year
 and target species. The error bars are the minimum and maximum cover recorded in photoplots for a target
 species. Note that if more than 1 location is specified, more than one target species is specified, or both,
-the resulting figure will facet on those variables.
+the resulting figure will facet on those variables. If elev = TRUE, data will be plotted by elevation
+instead of plot name.
 }
 \examples{
 \dontrun{
@@ -106,6 +120,15 @@ plotPhotoCover(location = "CALISL", palette = "default", title = FALSE,
 # Return only the top 3 species for barnacle photo plots
 plotPhotoCover(location = "SHIHAR", palette = "default",
                target_species = "Barnacle", top_spp = 3)
+
+# Only plot main 5 species groups for BOHA sites
+plotPhotoCover(park = "BOHA", main_groups = TRUE)
+
+# Plot heatmap for main species groups for Green Island
+plotPhotoCover(location = "GREISL", main_groups = TRUE, heatmap = TRUE)
+
+# Plot top 4 species in barnacle photoplots only
+plotPhotoCover(park = "ACAD", top_spp = 4, target_species = "Barnacle")
 
 }
 

@@ -153,12 +153,12 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
-  if(all(is.na(species)) & main_groups == FALSE){
+  if(all(is.null(species)) & main_groups == FALSE){
     warning("Species not specified. Plotting all species.")
     species <- 'all'
   }
 
-  if(all(is.na(species)) & main_groups == TRUE){
+  if(all(is.null(species)) & main_groups == TRUE){
     species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
   }
 

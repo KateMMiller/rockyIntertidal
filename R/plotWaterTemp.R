@@ -50,23 +50,26 @@
 #'
 #' @param plot_tmax Logical. If TRUE, will plot a line connecting maximum recorded temperatures across years.
 #'
+#' @param facet_col Numeric. Number of columns for the facet to plot. Defaults to 1.
+#'
 #' @param gam Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
 #' derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL
 #'
 #' @examples
 #' \dontrun{
 #'
-#' path <- "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
-#' importWaterTemp(path, simplify = TRUE)
+#' path <-
+#'   "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+#' importWaterTemp(path, simplify = TRUE, buoy = TRUE) # import water temp and buoy data and simplify to daily stats.
 #'
 #' # Default filter returns a plot for BASHAR
 #' plotWaterTemp()
 #'
 #' # Other variations
-#' plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island")
+#' plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island",
+#' plot_tmax = T, plot_tmin = T)
 #'
-#' # Plot gam trend line (not functional yet)
-#' plotWaterTemp(location = "SHIHAR", years = 2011:2022, plot_title = "Ship Harbor", gam = T)
+#' plotWaterTemp(location = "SCHPOI", years = 2013:2022, palette = 'black')
 #'
 #' }
 #'
@@ -77,7 +80,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
                           xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
                           facet = TRUE, plot_tmin = FALSE, plot_tmax = FALSE,
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
-                          plot_title = NULL){
+                          plot_title = NULL, facet_col = 1){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -99,6 +102,19 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
              "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE") %in% ls(envir = env))){
      stop("Must have at least one compiled logger file loaded in global environment and named its location code in all uppercase.")
    }
+
+  if(buoy == TRUE & !exists("ACAD_buoy" %in% ls(envir = env))){
+    stop("Must import ACAD and BOHA buoy data for buoy = TRUE.")
+  }
+
+  if(buoy == TRUE & park %in% c("all" | c("ACAD", "BOHA"))){
+    stop("Can only plot buoy data for one park at a time. Either specify a single park, or set buoy = FALSE.")
+  }
+
+  if(buoy == TRUE){
+    bdat <- if(park == "ACAD"){get("ACAD_buoy", envir = env)
+    } else {get("BOHA_buoy", envir = env)}
+  }
 
   locs <-
     if(all(location == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
@@ -157,13 +173,19 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
     {if(all(palette == "black")) scale_color_manual(values = "black")} +
-    {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels))} +
+    {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels), ncol = facet_col)} +
     {if(plot_tmax == TRUE) geom_line(data = ht_tmax, aes(x = timestamp, y = tmax), linetype = 'dashed')} +
     {if(plot_tmin == TRUE) geom_line(data = ht_tmin, aes(x = timestamp, y = tmin), linetype = 'dashed')} +
-    labs(y = ylab, x = xlab, title = plot_title)+
+    labs(y = ylab, x = xlab, title = plot_title) +
     theme(legend.position = leg_position,
-          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)) +
 
-    return(p)
+  if(buoy == TRUE){
+    bp <- ggplot(bdat, aes(x = ))
+  }
+
+      return(p)
+
+
 
 }

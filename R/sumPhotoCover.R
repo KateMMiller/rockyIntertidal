@@ -111,11 +111,12 @@ sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
                                species = species, target_species = target_species,
                                category = category, years = years, QAQC = QAQC)) |>
     select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year,
-           Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev, Date_Scored, QAQC, Plot_Name,
+           #Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
+           Date_Scored, QAQC, Plot_Name,
            Target_Species, Spp_Code, Spp_Name, Category, Perc_Cover, Notes)
 
   cov_sum <- cover |> group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
-                               Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
+                               #Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev, # indiv. values for each 5 plots
                                Target_Species, Spp_Code, Spp_Name, Category) |>
                       summarize(avg_cover = mean(Perc_Cover, na.rm = T),
                                 median_cover = median(Perc_Cover, na.rm = T),

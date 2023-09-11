@@ -2,19 +2,23 @@
 % Please edit documentation in R/importWaterTemp.R
 \name{importWaterTemp}
 \alias{importWaterTemp}
-\title{importWaterTemp: Import compiled water temperature data}
+\title{importWaterTemp: Import compiled water temperature and buoy data}
 \usage{
-importWaterTemp(path = NA, simplify = TRUE, new_env = TRUE)
+importWaterTemp(path = NA, simplify = TRUE, new_env = TRUE, buoy = TRUE)
 }
 \arguments{
 \item{path}{Quoted path of database backend file, including the name of the backend.}
 
-\item{simplify}{Logical. If TRUE (default), will simplify dataset to only include 1 water temperature measurement per high
-tide event by selecting the value closest in time to high tide. This will speed up processing and plotting time. If FALSE,
-will keep all values that are within 2 hours of high tide.}
+\item{simplify}{Logical. If TRUE (default), will simplify dataset to only include 1 water
+temperature measurement per high tide event by selecting the value closest in time to high tide.
+This will speed up processing and plotting time. If FALSE, will keep all values that are within
+2 hours of high tide.}
 
 \item{new_env}{Logical. Specifies which environment to store views in. If \code{TRUE}(Default), stores
 views in ROCKY environment. If \code{FALSE}, stores views in global environment}
+
+\item{buoy}{Logical. If TRUE (default), imports compiled buoy data for ACAD (station 44034)
+and BOHA (station 44013)}
 }
 \value{
 Rocky intertidal compiled water temperature data in specified environment
@@ -22,16 +26,18 @@ Rocky intertidal compiled water temperature data in specified environment
 \description{
 This function imports compiled water temperature data collected within 2 hours of high tide.
 User must specify the path where the compiled logger data are stored, then imports and defines date fields
-as POSIXct dates.
+as POSIXct dates. Buoy data are also imported if buoy = TRUE and the files exist in the specified path.
 }
 \examples{
 \dontrun{
 
-# Import views using DSN
-importData(type='DSN', DSN="rocky_BE") # this is the same as importData()
+# Import water temp data with defaults (new_env = T, simplify = T)
+path = "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
 
-# Import database in specific folder:
-importData(type='file', path='./Data/NETN_RockyIntertidal_Database_be_20230120.mdb')
+importWaterTemp(path = path)
+
+# Import full water temp dataset into global environment
+importWaterTemp(path = path, new_env = F, simplify = F)
 
 }
 

@@ -15,7 +15,8 @@ plotWaterTemp(
   plot_tmin = FALSE,
   plot_tmax = FALSE,
   years = 2011:as.numeric(format(Sys.Date(), "\%Y")),
-  plot_title = NULL
+  plot_title = NULL,
+  facet_col = 1
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ on one figure.}
 \item{years}{Filter on year of data collected. Default is 2011 to current year.}
 
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
+
+\item{facet_col}{Numeric. Number of columns for the facet to plot. Defaults to 1.}
 }
 \value{
 Returns a ggplot object of water temperature data
@@ -74,17 +77,18 @@ water temperature data derived from importWaterTemp(simplify = TRUE).
 \examples{
 \dontrun{
 
-path <- "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
-importWaterTemp(path, simplify = TRUE)
+path <-
+  "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+importWaterTemp(path, simplify = TRUE, buoy = TRUE) # import water temp and buoy data and simplify to daily stats.
 
 # Default filter returns a plot for BASHAR
 plotWaterTemp()
 
 # Other variations
-plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island")
+plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island",
+plot_tmax = T, plot_tmin = T)
 
-# Plot gam trend line (not functional yet)
-plotWaterTemp(location = "SHIHAR", years = 2011:2022, plot_title = "Ship Harbor", gam = T)
+plotWaterTemp(location = "SCHPOI", years = 2013:2022, palette = 'black')
 
 }
 

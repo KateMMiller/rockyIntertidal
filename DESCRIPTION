@@ -20,6 +20,7 @@ Imports:
     dplyr,
     data.table,
     ggplot2,
+    gridExtra,
     scales
 Collate: 
     'getBolts.R'
@@ -33,6 +34,7 @@ Collate:
     'getPhotoCover.R'
     'importData.R'
     'importWaterTemp.R'
+    'plotBuoyData.R'
     'sumPISpecies.R'
     'plotPITransects.R'
     'plotPISpecies.R'

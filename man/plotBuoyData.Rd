@@ -27,7 +27,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \describe{
 \item{'all'}{Plot individual facet for each metric.}
 \item{'temp'}{Minimum and Maximum daily water temperature in F}
-\item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction for winds > 40 miles/hour.}
+\item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction for winds > 35 miles/hour.}
 }}
 
 \item{years}{Filter on year of data collected. Default is 2011 to current year.}

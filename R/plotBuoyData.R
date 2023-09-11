@@ -21,7 +21,7 @@
 #' \describe{
 #' \item{'all'}{Plot individual facet for each metric.}
 #' \item{'temp'}{Minimum and Maximum daily water temperature in F}
-#' \item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction for winds > 40 miles/hour.}
+#' \item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction for winds > 35 miles/hour.}
 #' }
 #'
 #' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
@@ -152,7 +152,7 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
                                             between(WDIR_mean, 135, 225) ~ "Southerly",
                                             between(WDIR_mean, 225, 315) ~ "Westerly",
                                             between(WDIR_mean, 315, 360) ~ "Northerly"))
-  wdir <- dat2 |> filter(WSPD_max > 17.8)
+  wdir <- dat2 |> filter(WSPD_max_mph > 35)
 
   wind_cols = c('Northerly' = '#2b83ba',
                 'Easterly' = '#abdda4',
@@ -160,10 +160,10 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
                 'Westerly' = '#d7191c')
 
     p_wspd <-
-      ggplot(dat2, aes(x = DATE, y = WSPD_max, color = WDIR_txt)) +
+      ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt)) +
         geom_line(color = cols[3]) +
         geom_text(data = wdir, aes(angle = -WDIR_mean + 90), label="→", size = 10) +
-        ylim(0, max(dat2$WSPD_max) + 5) +
+        ylim(0, max(dat2$WSPD_max_mph) + 5) +
         theme_rocky() +
         theme(legend.position = 'bottom',
               legend.text = element_text(size = 9),

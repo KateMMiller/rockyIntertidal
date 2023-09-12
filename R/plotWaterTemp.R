@@ -182,5 +182,5 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
   pp <-
   if(plotly == TRUE){plotly::ggplotly(p, tooltip = 'text')} else {p}
 
-  suppressWarnings(print(pp))
+  return(pp)
 }

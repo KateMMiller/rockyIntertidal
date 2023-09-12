@@ -115,6 +115,7 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
 
   list2env(wt_import, envir = env)
 
+  suppressWarnings(
 
   if(buoy == TRUE & simplify == FALSE){
     ACAD_buoy <- read.csv(paste0(path, b_files[grepl("ACAD", b_files)]))
@@ -132,7 +133,8 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
     assign("ACAD_buoy", ACAD_buoy, envir = env)
     assign("BOHA_buoy", BOHA_buoy, envir = env)
   }
-
+)
+  suppressWarnings(
   if(buoy == TRUE & simplify == TRUE){
     ACAD_buoy <- read.csv(paste0(path, b_files[grepl("ACAD", b_files)]))
     BOHA_buoy <- read.csv(paste0(path, b_files[grepl("BOHA", b_files)]))
@@ -179,7 +181,7 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
     assign("ACAD_buoy", ACAD_buoy2, envir = env)
     assign("BOHA_buoy", BOHA_buoy2, envir = env)
   }
-
+)
 
   if(buoy == TRUE){setTxtProgressBar(pb, 10)}
 

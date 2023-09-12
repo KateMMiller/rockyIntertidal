@@ -147,4 +147,4 @@ ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
 
 
 tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
-write.csv(ht_temp_final, paste0(tpath, "SHIHAR_T1-3_2011-2022.csv"), row.names = F)
+write.csv(ht_temp, paste0(tpath, "SHIHAR_T1-3_2011-2022.csv"), row.names = F)

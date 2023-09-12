@@ -141,7 +141,8 @@ BASHAR <- read.csv(paste0(tpath, "BASHAR_T1_2011-2022.csv")) |>
                                      format = "%Y-%m-%d %H:%M:%S",
                                      tz = "America/New_York"))
 
-miss_times <- anti_join(BASHAR, ht_temp, by = c("timestamp"))
+miss_times <- anti_join(BASHAR, ht_temp, by = c("timestamp")) |>
+  filter(timestamp < "2017-08-01") |> filter(timestamp > "2016-01-01")
 miss_times$Degrees_F <- NA_real_
 
 ht_temp_final <- rbind(miss_times, ht_temp) |> arrange(timestamp)

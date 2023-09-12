@@ -52,6 +52,9 @@
 #'
 #' @param facet_col Numeric. Number of columns for the facet to plot. Defaults to 1.
 #'
+#' @param plotly Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
+#' plots a ggplot object.
+#'
 #' @param gam Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
 #' derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL
 #'
@@ -80,7 +83,12 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
                           xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
                           facet = TRUE, plot_tmin = FALSE, plot_tmax = FALSE,
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
-                          plot_title = NULL, facet_col = 1){
+                          plot_title = NULL, facet_col = 1, plotly = FALSE){
+
+
+  if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
+    stop("Package 'plotly' needed for this function for plotly = TRUE. Please install it or set plotly = FALSE.", call. = FALSE)
+  }
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -102,19 +110,6 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
              "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE") %in% ls(envir = env))){
      stop("Must have at least one compiled logger file loaded in global environment and named its location code in all uppercase.")
    }
-
-  if(buoy == TRUE & !exists("ACAD_buoy" %in% ls(envir = env))){
-    stop("Must import ACAD and BOHA buoy data for buoy = TRUE.")
-  }
-
-  if(buoy == TRUE & park %in% c("all" | c("ACAD", "BOHA"))){
-    stop("Can only plot buoy data for one park at a time. Either specify a single park, or set buoy = FALSE.")
-  }
-
-  if(buoy == TRUE){
-    bdat <- if(park == "ACAD"){get("ACAD_buoy", envir = env)
-    } else {get("BOHA_buoy", envir = env)}
-  }
 
   locs <-
     if(all(location == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
@@ -162,9 +157,12 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
 
   leg_position <- ifelse(facet == TRUE, 'none', 'right')
 
-  p <-
+  p <- suppressWarnings(
     ggplot(ht_temp_years, aes(x = timestamp, y = Degrees_F, color = Loc_Code, group = Loc_Code)) +
-    geom_line(aes(color = Loc_Code)) + theme_rocky() +
+    geom_line(aes(color = Loc_Code, text = paste0("Site: ", Loc_Code, "<br>",
+                                                  "Time: ", timestamp, "<br>",
+                                                  "Degrees F: ", Degrees_F))) +
+    theme_rocky() +
     {if(length(years) > 3) scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")}+
     {if(length(years) <= 3 & length(years) > 1)
       scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
@@ -178,14 +176,11 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
     {if(plot_tmin == TRUE) geom_line(data = ht_tmin, aes(x = timestamp, y = tmin), linetype = 'dashed')} +
     labs(y = ylab, x = xlab, title = plot_title) +
     theme(legend.position = leg_position,
-          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)) +
+          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+  )
 
-  if(buoy == TRUE){
-    bp <- ggplot(bdat, aes(x = ))
-  }
+  pp <-
+  if(plotly == TRUE){plotly::ggplotly(p, tooltip = 'text')} else {p}
 
-      return(p)
-
-
-
+  suppressWarnings(print(pp))
 }

@@ -231,7 +231,7 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
 # }
 
 
-plots <- gridExtra::grid.arrange(p_temp, p_wspd, ncol = 1)
+plots <- gridExtra::grid.arrange(p_wspd, p_temp, ncol = 1)
 
 p <- switch(metric,
             'all' = plots,
@@ -239,7 +239,7 @@ p <- switch(metric,
             'wspd' = p_wspd,
             'wvht' = p_wvht)
 
-suppressWarnings(print(p))
+  return(p)
 
 
   }

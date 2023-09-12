@@ -31,6 +31,9 @@
 #'
 #' @param facet_col Numeric. Number of columns for the facet to plot. Defaults to 1.
 #'
+#' @param plotly Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
+#' plots a ggplot object. Currently not functional.
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -56,7 +59,7 @@
 plotBuoyData <- function(park = "ACAD", palette = c('default'),
                           metric = "all",
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
-                          plot_title = NULL, facet_col = 1){
+                          plot_title = NULL, facet_col = 1, plotly = FALSE){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("ACAD", "BOHA"))
@@ -67,6 +70,10 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
   # if(!requireNamespace("mgcv", quietly = TRUE) & gam == TRUE){
   #   stop("Package 'mgcv' needed for this function to work. Please install it.", call. = FALSE)
   # }
+
+  if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
+    stop("Package 'plotly' needed for this function for plotly = TRUE. Please install it or set plotly = FALSE.", call. = FALSE)
+  }
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -109,49 +116,45 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
   dat2 <- dat |> filter(YEAR %in% years)
 
   p_temp <-
-      ggplot(dat2, aes(x = DATE)) +
-        geom_line(aes(y = WTMP_F_min, color = "WTMP_F_min")) +
-        geom_line(aes(y = WTMP_F_max, color = "WTMP_F_max")) +
-        scale_color_manual(name = "Daily Water Temp.",
-                           values = cols,
-                           labels = labels) +
-        theme_rocky() +
-        theme(legend.position = 'bottom',
-              legend.text = element_text(size = 9),
-              legend.title = element_text(size = 9)) +
-        ylab( "Daily Water Temp. (F)") +
-        {if(length(years) > 3)
-          scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
-        {if(length(years) <= 3 & length(years) > 1)
-          scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
-        {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
-    # } else if(any(metric %in% "WTMP_F_min")){
-    #     ggplot(dat, aes(x = DATE, y = WTMP_F_min)) +
-    #       geom_line(color = cols[1]) +
-    #       theme_rocky() +
-    #       ylab( "Min. Water Temp. (F)") +
-    #       {if(length(years) > 3)
-    #         scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
-    #       {if(length(years) <= 3 & length(years) > 1)
-    #         scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
-    #       {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
-
-  p_wvht <-
-      ggplot(dat2, aes(x = DATE, y = WVHT_max)) +
-        geom_line(color = cols[4]) +
-        theme_rocky() +
-        ylab( "Max. Wave Height (m)") +
-        {if(length(years) > 3)
-          scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
-        {if(length(years) <= 3 & length(years) > 1)
-          scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
-        {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
+    ggplot(dat2, aes(x = DATE)) +
+    geom_line(aes(y = WTMP_F_min, color = "WTMP_F_min")) +
+    geom_line(aes(y = WTMP_F_max, color = "WTMP_F_max")) +
+    scale_color_manual(name = "Daily Water Temp.",
+                       values = cols,
+                       labels = labels) +
+    theme_rocky() +
+    theme(legend.position = 'bottom',
+          legend.text = element_text(size = 9),
+          legend.title = element_text(size = 9)) +
+    ylab( "Daily Water Temp. (F)") +
+    {if(length(years) > 3)
+      scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
+    {if(length(years) <= 3 & length(years) > 1)
+      scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
+    {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
 
   dat2 <- dat2 |> mutate(WDIR_txt = case_when(between(WDIR_mean, 0, 45) ~ "Northerly",
                                             between(WDIR_mean, 45, 135) ~ "Easterly",
                                             between(WDIR_mean, 135, 225) ~ "Southerly",
                                             between(WDIR_mean, 225, 315) ~ "Westerly",
-                                            between(WDIR_mean, 315, 360) ~ "Northerly"))
+                                            between(WDIR_mean, 315, 360) ~ "Northerly"),
+                         WDIR_txt2 = case_when(between(WDIR_mean, 348.75, 360) ~ "N",
+                                               between(WDIR_mean, 0, 11.25) ~ "N",
+                                               between(WDIR_mean, 11.25, 33.75) ~'NNE',
+                                               between(WDIR_mean, 33.75, 56.25) ~'NE',
+                                               between(WDIR_mean, 56.25, 78.75) ~'ENE',
+                                               between(WDIR_mean, 78.75, 101.25) ~'E',
+                                               between(WDIR_mean, 101.25, 123.75) ~'ESE',
+                                               between(WDIR_mean, 123.75, 146.25) ~'SE',
+                                               between(WDIR_mean, 146.25, 168.75) ~'SSE',
+                                               between(WDIR_mean, 168.75, 191.25) ~'S',
+                                               between(WDIR_mean, 191.25, 213.75) ~'SSW',
+                                               between(WDIR_mean, 213.75, 236.25) ~'SW',
+                                               between(WDIR_mean, 236.25, 258.75) ~'WSW',
+                                               between(WDIR_mean, 258.75, 281.25) ~'W',
+                                               between(WDIR_mean, 281.25, 303.75) ~'WNW',
+                                               between(WDIR_mean, 303.75, 326.25) ~'NW',
+                                               between(WDIR_mean, 326.25, 348.75) ~'NNW'))
   wdir <- dat2 |> filter(WSPD_max_mph > 35)
 
   wind_cols = c('Northerly' = '#2b83ba',
@@ -159,9 +162,14 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
                 'Southerly' = '#fdae61',
                 'Westerly' = '#d7191c')
 
-    p_wspd <-
+#  if(plotly == FALSE){
+  p_wspd <- suppressWarnings(
       ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt)) +
-        geom_line(color = cols[3]) +
+        geom_line(#aes(text = paste0("Date: ", DATE, "<br>",
+                  #                  "Max. Wind (mph): ", WSPD_max_mph, "<br>",
+                  #                  "Avg. Wind Dir.: ", WDIR_mean, "<br>",
+                  #                  "Wind Dir. Text: ", WDIR_txt2, "<br>")),
+                  color = cols[3]) +
         geom_text(data = wdir, aes(angle = -WDIR_mean + 90), label="→", size = 10) +
         ylim(0, max(dat2$WSPD_max_mph) + 5) +
         theme_rocky() +
@@ -175,16 +183,63 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
         {if(length(years) <= 3 & length(years) > 1)
           scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
         {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
+  )
+#  } else {
+#   p_wspd <- suppressWarnings(
+#     ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt, group = WDIR_txt)) +
+#       geom_line(aes(text = paste0("Date: ", DATE, "<br>",
+#                                   "Max. Wind (mph): ", WSPD_max_mph, "<br>",
+#                                   "Avg. Wind Dir.: ", WDIR_mean, "<br>",
+#                                   "Wind Dir. Text: ", WDIR_txt2, "<br>")),
+#                 color = cols[3]) +
+#       ylim(0, max(dat2$WSPD_max_mph) + 5) +
+#       theme_rocky() +
+#       theme(legend.position = 'bottom',
+#             legend.text = element_text(size = 9),
+#             legend.title = element_text(size = 9)) +
+#       ylab( "Max. Wind Speed (mph)") +
+#       scale_color_manual(values = wind_cols, breaks = names(wind_cols), name = "Wind direction") +
+#       {if(length(years) > 3)
+#         scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
+#       {if(length(years) <= 3 & length(years) > 1)
+#         scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
+#       {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
+#   )
+#
+#
+#   wind_pal <- c('#2b83ba', '#abdda4', '#fdae61','#d7191c')
+#
+#   wdir$color <- case_when(wdir$WDIR_txt == "Northerly" ~ '#2b83ba',
+#                           wdir$WDIR_txt == "Easterly" ~ '#abdda4',
+#                           wdir$WDIR_txt == "Southerly" ~ '#fdae61',
+#                           wdir$WDIR_txt == "Westerly" ~ '#d7191c')
+#
+#   p_wspd_p <-
+#     plotly::plot_ly(dat2, x = ~DATE, y = ~WSPD_max_mph) |>
+#     plotly::add_trace(x = ~DATE, y = ~WSPD_max_mph, type = 'scatter', mode = 'lines',
+#                       line = list(shape = 'linear', color = '#737373', width = 1),
+#                       text = ~paste0("Date: ", DATE, "<br>",
+#                                      "Max. Wind (mph): ", round(WSPD_max_mph,1), "<br>",
+#                                      "Avg. Wind Dir.: ", round(WDIR_mean, 1), "<br>",
+#                                      "Wind Dir. Text: ", WDIR_txt2, "<br>")) |>
+#     plotly::add_annotations(x = wdir$DATE, y = wdir$WSPD_max_mph,
+#                             color = ~as.factor(wdir$WDIR_txt),
+#                             text = "→",
+#                             showarrow = FALSE,
+#                             font = list(size = 25, colors = wdir$color),
+#                             textangle = wdir$WDIR_mean-90)
+# }
 
-  #p_list <- c(p_temp, p_wvht, p_wspd)
 
-  p <- switch(metric,
-              'all' = gridExtra::grid.arrange(p_temp, p_wspd, ncol = 1),
-              'temp' = p_temp,
-              'wspd' = p_wspd,
-              'wvht' = p_wvht)
+plots <- gridExtra::grid.arrange(p_temp, p_wspd, ncol = 1)
+
+p <- switch(metric,
+            'all' = plots,
+            'temp' = p_temp,
+            'wspd' = p_wspd,
+            'wvht' = p_wvht)
 
 suppressWarnings(print(p))
 
 
-}
+  }

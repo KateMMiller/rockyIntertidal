@@ -10,7 +10,8 @@ plotBuoyData(
   metric = "all",
   years = 2011:as.numeric(format(Sys.Date(), "\%Y")),
   plot_title = NULL,
-  facet_col = 1
+  facet_col = 1,
+  plotly = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
 
 \item{facet_col}{Numeric. Number of columns for the facet to plot. Defaults to 1.}
+
+\item{plotly}{Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
+plots a ggplot object. Currently not functional.}
 }
 \value{
 Returns a ggplot object of water temperature data

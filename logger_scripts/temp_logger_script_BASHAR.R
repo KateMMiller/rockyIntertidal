@@ -14,15 +14,18 @@ library(tidyverse)
 library(data.table)
 
 # Get tide data from noaaoceans R package; Note that Bar Harbor tidal station is 8413320;
+# If you get a Error: lexical error: etc. break code below into smaller chunks.
 tide_dat <- rbind(
   query_coops_data(station_id = "8413320", start_date = "20100101", end_date = "20121231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
-                   time_zone = 'lst_ldt'), # local daylight savings time
-  query_coops_data(station_id = "8413320", start_date = "20130101", end_date = "20221231",
+                   time_zone = 'lst_ldt'), # loGRE daylight savings time
+  query_coops_data(station_id = "8413320", start_date = "20130101", end_date = "20191231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
-                   time_zone = 'lst_ldt') # local daylight savings time
+                   time_zone = 'lst_ldt'), # loGRE daylight savings time
+  query_coops_data(station_id = "8413320", start_date = "20200101", end_date = "20221231",
+                   data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
+                   time_zone = 'lst_ldt')
 )
-
 tide_dat$timestamp <- as.POSIXct(tide_dat$t,
                                  format = "%Y-%m-%d %H:%M", tz = "America/New_York") #Sys.timezone() also works
 
@@ -140,7 +143,6 @@ ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_vline(xintercept = as.POSIXct(as.Date("2021-01-01")), linetype = 2, color = 'red') +
   geom_vline(xintercept = as.POSIXct(as.Date("2022-01-01")), linetype = 2, color = 'red')
 
-ggsave("./testing_scripts/BASHAR_T1_high_tide_water_level_F.jpg")
 
 tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
 write.csv(ht_temp, paste0(tpath, "BASHAR_T1_2011-2022.csv"), row.names = F)

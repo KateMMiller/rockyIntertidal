@@ -131,7 +131,5 @@ ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_vline(xintercept = as.POSIXct(as.Date("2021-01-01")), linetype = 2, color = 'red') +
   geom_vline(xintercept = as.POSIXct(as.Date("2022-01-01")), linetype = 2, color = 'red')
 
-ggsave("./testing_scripts/CALISL_T1_high_tide_water_level_F.jpg")
-
 tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
 write.csv(ht_temp, paste0(tpath, "CALISL_T1-3_2011-2022.csv"), row.names = F)

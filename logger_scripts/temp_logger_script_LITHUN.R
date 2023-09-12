@@ -17,13 +17,17 @@ library(data.table)
 # Get tide data from noaaoceans
 # ACAD gauge 8413320; BOHA gauge:8443970
 
+# have to break up into chunks b/c limits on server
 tide_dat <- rbind(
   query_coops_data(station_id = "8413320", start_date = "20100101", end_date = "20121231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
                    time_zone = 'lst_ldt'), # loGRE daylight savings time
-  query_coops_data(station_id = "8413320", start_date = "20130101", end_date = "20221231",
+  query_coops_data(station_id = "8413320", start_date = "20130101", end_date = "20191231",
                    data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
-                   time_zone = 'lst_ldt') # loGRE daylight savings time
+                   time_zone = 'lst_ldt'), # loGRE daylight savings time
+  query_coops_data(station_id = "8413320", start_date = "20200101", end_date = "20221231",
+                   data_product = 'predictions', interval = 'hilo', datum = 'MLLW',
+                   time_zone = 'lst_ldt')
 )
 
 tide_dat$timestamp <- as.POSIXct(tide_dat$t,
@@ -60,7 +64,6 @@ temp19 <- list.files("../data/rocky/temp_data/collected_2019", pattern = ".csv")
 temp20 <- list.files("../data/rocky/temp_data/collected_2020", pattern = ".csv")
 temp21 <- list.files("../data/rocky/temp_data/collected_2021", pattern = ".csv")
 temp22 <- list.files("../data/rocky/temp_data/collected_2022", pattern = ".csv")
-
 
 # Function to prepare temp data for rbind
 prep_tempdata <- function(path, filename){
@@ -113,7 +116,26 @@ ht_temp <- high_tide[LITHUN, on = 'timestamp', roll = "nearest"]
 ht_temp <- ht_temp |> mutate(time_diff = difftime(timestamp_tide, timestamp_temp, units = 'hours')) |>
   filter(abs(time_diff) <= lubridate::hours(2)) # pull in temps within 2 hours of high tide
 
-ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
+# Add in missing dates so read in as NA instead of connecting lines in plots. BASHAR is the most
+# complete timeseries.
+tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
+BASHAR <- read.csv(paste0(tpath, "BASHAR_T1_2011-2022.csv")) |>
+  mutate(timestamp = as.POSIXct(timestamp,
+                                format = "%Y-%m-%d %H:%M:%S",
+                                tz = "America/New_York"),
+         timestamp_tide = as.POSIXct(timestamp_tide,
+                                     format = "%Y-%m-%d %H:%M:%S",
+                                     tz = "America/New_York"),
+         timestamp_temp = as.POSIXct(timestamp_temp,
+                                     format = "%Y-%m-%d %H:%M:%S",
+                                     tz = "America/New_York"))
+
+miss_times <- anti_join(BASHAR, ht_temp, by = c("timestamp"))
+miss_times$Degrees_F <- NA_real_
+
+ht_temp_final <- rbind(miss_times, ht_temp) |> arrange(timestamp)
+
+ggplot(ht_temp_final, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_line() + rockyIntertidal::theme_rocky() +
   scale_x_datetime(breaks = scales::breaks_width("3 months"), date_labels = "%m/%y") +
   labs(x = NULL, y = "High Tide Water Temp (F) LITHUN T1")+
@@ -131,7 +153,5 @@ ggplot(ht_temp, aes(x = timestamp_temp, y = Degrees_F)) +
   geom_vline(xintercept = as.POSIXct(as.Date("2021-01-01")), linetype = 2, color = 'red') +
   geom_vline(xintercept = as.POSIXct(as.Date("2022-01-01")), linetype = 2, color = 'red')
 
-ggsave("./testing_scripts/LITHUN_T1_high_tide_water_level_F.jpg")
-
 tpath = "../data/rocky/temp_data/Compiled_HT_water_temps/"
-write.csv(ht_temp, paste0(tpath, "LITHUN_T1-3_2011-2022.csv"), row.names = F)
+write.csv(ht_temp_final, paste0(tpath, "LITHUN_T1-3_2011-2022.csv"), row.names = F)

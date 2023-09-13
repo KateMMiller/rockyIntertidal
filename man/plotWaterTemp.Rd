@@ -17,7 +17,8 @@ plotWaterTemp(
   years = 2011:as.numeric(format(Sys.Date(), "\%Y")),
   plot_title = NULL,
   facet_col = 1,
-  plotly = FALSE
+  plotly = FALSE,
+  legend_position = "bottom"
 )
 }
 \arguments{
@@ -43,7 +44,7 @@ plot lines on the same plot unless facet = TRUE. Note that plotting data from al
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{palette}{Choices are "default", "viridis", or "black". Default assigns logical colors to common species.
+\item{palette}{Choices are "default", "viridis", "greyscale", or "black". Default assigns logical colors to common species.
 Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Year'}
@@ -68,6 +69,9 @@ on one figure.}
 
 \item{plotly}{Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
 plots a ggplot object.}
+
+\item{legend_position}{Position of legend. Options are legend.position options in ggplot2. Default is 'bottom'.
+For no legend, specify 'none'.}
 }
 \value{
 Returns a ggplot object of water temperature data

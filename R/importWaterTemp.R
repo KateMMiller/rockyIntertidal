@@ -73,6 +73,7 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE")
 
   # Function to simplify data to 1 water temperature value per high tide event
+  # using the logged value closest to high tide
   simp_dat <- function(dat){
     dat1 <- dat |> group_by(timestamp_tide) |>
       slice(which.min(abs(time_diff))) |> ungroup()
@@ -152,10 +153,11 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
 
     suppressWarnings(
     ACAD_buoy2 <- ACAD_buoy |> group_by(YEAR, MONTH, DAY, DATE) |>
+      mutate(max_wspd = ifelse(rank(desc(WSPD)) == 1, TRUE, FALSE)) |>
       summarize(WTMP_F_min = min(WTMP_F, na.rm = T),
                 WTMP_F_max = max(WTMP_F, na.rm = T),
                 WSPD_max = max(WSPD, na.rm = T),
-                WDIR_mean = mean(WDIR, na.rm = T),
+                WDIR_max = WDIR[which.max(WSPD_max)],
                 WVHT_max = max(WVHT, na.rm = T),
                 .groups = 'drop'))
 
@@ -169,7 +171,7 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
         summarize(WTMP_F_min = min(WTMP_F, na.rm = T),
                   WTMP_F_max = max(WTMP_F, na.rm = T),
                   WSPD_max = max(WSPD, na.rm = T),
-                  WDIR_mean = mean(WDIR, na.rm = T),
+                  WDIR_max = WDIR[which.max(WSPD_max)],
                   WVHT_max = max(WVHT, na.rm = T),
                   .groups = 'drop'))
 

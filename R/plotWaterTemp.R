@@ -40,7 +40,7 @@
 #'
 #' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
 #'
-#' @param palette Choices are "default", "viridis", or "black". Default assigns logical colors to common species.
+#' @param palette Choices are "default", "viridis", "greyscale", or "black". Default assigns logical colors to common species.
 #' Viridis uses a color-blind friendly palette of blues, purples and yellows.
 #'
 #' @param facet Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
@@ -51,6 +51,9 @@
 #' @param plot_tmax Logical. If TRUE, will plot a line connecting maximum recorded temperatures across years.
 #'
 #' @param facet_col Numeric. Number of columns for the facet to plot. Defaults to 1.
+#'
+#' @param legend_position Position of legend. Options are legend.position options in ggplot2. Default is 'bottom'.
+#' For no legend, specify 'none'.
 #'
 #' @param plotly Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
 #' plots a ggplot object.
@@ -83,7 +86,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
                           xlab = "Year", ylab = "High Tide Water Temp (F)", gam = FALSE,
                           facet = TRUE, plot_tmin = FALSE, plot_tmax = FALSE,
                           years = 2011:as.numeric(format(Sys.Date(), "%Y")),
-                          plot_title = NULL, facet_col = 1, plotly = FALSE){
+                          plot_title = NULL, facet_col = 1, plotly = FALSE, legend_position = 'bottom'){
 
 
   if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
@@ -95,9 +98,10 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
   stopifnot(location %in% c("all", "BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2011)
-  stopifnot(palette %in% c("default", "viridis", "black"))
+  stopifnot(palette %in% c("default", "viridis", "black", "greyscale"))
   stopifnot(is.logical(plot_tmin))
   stopifnot(is.logical(plot_tmax))
+
 
   # if(!requireNamespace("mgcv", quietly = TRUE) & gam == TRUE){
   #   stop("Package 'mgcv' needed for this function to work. Please install it.", call. = FALSE)
@@ -155,7 +159,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
   ht_tmin <- left_join(temp_stats |> select(-tmax), ht_temp_years,
                         by = c("Site_Code", "Loc_Code", "Year", "tmin" = "Degrees_F"))
 
-  leg_position <- ifelse(facet == TRUE, 'none', 'right')
+  leg_position <- ifelse(facet == TRUE, 'none', legend_position)
 
   p <- suppressWarnings(
     ggplot(ht_temp_years, aes(x = timestamp, y = Degrees_F, color = Loc_Code, group = Loc_Code)) +
@@ -171,6 +175,7 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
     {if(all(palette == "black")) scale_color_manual(values = "black")} +
+    {if(all(palette == "greyscale")) scale_color_manual(values = "#676767")} +
     {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels), ncol = facet_col)} +
     {if(plot_tmax == TRUE) geom_line(data = ht_tmax, aes(x = timestamp, y = tmax), linetype = 'dashed')} +
     {if(plot_tmin == TRUE) geom_line(data = ht_tmin, aes(x = timestamp, y = tmin), linetype = 'dashed')} +

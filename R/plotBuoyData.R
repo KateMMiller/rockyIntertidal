@@ -21,7 +21,8 @@
 #' \describe{
 #' \item{'all'}{Plot individual facet for each metric.}
 #' \item{'temp'}{Minimum and Maximum daily water temperature in F}
-#' \item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction for winds > 35 miles/hour.}
+#' \item{'wspd'}{Maximum daily windspeed in miles/hour and wind direction recorded during
+#' max. windspeed for winds > 35 miles/hour.}
 #' }
 #'
 #' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
@@ -49,7 +50,7 @@
 #' # Windspeed and direction only
 #' plotBuoyData(metric = 'wspd'))
 #'
-#' plotWaterTemp(location = "SCHPOI", years = 2013:2022, palette = 'black')
+#' plotBuoyData(location = "SCHPOI", years = 2013:2022, palette = 'black')
 #'
 #' }
 #'
@@ -86,7 +87,7 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
     stop("Must import ACAD and BOHA buoy data using simplify = TRUE in importWaterData().")
   }
 
-  cols <- switch(palette, #WTMP_min, WTMP_max, WSPD_max, WVHT_max, WDIR_mean
+  cols <- switch(palette, #WTMP_min, WTMP_max, WSPD_max, WVHT_max, WDIR_max
                  "default" = c("WTMP_F_min" = "#7CC4D8",
                                "WTMP_F_max" = "#277489",
                                "WSPD_max" = "#737373",
@@ -104,7 +105,7 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
               "WTMP_F_max" = "Max.",
               "WSPD_max" = "Max. Daily Windspeed (m/s)",
               "WVHT_max" = "Max. Daily Wave height (m)",
-              "WDIR_mean" = "Avg. Daily Wind direction (degrees)")
+              "WDIR_max" = "Avg. Daily Wind direction (degrees)")
 
   dat <- switch(park,
                 "ACAD" = get("ACAD_buoy", envir = env),
@@ -124,37 +125,39 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
                        labels = labels) +
     theme_rocky() +
     theme(legend.position = 'bottom',
+          legend.margin=margin(t=-5),
           legend.text = element_text(size = 9),
+          axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5),
           legend.title = element_text(size = 9)) +
-    ylab( "Daily Water Temp. (F)") +
+    ylab( "Daily Water Temp. (F)") + xlab(NULL) +
     {if(length(years) > 3)
       scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
     {if(length(years) <= 3 & length(years) > 1)
       scale_x_datetime(breaks = scales::breaks_width("2 months"), date_labels = "%m/%y")} +
     {if(length(years) == 1) scale_x_datetime(breaks = scales::breaks_width("1 month"), date_labels = "%m/%y")}
 
-  dat2 <- dat2 |> mutate(WDIR_txt = case_when(between(WDIR_mean, 0, 45) ~ "Northerly",
-                                            between(WDIR_mean, 45, 135) ~ "Easterly",
-                                            between(WDIR_mean, 135, 225) ~ "Southerly",
-                                            between(WDIR_mean, 225, 315) ~ "Westerly",
-                                            between(WDIR_mean, 315, 360) ~ "Northerly"),
-                         WDIR_txt2 = case_when(between(WDIR_mean, 348.75, 360) ~ "N",
-                                               between(WDIR_mean, 0, 11.25) ~ "N",
-                                               between(WDIR_mean, 11.25, 33.75) ~'NNE',
-                                               between(WDIR_mean, 33.75, 56.25) ~'NE',
-                                               between(WDIR_mean, 56.25, 78.75) ~'ENE',
-                                               between(WDIR_mean, 78.75, 101.25) ~'E',
-                                               between(WDIR_mean, 101.25, 123.75) ~'ESE',
-                                               between(WDIR_mean, 123.75, 146.25) ~'SE',
-                                               between(WDIR_mean, 146.25, 168.75) ~'SSE',
-                                               between(WDIR_mean, 168.75, 191.25) ~'S',
-                                               between(WDIR_mean, 191.25, 213.75) ~'SSW',
-                                               between(WDIR_mean, 213.75, 236.25) ~'SW',
-                                               between(WDIR_mean, 236.25, 258.75) ~'WSW',
-                                               between(WDIR_mean, 258.75, 281.25) ~'W',
-                                               between(WDIR_mean, 281.25, 303.75) ~'WNW',
-                                               between(WDIR_mean, 303.75, 326.25) ~'NW',
-                                               between(WDIR_mean, 326.25, 348.75) ~'NNW'))
+  dat2 <- dat2 |> mutate(WDIR_txt = case_when(between(WDIR_max, 0, 45) ~ "Northerly",
+                                            between(WDIR_max, 45, 135) ~ "Easterly",
+                                            between(WDIR_max, 135, 225) ~ "Southerly",
+                                            between(WDIR_max, 225, 315) ~ "Westerly",
+                                            between(WDIR_max, 315, 360) ~ "Northerly"),
+                         WDIR_txt2 = case_when(between(WDIR_max, 348.75, 360) ~ "N",
+                                               between(WDIR_max, 0, 11.25) ~ "N",
+                                               between(WDIR_max, 11.25, 33.75) ~'NNE',
+                                               between(WDIR_max, 33.75, 56.25) ~'NE',
+                                               between(WDIR_max, 56.25, 78.75) ~'ENE',
+                                               between(WDIR_max, 78.75, 101.25) ~'E',
+                                               between(WDIR_max, 101.25, 123.75) ~'ESE',
+                                               between(WDIR_max, 123.75, 146.25) ~'SE',
+                                               between(WDIR_max, 146.25, 168.75) ~'SSE',
+                                               between(WDIR_max, 168.75, 191.25) ~'S',
+                                               between(WDIR_max, 191.25, 213.75) ~'SSW',
+                                               between(WDIR_max, 213.75, 236.25) ~'SW',
+                                               between(WDIR_max, 236.25, 258.75) ~'WSW',
+                                               between(WDIR_max, 258.75, 281.25) ~'W',
+                                               between(WDIR_max, 281.25, 303.75) ~'WNW',
+                                               between(WDIR_max, 303.75, 326.25) ~'NW',
+                                               between(WDIR_max, 326.25, 348.75) ~'NNW'))
   wdir <- dat2 |> filter(WSPD_max_mph > 35)
 
   wind_cols = c('Northerly' = '#2b83ba',
@@ -167,16 +170,18 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
       ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt)) +
         geom_line(#aes(text = paste0("Date: ", DATE, "<br>",
                   #                  "Max. Wind (mph): ", WSPD_max_mph, "<br>",
-                  #                  "Avg. Wind Dir.: ", WDIR_mean, "<br>",
+                  #                  "Avg. Wind Dir.: ", WDIR_max, "<br>",
                   #                  "Wind Dir. Text: ", WDIR_txt2, "<br>")),
                   color = cols[3]) +
-        geom_text(data = wdir, aes(angle = -WDIR_mean + 90), label="→", size = 10) +
+        geom_text(data = wdir, aes(angle = -WDIR_max + 90), label="→", size = 10) +
         ylim(0, max(dat2$WSPD_max_mph) + 5) +
         theme_rocky() +
         theme(legend.position = 'bottom',
+              legend.margin = margin(t=-5),
               legend.text = element_text(size = 9),
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5),
               legend.title = element_text(size = 9)) +
-        ylab( "Max. Wind Speed (mph)") +
+        ylab( "Max. Wind Speed (mph)") + xlab(NULL) +
         scale_color_manual(values = wind_cols, breaks = names(wind_cols), name = "Wind direction") +
         {if(length(years) > 3)
           scale_x_datetime(breaks = scales::breaks_width("6 months"), date_labels = "%m/%y")} +
@@ -189,7 +194,7 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
 #     ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt, group = WDIR_txt)) +
 #       geom_line(aes(text = paste0("Date: ", DATE, "<br>",
 #                                   "Max. Wind (mph): ", WSPD_max_mph, "<br>",
-#                                   "Avg. Wind Dir.: ", WDIR_mean, "<br>",
+#                                   "Avg. Wind Dir.: ", WDIR_max, "<br>",
 #                                   "Wind Dir. Text: ", WDIR_txt2, "<br>")),
 #                 color = cols[3]) +
 #       ylim(0, max(dat2$WSPD_max_mph) + 5) +
@@ -220,18 +225,18 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
 #                       line = list(shape = 'linear', color = '#737373', width = 1),
 #                       text = ~paste0("Date: ", DATE, "<br>",
 #                                      "Max. Wind (mph): ", round(WSPD_max_mph,1), "<br>",
-#                                      "Avg. Wind Dir.: ", round(WDIR_mean, 1), "<br>",
+#                                      "Avg. Wind Dir.: ", round(WDIR_max, 1), "<br>",
 #                                      "Wind Dir. Text: ", WDIR_txt2, "<br>")) |>
 #     plotly::add_annotations(x = wdir$DATE, y = wdir$WSPD_max_mph,
 #                             color = ~as.factor(wdir$WDIR_txt),
 #                             text = "→",
 #                             showarrow = FALSE,
 #                             font = list(size = 25, colors = wdir$color),
-#                             textangle = wdir$WDIR_mean-90)
+#                             textangle = wdir$WDIR_max-90)
 # }
 
 
-plots <- gridExtra::grid.arrange(p_wspd, p_temp, ncol = 1)
+plots <- gridExtra::grid.arrange(p_wspd, p_temp, ncol = 1, heights = c(4.55, 4.0))
 
 p <- switch(metric,
             'all' = plots,

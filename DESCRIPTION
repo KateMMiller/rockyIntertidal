@@ -22,7 +22,10 @@ Imports:
     data.table,
     ggplot2,
     gridExtra,
-    scales
+    ggpubr,
+    scales,
+    scatterpie,
+    tidyr
 Collate: 
     'getBolts.R'
     'getEchinoCounts.R'
@@ -41,5 +44,6 @@ Collate:
     'plotPISpecies.R'
     'sumPhotoCover.R'
     'plotPhotoCover.R'
+    'plotSpeciesContours.R'
     'plotWaterTemp.R'
     'theme_rocky.R'

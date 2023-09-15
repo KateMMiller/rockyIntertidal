@@ -5,23 +5,16 @@
 \title{plotSpeciesContours: plots point intercept species ranges and photocover as pie charts}
 \usage{
 plotSpeciesContours(
-  park = "ACAD",
   location = "BASHAR",
   palette = c("default"),
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  plot_title = NULL,
+  plot_title = TRUE,
   QAQC = FALSE
 )
 }
 \arguments{
-\item{park}{Choose a park to plot
-\describe{
-\item{'ACAD'}{Includes only sites in Acadia National Park (default)}
-\item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
-}}
-
 \item{location}{Must choose a location to plot
 \describe{
 \item{"BASHAR"}{Bass Harbor, ACAD (default)}
@@ -40,6 +33,8 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{plot_title}{If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.}
 }
 \value{
 Returns a ggplot object of percent cover from photos filtered by function arguments
@@ -56,7 +51,7 @@ for each target species plot.
 importData()
 
 # Default filter returns a plot faceted on location and target species group
-plotSpeciesContours()
+plotSpeciesContours(location = "OTTPOI")
 
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")

@@ -8,6 +8,7 @@
 #' @importFrom scatterpie geom_scatterpie
 #' @importFrom ggpubr as_ggplot get_legend ggarrange
 #' @importFrom gridExtra grid.arrange
+#' @importFrom purrr pmap_dfr
 #'
 #' @description This function plots a loess smoothed contour averaging the transects across all years specified.
 #' Point intercept ranges are plotted along the contours by year for each of the five main species groups
@@ -66,6 +67,7 @@ plotSpeciesContours <- function(location = "BASHAR",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
+  stopifnot(is.logical(plot_title))
 
   if(length(location) > 1){stop("Multiple locations specified. Function can only plot one location at a time.")}
 
@@ -176,6 +178,42 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   # Plotting will be elevation (y) ~ distance (x), but needed the reverse to predict dist
   # in the loess model.
+  # Need to predict intermediate elev. between min-max/mid50, so can fit them on the loess curve
+  min_max <- sp_dist |> group_by(Spp_Code) |>
+    select(Site_Code:Spp_Code, elev_min, elev_max) |>
+    pivot_longer(cols = c("elev_min", "elev_max"),
+                 names_to = "stat", values_to = "elev")
+
+  mid_50 <- sp_dist |> group_by(Spp_Code) |>
+    select(Site_Code:Spp_Code, elev_l25, elev_u75) |>
+    pivot_longer(cols = c("elev_l25", "elev_u75"),
+                 names_to = 'stat', values_to = 'elev')
+
+  # Function to expand 10 more elevations between min/max or l25 u75
+  exp_elev <- function(df, site_code, loc_code, year, spp_code){
+    df1 <- df |> filter(Site_Code %in% site_code &
+                        Loc_Code %in% loc_code &
+                        Year %in% year &
+                        Spp_Code %in% spp_code)
+    new_elev <-  c(range(df1$elev)[1],
+                 seq(range(df1$elev)[1], range(df1$elev)[2], length.out = 10),
+                 range(df1$elev)[2])
+    new_df <- unique(data.frame(df1[,c(1:4)], elev = new_elev))
+    return(new_df)
+    }
+
+  # Matrix of site x loc x year x spp combos
+  exp_mat <- sp_dist |> select(Site_Code, Loc_Code, Year, Spp_Code) |> unique()
+
+  # expand out 10 elevations per range
+  minmax <- pmap_dfr(exp_mat, ~exp_elev(df = min_max, ..1, ..2, ..3, ..4))
+  mid50 <- pmap_dfr(exp_mat, ~exp_elev(df = mid_50, ..1, ..2, ..3, ..4))
+
+  # Predict distances for those new elevations
+  minmax_spp <- data.frame(minmax,
+                           dist_pred_mm = predict(trsm, newdata = minmax))
+  mid50_spp <- data.frame(mid50,
+                          dist_pred_50 = predict(trsm, newdata = mid50))
 
 #  pie_size <- diff(range(trsm_dat$dist_pred))/diff(range(trsm_dat$elev)) * 0.2
 
@@ -200,51 +238,33 @@ plotSpeciesContours <- function(location = "BASHAR",
   pie_ylim <- ifelse(location %in% "SHIHAR", 0.4, 0.3)
 
   # Nudge elevation of vertical transect species bands, for when they overlap
-  sp_dist <- sp_dist |> mutate(elev_min_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev_min - 0.2,
-                                           Spp_Code %in% "MUSSPP" ~ elev_min,
-                                           Spp_Code %in% "ASCNOD" ~ elev_min + 0.2,
-                                           Spp_Code %in% "FUCSPP" ~ elev_min + 0.4,
-                                           Spp_Code %in% "REDGRP" ~ elev_min + 0.6,
-                                           TRUE ~ elev_min),
-                               elev_max_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev_max - 0.2,
-                                           Spp_Code %in% "MUSSPP" ~ elev_max,
-                                           Spp_Code %in% "ASCNOD" ~ elev_max + 0.2,
-                                           Spp_Code %in% "FUCSPP" ~ elev_max + 0.4,
-                                           Spp_Code %in% "REDGRP" ~ elev_max + 0.6,
-                                           TRUE ~ elev_max),
-                               elev_l25_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev_l25 - 0.2,
-                                           Spp_Code %in% "MUSSPP" ~ elev_l25,
-                                           Spp_Code %in% "ASCNOD" ~ elev_l25 + 0.2,
-                                           Spp_Code %in% "FUCSPP" ~ elev_l25 + 0.4,
-                                           Spp_Code %in% "REDGRP" ~ elev_l25 + 0.6,
-                                           TRUE ~ elev_l25),
-                               elev_u75_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev_u75 - 0.2,
-                                           Spp_Code %in% "MUSSPP" ~ elev_u75,
-                                           Spp_Code %in% "ASCNOD" ~ elev_u75 + 0.2,
-                                           Spp_Code %in% "FUCSPP" ~ elev_u75 + 0.4,
-                                           Spp_Code %in% "REDGRP" ~ elev_u75 + 0.6,
-                                           TRUE ~ elev_u75))
+  minmax_spp <- minmax_spp |> mutate(elev_nudge =
+                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.1,
+                                           Spp_Code %in% "MUSSPP" ~ elev,
+                                           Spp_Code %in% "ASCNOD" ~ elev + 0.1,
+                                           Spp_Code %in% "FUCSPP" ~ elev + 0.2,
+                                           Spp_Code %in% "REDGRP" ~ elev + 0.3,
+                                           TRUE ~ elev))
+  mid50_spp <- mid50_spp |> mutate(elev_nudge =
+                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.1,
+                                           Spp_Code %in% "MUSSPP" ~ elev,
+                                           Spp_Code %in% "ASCNOD" ~ elev + 0.1,
+                                           Spp_Code %in% "FUCSPP" ~ elev + 0.2,
+                                           Spp_Code %in% "REDGRP" ~ elev + 0.3,
+                                           TRUE ~ elev))
 
-
-  p1 <-
+ p1 <-
   ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
    # geom_smooth(data = trsm_dat, method = 'loess', formula = 'y~x',
    #                color = '#676767', span = 0.2, se = F) +
    geom_line(color = '#676767')+
-   geom_segment(data = sp_dist,
-                aes(y = elev_min_nudge, yend = elev_max_nudge,
-                    x = dist_min, xend = dist_max,
-                    color = Spp_Code, group = Spp_Code),
-                linewidth = 2.5, alpha = 0.7) +
-   # geom_segment(data = sp_dist,
-   #              aes(y = elev_l25_nudge, yend = elev_u75_nudge,
-   #                  x = dist_l25, xend = dist_u75,
-   #                  color = Spp_Code, group = Spp_Code),
-   #                  linewidth = 2.5, alpha = 0.7) +
+   geom_line(data = minmax_spp, aes(y = elev_nudge, x = dist_pred_mm,
+                                    color = Spp_Code, group = Spp_Code),
+             linewidth = 1, alpha = 0.7) +
+   geom_line(data = mid50_spp, aes(y = elev_nudge, x = dist_pred_50,
+                                    color = Spp_Code, group = Spp_Code),
+             linewidth = 2.5, alpha = 0.7)+
+
    geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
                                   fill = Spp_Code, group = Spp_Code,
                                   shape = Spp_Code),

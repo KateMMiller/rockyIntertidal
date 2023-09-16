@@ -25,7 +25,8 @@ Imports:
     ggpubr,
     scales,
     scatterpie,
-    tidyr
+    tidyr,
+    cowplot
 Collate: 
     'getBolts.R'
     'getEchinoCounts.R'

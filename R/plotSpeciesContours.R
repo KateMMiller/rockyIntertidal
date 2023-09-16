@@ -4,10 +4,11 @@
 #'
 #' @import ggplot2
 #' @importFrom dplyr case_when filter group_by mutate select summarize
-#' @importFrom tidyr pivot_wider
+#' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom scatterpie geom_scatterpie
-#' @importFrom ggpubr as_ggplot get_legend ggarrange
+#' @importFrom ggpubr as_ggplot get_legend
 #' @importFrom gridExtra grid.arrange
+#' @importFrom cowplot draw_grob
 #' @importFrom purrr pmap_dfr
 #'
 #' @description This function plots a loess smoothed contour averaging the transects across all years specified.
@@ -52,7 +53,7 @@
 #' }
 #'
 #'
-#' @return Returns a ggplot object of percent cover from photos filtered by function arguments
+#' @return Returns a ggplot object of point intercept and percent cover data filtered by function arguments
 #' @export
 
 plotSpeciesContours <- function(location = "BASHAR",
@@ -219,19 +220,19 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   pie_size <- case_when(location %in% c("BASHAR", "CALISL", "OTTPOI", "SCHPOI") ~ 2.5,
                         location %in% c("LITHUN") ~ 3,
-                        location %in% c("GREISL") ~ 6,
+                        location %in% c("GREISL") ~ 5,
                         location %in% c("LITMOO") ~ 1.5,
                         location %in% c("CALISL") ~ 2,
                         location %in% c("OUTBRE") ~ 15,
                         location %in% c("SHIHAR") ~ 13,
                         )
 
-  pie_ynudge <- case_when(location %in% c("BASHAR", "CALISL") ~ pie_size * 0.5,
+  pie_ynudge <- case_when(location %in% c("BASHAR", "CALISL") ~ pie_size * 0.7,
                           location %in% c("LITHUN") ~ pie_size * 0.3,
                           location %in% c("LITMOO") ~ pie_size * 0.2,
                           location %in% c("OTTPOI", "SCHPOI") ~ pie_size * 0.5,
                           location %in% c("OUTBRE") ~ pie_size * 0.4,
-                          location %in% c("GREISL") ~ pie_size * 0.2,
+                          location %in% c("GREISL") ~ pie_size * 0.4,
                           location %in% c("SHIHAR") ~ pie_size * 0.2
   )
 
@@ -239,19 +240,26 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   # Nudge elevation of vertical transect species bands, for when they overlap
   minmax_spp <- minmax_spp |> mutate(elev_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.1,
-                                           Spp_Code %in% "MUSSPP" ~ elev,
-                                           Spp_Code %in% "ASCNOD" ~ elev + 0.1,
-                                           Spp_Code %in% "FUCSPP" ~ elev + 0.2,
-                                           Spp_Code %in% "REDGRP" ~ elev + 0.3,
+                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.6,
+                                           Spp_Code %in% "MUSSPP" ~ elev - 0.3,
+                                           Spp_Code %in% "ASCNOD" ~ elev,
+                                           Spp_Code %in% "FUCSPP" ~ elev + 0.3,
+                                           Spp_Code %in% "REDGRP" ~ elev + 0.6,
                                            TRUE ~ elev))
   mid50_spp <- mid50_spp |> mutate(elev_nudge =
-                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.1,
-                                           Spp_Code %in% "MUSSPP" ~ elev,
-                                           Spp_Code %in% "ASCNOD" ~ elev + 0.1,
-                                           Spp_Code %in% "FUCSPP" ~ elev + 0.2,
-                                           Spp_Code %in% "REDGRP" ~ elev + 0.3,
+                                 case_when(Spp_Code %in% "BARSPP" ~ elev - 0.6,
+                                           Spp_Code %in% "MUSSPP" ~ elev - 0.3,
+                                           Spp_Code %in% "ASCNOD" ~ elev ,
+                                           Spp_Code %in% "FUCSPP" ~ elev + 0.3,
+                                           Spp_Code %in% "REDGRP" ~ elev + 0.6,
                                            TRUE ~ elev))
+  sp_dist <- sp_dist |> mutate(elev_med_nudge =
+                                 case_when(Spp_Code %in% "BARSPP" ~ elev_med - 0.6,
+                                           Spp_Code %in% "MUSSPP" ~ elev_med - 0.3,
+                                           Spp_Code %in% "ASCNOD" ~ elev_med,
+                                           Spp_Code %in% "FUCSPP" ~ elev_med + 0.3,
+                                           Spp_Code %in% "REDGRP" ~ elev_med + 0.6,
+                                           TRUE ~ elev_med))
 
  p1 <-
   ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
@@ -260,12 +268,12 @@ plotSpeciesContours <- function(location = "BASHAR",
    geom_line(color = '#676767')+
    geom_line(data = minmax_spp, aes(y = elev_nudge, x = dist_pred_mm,
                                     color = Spp_Code, group = Spp_Code),
-             linewidth = 1, alpha = 0.7) +
-   geom_line(data = mid50_spp, aes(y = elev_nudge, x = dist_pred_50,
-                                    color = Spp_Code, group = Spp_Code),
-             linewidth = 2.5, alpha = 0.7)+
+             linewidth = 2, alpha = 0.9) +
+   # geom_line(data = mid50_spp, aes(y = elev_nudge, x = dist_pred_50,
+   #                                  color = Spp_Code, group = Spp_Code),
+   #           linewidth = 2.5, alpha = 0.7)+
 
-   geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
+   geom_point(data = sp_dist, aes(x = dist_med, y = elev_med_nudge,
                                   fill = Spp_Code, group = Spp_Code,
                                   shape = Spp_Code),
               position = position_dodge2(width = 5), size = 2, color = 'black') +
@@ -277,14 +285,14 @@ plotSpeciesContours <- function(location = "BASHAR",
                      breaks = names(cols), labels = labels) +
    {if(length(years) > 1)facet_wrap(~Year, ncol = 1)} +
    {if(plot_title == TRUE)labs(title = location)} +
-   theme(legend.position = 'right',
-         plot.margin = unit(c(0.1, 0.01, 0.1, 0.01), 'cm'),
-         legend.margin = margin(r = 0, l = 0, unit = 'cm'),
-         legend.box.margin = margin(r = 0, l = 0, unit = 'cm'))#+
+   theme(legend.position = 'right', #+
+         plot.margin = unit(c(0,1,0,1), 'cm') )
+         #legend.margin = margin(r = 1, l = 1, unit = 'cm')) #+
+         #legend.box.margin = margin(r = 0.2, l = 0.2, unit = 'cm'))#+
    #ylim(-2, 7) #+
    #xlim(range(trsm_dat$dist)[1] * 0.95, range(trsm_dat$dist)[2] * 1.05)
 
-  p_leg <- as_ggplot(get_legend(p1))
+  p_leg <- ggpubr::as_ggplot(ggpubr::get_legend(p1))
 
   # Manually nudge ASCNOD and FUSSPP photoplot pies where they're both present at the location
   photo_dist_wide <- photo_dist_wide |>
@@ -312,14 +320,26 @@ plotSpeciesContours <- function(location = "BASHAR",
    coord_equal(expand = TRUE) + labs(x = "Distance (m)", y = "Elevation MLLW (m)") +
     theme(legend.position = 'none')
 
-  if(length(years == 1)){
-    p <- gridExtra::grid.arrange(p2, p_leg, nrow = 2, ncol = 1, heights = c(7, 1.5),
-                                 layout_matrix = (cbind(c(1), c(2))))
-  } else{
+  # if(length(years == 1)){
+  #   # p <- gridExtra::grid.arrange(p2, p_leg, nrow = 2, ncol = 1, heights = c(7, 1.5),
+  #   #                              layout_matrix = (cbind(c(1), c(2))))
+  #
+  #   p <- cowplot::plot_grid(p2, p_leg, nrow = 1, ncol = 2, rel_heights = c(0.9, 0.1),
+  #                           align = 'hv')
+  # } else{
   #p <- ggpubr::ggarrange(p2, p_leg, nrow = 1, ncol = 2, widths = c(4, 1.5))
-   p <- gridExtra::grid.arrange(p2, p_leg, nrow = 2, ncol = 2, widths = c(5, 1.5),
-                            layout_matrix = (cbind(c(1, 1), c(2, NA))))
-  }
-  suppressWarnings(print(p))
+   # p <- gridExtra::grid.arrange(p2, p_leg, nrow = 2, ncol = 2, widths = c(8, 1.5), heights = c(7, 1.5),
+   #                          layout_matrix = (cbind(c(1, 1), c(2, NA))))
+
+    # p <-
+    #      cowplot::plot_grid(p2, p_leg, nrow = 1, ncol = 2)
+    #                         #rel_widths = c(0.5, 1))#,
+    #                         #rel_heights = c(10, 1))
+    #                         #align = 'hv')
+
+  p <- gridExtra::grid.arrange(p2, p_leg, nrow = 1, ncol = 2, widths = c(4, 1))
+  # }
+  p
+  #print(p)
 
 }

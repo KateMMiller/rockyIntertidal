@@ -37,7 +37,7 @@ Can specify a vector of years.}
 \item{plot_title}{If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.}
 }
 \value{
-Returns a ggplot object of percent cover from photos filtered by function arguments
+Returns a ggplot object of point intercept and percent cover data filtered by function arguments
 }
 \description{
 This function plots a loess smoothed contour averaging the transects across all years specified.

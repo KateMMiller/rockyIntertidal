@@ -12,7 +12,7 @@
 #' @importFrom purrr pmap_dfr
 #'
 #' @description This function plots a loess smoothed contour averaging the transects across all years specified.
-#' Point intercept ranges are plotted along the contours by year for each of the five main species groups
+#' Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the five main species groups
 #' (REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP). Photoplot cover is plotted as median cover and median elevation
 #' for each target species plot.
 #'

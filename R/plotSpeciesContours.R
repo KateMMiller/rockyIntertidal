@@ -69,7 +69,6 @@ plotSpeciesContours <- function(location = "BASHAR",
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(is.logical(plot_title))
-  stopifnot(is.logical(export_data))
 
   if(length(location) > 1){stop("Multiple locations specified. Function can only plot one location at a time.")}
 

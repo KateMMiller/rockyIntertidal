@@ -30,6 +30,8 @@ add_hour <- function(df){
   return(df)
 }
 
+dir <- "../data/rocky/temp_data/"
+
 # Code below is downloading full buoy data by year for each station, then will bind
 # the variable of interest together across all years. For now, just looking at
 # water temperature (WTMP), wind speed (WSPD), wind direction (WDIR), and
@@ -37,20 +39,40 @@ add_hour <- function(df){
 # GST, DPD, APD, MWD, PRES, DEWP, VIS, and TIDE.
 
 #---- ACAD ----
-get_buoy_data(buoyid = 44034, year = 2013:2022, outDir = "../data/rocky/temp_data/")
-wtmp_44034 <- combine_buoy_data(buoyid = "44034", variable = "WTMP", inDir = "../data/rocky/temp_data/") |>
+get_buoy_data(buoyid = 44034, year = 2013:2022, outDir = dir)
+wtmp <- combine_buoy_data(buoyid = "44034", variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
-wspd_44034 <- combine_buoy_data(buoyid = "44034", variable = "WSPD", inDir = "../data/rocky/temp_data/") |>
+wspd <- combine_buoy_data(buoyid = "44034", variable = "WSPD", inDir = dir) |>
   add_hour()
-wdir_44034 <- combine_buoy_data(buoyid = "44034", variable = "WDIR", inDir = "../data/rocky/temp_data/") |>
+wdir <- combine_buoy_data(buoyid = "44034", variable = "WDIR", inDir = dir) |>
   add_hour()
-wvht_44034 <- combine_buoy_data(buoyid = "44034", variable = "WVHT", inDir = "../data/rocky/temp_data/") |>
+wvht <- combine_buoy_data(buoyid = "44034", variable = "WVHT", inDir = dir) |>
   add_hour()
 
 comb_44034 <- purrr::reduce(list(wtmp_44034, wspd_44034, wdir_44034, wvht_44034),
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
 write.csv(comb_44034, "../data/rocky/temp_data/Buoy_data_2013-2022_ACAD_44034.csv", row.names = F)
+
+# Frenchman Bay Buoy
+b_id <- "ATGM1"
+get_buoy_data(buoyid = b_id, year = c(2013:2016), outDir = dir)
+get_buoy_data(buoyid = b_id, year = 2017, outDir = dir) # kept crashing, so had to split out
+get_buoy_data(buoyid = b_id, year = c(2018:2022), outDir = dir)
+
+wtmp <- combine_buoy_data(buoyid = b_id, variable = "WTMP", inDir = dir) |>
+  add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
+wspd <- combine_buoy_data(buoyid = b_id, variable = "WSPD", inDir = dir) |>
+  add_hour()
+wdir <- combine_buoy_data(buoyid = b_id, variable = "WDIR", inDir = dir) |>
+  add_hour()
+wvht <- combine_buoy_data(buoyid = b_id, variable = "WVHT", inDir = dir) |>
+  add_hour()
+
+comb <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
+                           full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
+
+write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2022_ACAD_ATGM1.csv"), row.names = F)
 
 ggpubr::ggarrange(
   ggplot(comb_44034, aes(x = DATE, y = WTMP_F)) +
@@ -67,15 +89,31 @@ ggpubr::ggarrange(
   nrow = 4
 )
 
+
+ggpubr::ggarrange(
+  ggplot(comb, aes(x = DATE, y = WTMP_F)) +
+    geom_line() + ylab("Water temp (F)") + rockyIntertidal::theme_rocky() ,
+  ggplot(comb, aes(x = DATE, y = WSPD)) +
+    geom_line() + ylab("Wind speed (m/s)") +
+    rockyIntertidal::theme_rocky(),
+  ggplot(comb, aes(x = DATE, y = WVHT)) +
+    geom_line() + ylab("Wave height (m)") +
+    rockyIntertidal::theme_rocky(),
+  ggplot(comb, aes(x = DATE, y = WDIR)) +
+    geom_line() + ylab("Wind direction") +
+    rockyIntertidal::theme_rocky(),
+  nrow = 4
+)
+
 #---- BOHA----
-get_buoy_data(buoyid = 44013, year = 2013:2022, outDir = "../data/rocky/temp_data/")
-wtmp_44013 <- combine_buoy_data(buoyid = "44013", variable = "WTMP", inDir = "../data/rocky/temp_data/") |>
+get_buoy_data(buoyid = 44013, year = 2013:2022, outDir = dir)
+wtmp_44013 <- combine_buoy_data(buoyid = "44013", variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
-wspd_44013 <- combine_buoy_data(buoyid = "44013", variable = "WSPD", inDir = "../data/rocky/temp_data/") |>
+wspd_44013 <- combine_buoy_data(buoyid = "44013", variable = "WSPD", inDir = dir) |>
   add_hour()
-wdir_44013 <- combine_buoy_data(buoyid = "44013", variable = "WDIR", inDir = "../data/rocky/temp_data/") |>
+wdir_44013 <- combine_buoy_data(buoyid = "44013", variable = "WDIR", inDir = dir) |>
   add_hour()
-wvht_44013 <- combine_buoy_data(buoyid = "44013", variable = "WVHT", inDir = "../data/rocky/temp_data/") |>
+wvht_44013 <- combine_buoy_data(buoyid = "44013", variable = "WVHT", inDir = dir) |>
   add_hour()
 
 table(comb_44013$DATE)
@@ -83,6 +121,26 @@ comb_44013 <- purrr::reduce(list(wtmp_44013, wspd_44013, wdir_44013, wvht_44013)
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
 write.csv(comb_44013, "../data/rocky/temp_data/Buoy_data_2013-2022_BOHA_44013.csv", row.names = F)
+
+# Boston Harbor Buoy
+b_id <- "BHBM3"
+get_buoy_data(buoyid = b_id, year = c(2013:2016), outDir = dir)
+get_buoy_data(buoyid = b_id, year = 2017, outDir = dir) # kept crashing, so had to split out
+get_buoy_data(buoyid = b_id, year = c(2018:2022), outDir = dir)
+
+wtmp <- combine_buoy_data(buoyid = b_id, variable = "WTMP", inDir = dir) |>
+  add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
+wspd <- combine_buoy_data(buoyid = b_id, variable = "WSPD", inDir = dir) |>
+  add_hour()
+wdir <- combine_buoy_data(buoyid = b_id, variable = "WDIR", inDir = dir) |>
+  add_hour()
+wvht <- combine_buoy_data(buoyid = b_id, variable = "WVHT", inDir = dir) |>
+  add_hour()
+
+comb <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
+                      full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
+
+write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2022_BOHA_BHBM3.csv"), row.names = F)
 
 ggpubr::ggarrange(
   ggplot(comb_44013, aes(x = DATE, y = WTMP_F)) +
@@ -94,6 +152,22 @@ ggpubr::ggarrange(
     geom_line() + ylab("Wave height (m)") +
     rockyIntertidal::theme_rocky(),
   ggplot(comb_44013, aes(x = DATE, y = WDIR)) +
+    geom_line() + ylab("Wind direction") +
+    rockyIntertidal::theme_rocky(),
+  nrow = 4
+)
+
+
+ggpubr::ggarrange(
+  ggplot(comb, aes(x = DATE, y = WTMP_F)) +
+    geom_line() + ylab("Water temp (F)") + rockyIntertidal::theme_rocky() ,
+  ggplot(comb, aes(x = DATE, y = WSPD)) +
+    geom_line() + ylab("Wind speed (m/s)") +
+    rockyIntertidal::theme_rocky(),
+  ggplot(comb, aes(x = DATE, y = WVHT)) +
+    geom_line() + ylab("Wave height (m)") +
+    rockyIntertidal::theme_rocky(),
+  ggplot(comb, aes(x = DATE, y = WDIR)) +
     geom_line() + ylab("Wind direction") +
     rockyIntertidal::theme_rocky(),
   nrow = 4

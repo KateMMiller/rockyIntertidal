@@ -34,7 +34,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
 
-\item{plot_title}{If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.}
+\item{plot_title}{Logical. If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.}
 }
 \value{
 Returns a ggplot object of point intercept and percent cover data filtered by function arguments

@@ -64,7 +64,7 @@ plotBuoyData()
 # Windspeed and direction only
 plotBuoyData(metric = 'wspd'))
 
-plotBuoyData(location = "SCHPOI", years = 2013:2022, palette = 'black')
+plotBuoyData(park = "ACAD", years = 2013:2022, palette = 'black')
 
 }
 

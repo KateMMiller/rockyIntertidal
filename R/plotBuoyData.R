@@ -50,7 +50,7 @@
 #' # Windspeed and direction only
 #' plotBuoyData(metric = 'wspd'))
 #'
-#' plotBuoyData(location = "SCHPOI", years = 2013:2022, palette = 'black')
+#' plotBuoyData(park = "ACAD", years = 2013:2022, palette = 'black')
 #'
 #' }
 #'
@@ -244,7 +244,7 @@ p <- switch(metric,
             'wspd' = p_wspd,
             'wvht' = p_wvht)
 
-  return(p)
+  p
 
 
   }

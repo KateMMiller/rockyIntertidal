@@ -145,21 +145,25 @@ plotSpeciesContours <- function(location = "BASHAR",
   spdat <- spdat1 |> mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
                             Spp_Name = ifelse(Spp_Code %in% "REDGRP", "Red algae group", Spp_Name))
 
-  trdat <- spdat |> select(Site_Code, Loc_Code, #Year, Plot_Name,
-                           elev = PI_Elevation, dist = PI_Distance) |> #dist = Distance_m) |>
-                    unique() |> na.omit() |> arrange(elev)
-
-  # Commented code simplifies dataset by taking every 10th observation
-  trdat <- spdat |> arrange(PI_Elevation) |> # mutate(row = row_number()) |>
-    #slice(which(row_number() %% 10 == 1)) |>
-    select(Site_Code, Loc_Code, #row, #Year, Plot_Name,
-           elev = PI_Elevation, dist = PI_Distance) |> #dist = Distance_m) |>
+  #OUTBRE smooth is really funky, so only smoothing one transect
+  trdat <- if(location == "OUTBRE"){
+    spdat |> filter(Plot_Name == "T1") |>
+    select(Site_Code, Loc_Code, Year, Plot_Name,
+           elev = PI_Elevation, dist = PI_Distance) |>
     unique() |> na.omit() |> arrange(elev)
+  } else{
+    spdat |> arrange(PI_Elevation) |>
+      select(Site_Code, Loc_Code,
+             elev = PI_Elevation, dist = PI_Distance) |>
+      unique() |> na.omit() |> arrange(elev)
+  }
+
 
   # Smooth contours across all transects and years
-  trsm <- loess(dist ~ elev, data = trdat, span = 0.6, degree = 1)
+  span_loc <- ifelse(location == "OUTBRE", 0.5, 0.6)
+  trsm <- loess(dist ~ elev, data = trdat, span = span_loc, degree = 1)
 
-  trsm_dat <- cbind(trdat, dist_pred = predict(trsm))
+  trsm_dat <- cbind(trdat, dist_pred = predict(trsm, trdat))
 
   # ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
   #   geom_line(color = '#676767') +
@@ -252,26 +256,27 @@ plotSpeciesContours <- function(location = "BASHAR",
   #
   # # pie_size <- diff(range(trsm_dat$dist_pred))/diff(range(trsm_dat$elev)) * 0.2
 
-  pie_size <- case_when(location %in% c("BASHAR", "CALISL", "OTTPOI", "SCHPOI") ~ 2.5,
-                        location %in% c("OTTPOI") ~ 2,
+  pie_size <- case_when(location %in% c("BASHAR") ~ 2.5,
+                        location %in% c("SCHPOI") ~ 3,
+                        location %in% c("OTTPOI") ~ 1.75,
                         location %in% c("LITHUN") ~ 5,
-                        location %in% c("GREISL") ~ 4,
-                        location %in% c("LITMOO") ~ 1.5,
+                        location %in% c("GREISL") ~ 2.5,
+                        location %in% c("LITMOO") ~ 2.5,
                         location %in% c("CALISL") ~ 2,
-                        location %in% c("OUTBRE") ~ 15,
+                        location %in% c("OUTBRE") ~ 5,
                         location %in% c("SHIHAR") ~ 1.5,
                         )
 
   pie_ynudge <- case_when(location %in% c("BASHAR", "CALISL") ~ pie_size * 0.7,
-                          location %in% c("LITHUN") ~ pie_size * 0.3,
+                          location %in% c("LITHUN") ~ pie_size * 0.2,
                           location %in% c("LITMOO") ~ pie_size * 0.4,
                           location %in% c("OTTPOI", "SCHPOI") ~ pie_size * 0.8,
                           location %in% c("OUTBRE") ~ pie_size * 0.4,
-                          location %in% c("GREISL") ~ pie_size * 0.5,
-                          location %in% c("SHIHAR") ~ pie_size * 0.3
+                          location %in% c("GREISL") ~ pie_size * 0.4,
+                          location %in% c("SHIHAR") ~ pie_size * 0.6
   )
 
-  pie_ylim <- ifelse(location %in% "SHIHAR", 0.4, 0.3)
+  #pie_ylim <- ifelse(location %in% "SHIHAR", 0.4, 0.3)
 
   # Nudge elevation of vertical transect species bands, for when they overlap
   # minmax_spp <- minmax_spp |> mutate(elev_nudge =
@@ -326,7 +331,7 @@ plotSpeciesContours <- function(location = "BASHAR",
    {if(length(years) > 1)facet_wrap(~Year, ncol = 1)} +
    {if(plot_title == TRUE)labs(title = location)} +
    theme(legend.position = 'right', #+
-         plot.margin = unit(c(0,1.5,0,1), 'cm') )
+         plot.margin = unit(c(0, 1.5, 0, 1), 'cm') )
          #legend.margin = margin(r = 1, l = 1, unit = 'cm')) #+
          #legend.box.margin = margin(r = 0.2, l = 0.2, unit = 'cm'))#+
    #ylim(-2, 7) #+

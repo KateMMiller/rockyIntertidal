@@ -253,7 +253,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
 
   if(main_groups == TRUE){
     dat$Spp_Code <- factor(dat$Spp_Code, levels = c("REDGRP", "ASCNOD", "FUCSPP", "MUSSPP", "BARSPP"))
-    dat$Target_Species <- factor(dat$Target_Species, levels = c("Red Algae", "Ascophyllum", "Fucus", "Barnacle"))
+    dat$Target_Species <- factor(dat$Target_Species, levels = c("Red Algae", "Ascophyllum", "Fucus", "Mussel", "Barnacle"))
     dat <- droplevels(dat)
   }
 

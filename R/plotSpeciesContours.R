@@ -12,8 +12,8 @@
 #' @importFrom purrr pmap_dfr
 #'
 #' @description This function plots a loess smoothed contour averaging the transects across all years specified.
-#' Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the five main species groups
-#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP). Photoplot cover is plotted as median cover and median elevation
+#' Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the main species groups
+#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, ALGGRE, BARSPP, NONCOR). Photoplot cover is plotted as median cover and median elevation
 #' for each target species plot.
 #'
 #' @param location Must choose a location to plot
@@ -76,19 +76,21 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   # create color palette by species code
 
-  cols = c("ASCNOD" = "#C5B47B", "BARSPP" = "#A9A9A9", "FUCSPP" = "#FFD560",
-           "MUSSPP" = "#6F88BF", "REDGRP" = "#FF4C53")
+  cols = c("NONCOR" = "#574F91", "BARSPP" = "#A9A9A9", "ALGGRE" = "#C4E133", "MUSSPP" = "#6F88BF",
+           "ASCNOD" = "#C5B47B", "FUCSPP" = "#FFD560", "REDGRP" = "#FF4C53")
 
-  shps = c("ASCNOD" = 23, "BARSPP" = 24, "FUCSPP" = 25,
-           "MUSSPP" = 23, "REDGRP" = 25)
+  shps = c("NONCOR" = 23, "BARSPP" = 24, "ALGGRE" = 23, "MUSSPP" = 23,
+           "ASCNOD" = 23, "FUCSPP" = 25, "REDGRP" = 25)
 
-  sz = c("ASCNOD" = 3.5, "BARSPP" = 3, "FUCSPP" = 3,
-         "MUSSPP" = 3.5, "REDGRP" = 2)
+  sz = c("NONCOR" = 5.5, "BARSPP" = 5, "ALGGRE" = 4.5, "MUSSPP" = 5.5,
+         "ASCNOD" = 5.5, "FUCSPP" = 5, "REDGRP" = 4)
 
-  labels = c("ASCNOD" = "A. nodosum (Knotted wrack)",
+  labels = c("NONCOR" = "Crustose non-coraline",
              "BARSPP" = "Barnacles",
-             "FUCSPP" = "Fucus spp. (Rockweed)",
+             "ALGGRE" = "Algae - Green",
              "MUSSPP" = "Mussels",
+             "ASCNOD" = "A. nodosum (Knotted wrack)",
+             "FUCSPP" = "Fucus spp. (Rockweed)",
              "REDGRP" = "Red algae group")
 
   targ_labs <-  c("Ascophyllum" = "A. nodosum (knotted wrack)",
@@ -105,8 +107,8 @@ plotSpeciesContours <- function(location = "BASHAR",
   photo1 <- suppressWarnings(force(getPhotoCover(location = location, plotName = 'all',
                                                category = 'all', years = years, QAQC = FALSE,
                                                species = c("ASCNOD",  "ASCEPI", "BARSPP",
-                                                           "FUCSPP", "FUCEPI",
-                                                           "MUSSPP", "ALGRED", "CHOMAS"),
+                                                           "FUCSPP", "FUCEPI", "NONCOR",
+                                                           "MUSSPP", "ALGRED", "CHOMAS", "ALGGRE"),
                                                target_species = 'all'))) |>
                            dplyr::filter(!is.na(Perc_Cover))
 
@@ -137,8 +139,8 @@ plotSpeciesContours <- function(location = "BASHAR",
   spdat1 <- suppressWarnings(force(sumPISpecies(location = location, plotName = 'all',
                                                years = years,
                                                QAQC = FALSE,
-                                               species = c("ASCNOD", "BARSPP", "FUCSPP",
-                                                           "MUSSPP", "ALGRED", "CHOMAS"))))
+                                               species = c("ASCNOD", "BARSPP", "FUCSPP", "ALGGRE",
+                                                           "MUSSPP", "ALGRED", "CHOMAS", "NONCOR"))))
 
   # Combine ALGRED and CHOMAS
   spdat <- spdat1 |> mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
@@ -255,52 +257,44 @@ plotSpeciesContours <- function(location = "BASHAR",
   #
   # # pie_size <- diff(range(trsm_dat$dist_pred))/diff(range(trsm_dat$elev)) * 0.2
 
-  pie_size <- case_when(location %in% c("BASHAR") ~ 2.5,
-                        location %in% c("SCHPOI") ~ 3,
-                        location %in% c("OTTPOI") ~ 1.75,
-                        location %in% c("LITHUN") ~ 5,
-                        location %in% c("GREISL") ~ 2.5,
-                        location %in% c("LITMOO") ~ 2.5,
-                        location %in% c("CALISL") ~ 2,
-                        location %in% c("OUTBRE") ~ 5,
-                        location %in% c("SHIHAR") ~ 1.5,
+  pie_size <- case_when(location %in% c("BASHAR") ~ 3,
+                        location %in% c("LITHUN") ~ 8,
+                        location %in% c("LITMOO") ~ 3,
+                        location %in% c("OTTPOI") ~ 2,
+                        location %in% c("SCHPOI") ~ 3.5,
+                        location %in% c("SHIHAR") ~ 1.75,
+                        location %in% c("CALISL") ~ 5,
+                        location %in% c("GREISL") ~ 6,
+                        location %in% c("OUTBRE") ~ 5
                         )
 
-  pie_ynudge <- case_when(location %in% c("BASHAR", "CALISL") ~ pie_size * 0.7,
-                          location %in% c("LITHUN") ~ pie_size * 0.2,
-                          location %in% c("LITMOO") ~ pie_size * 0.4,
-                          location %in% c("OTTPOI", "SCHPOI") ~ pie_size * 0.8,
-                          location %in% c("OUTBRE") ~ pie_size * 0.4,
-                          location %in% c("GREISL") ~ pie_size * 0.4,
-                          location %in% c("SHIHAR") ~ pie_size * 0.6
-  )
+  # pie_ynudge <- case_when(location %in% c("BASHAR") ~ pie_size * 0.8,
+  #                         location %in% c("LITHUN") ~ pie_size * 0.1,
+  #                         location %in% c("LITMOO") ~ pie_size * 0.4,
+  #                         location %in% c("OTTPOI") ~ pie_size * 0.8,
+  #                         location %in% c("SCHPOI") ~ pie_size, # * 0.8,
+  #                         location %in% c("SHIHAR") ~ pie_size * 0.6,
+  #                         location %in% c("CALISL") ~ pie_size * 0.7,
+  #                         location %in% c("GREISL") ~ pie_size * 0.4,
+  #                         location %in% c("OUTBRE") ~ pie_size * 0.4
+  # )
+
+
 
   #pie_ylim <- ifelse(location %in% "SHIHAR", 0.4, 0.3)
 
-  # Nudge elevation of vertical transect species bands, for when they overlap
-  # minmax_spp <- minmax_spp |> mutate(elev_nudge =
-  #                                case_when(Spp_Code %in% "BARSPP" ~ elev - 0.6,
-  #                                          Spp_Code %in% "MUSSPP" ~ elev - 0.3,
-  #                                          Spp_Code %in% "ASCNOD" ~ elev,
-  #                                          Spp_Code %in% "FUCSPP" ~ elev + 0.3,
-  #                                          Spp_Code %in% "REDGRP" ~ elev + 0.6,
-  #                                          TRUE ~ elev))
-  # mid50_spp <- mid50_spp |> mutate(elev_nudge =
-  #                                case_when(Spp_Code %in% "BARSPP" ~ elev - 0.6,
-  #                                          Spp_Code %in% "MUSSPP" ~ elev - 0.3,
-  #                                          Spp_Code %in% "ASCNOD" ~ elev ,
-  #                                          Spp_Code %in% "FUCSPP" ~ elev + 0.3,
-  #                                          Spp_Code %in% "REDGRP" ~ elev + 0.6,
-  #                                          TRUE ~ elev))
-  # sp_dist <- sp_dist |> mutate(elev_med_nudge =
-  #                                case_when(Spp_Code %in% "BARSPP" ~ elev_med - 0.6,
-  #                                          Spp_Code %in% "MUSSPP" ~ elev_med - 0.3,
-  #                                          Spp_Code %in% "ASCNOD" ~ elev_med,
-  #                                          Spp_Code %in% "FUCSPP" ~ elev_med + 0.3,
-  #                                          Spp_Code %in% "REDGRP" ~ elev_med + 0.6,
-  #                                          TRUE ~ elev_med))
+  # Nudge elevation of median symbols, for when they overlap
+  # med_elev_nudge <- case_when(location %in% c("BASHAR") ~ 0.6,
+  #                             location %in% c("LITHUN") ~ 0.2,
+  #                             location %in% c("LITMOO") ~ 0.3,
+  #                             location %in% c("LITMOO") ~ 0.4,
+  #                             location %in% c("OTTPOI", "SCHPOI") ~ 0.8,
+  #                             location %in% c("OUTBRE") ~ 0.4,
+  #                             location %in% c("GREISL") ~ 0.4,
+  #                             location %in% c("SHIHAR") ~ 0.6
+  # )
 
-  sp_dist$elev_med_nudge <- sp_dist$elev_med + 0.5
+  # sp_dist$elev_med_nudge <- sp_dist$elev_med + 0.5
 
   spdat_smooth <- cbind(spdat, dist_pred = predict(trsm, spdat |> select(elev = PI_Elevation)))
   #spdat_smooth$dist_pred[is.na(spdat_smooth$dist_pred) & spdat_smooth$Spp_Code == "REDGRP"] <- max_dist
@@ -314,10 +308,11 @@ plotSpeciesContours <- function(location = "BASHAR",
    # geom_line(data = mid50_spp, aes(y = elev_nudge, x = dist_pred_50,
    #                                  color = Spp_Code, group = Spp_Code),
    #           linewidth = 2.5, alpha = 0.7)+
-   geom_point(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = Spp_Code,
-                                       fill = Spp_Code, group = Spp_Code)) + #,
+   geom_jitter(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = Spp_Code,
+                                       fill = Spp_Code, group = Spp_Code),
+              position = position_jitter(height = 0.5)) + #,
               #shape = 21, color = '#797979') +
-   geom_point(data = sp_dist, aes(x = dist_med, y = elev_med_nudge,
+   geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
                                   fill = Spp_Code, group = Spp_Code,
                                   shape = Spp_Code),
               position = position_dodge2(width = 5), size = 2, color = 'black') +
@@ -358,8 +353,10 @@ plotSpeciesContours <- function(location = "BASHAR",
                                   TRUE ~ dist
                                   ))
 
+  photo_dist_wide$elev_hor <- max(trsm_dat$elev + 1.5)#pie_size * 1.5)
+
   p2 <- p1 +
-   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = elev + pie_ynudge), pie_scale = pie_size,
+   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = elev_hor), pie_scale = pie_size,
                    cols = c("ASCNOD", "BARSPP", "FUCSPP", "MUSSPP", "REDGRP")) +
    coord_equal(expand = TRUE) + labs(x = "Distance (m)", y = "Elevation MLLW (m)") +
     theme(legend.position = 'none')

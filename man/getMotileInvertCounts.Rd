@@ -10,6 +10,7 @@ getMotileInvertCounts(
   plotName = "all",
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  target_species = "all",
   QAQC = FALSE
 )
 }
@@ -46,6 +47,9 @@ the function will warn the user that an unrecognized species was specified in ca
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{target_species}{Filter on target species (ie photoplot). Options include:
+c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}

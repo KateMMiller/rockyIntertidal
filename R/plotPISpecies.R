@@ -167,7 +167,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   cols = c("ALGBRO" = "#A4755B", "ALGGRE" = "#C4E133", "ALGRED" = "#FF4C53", "ARTCOR" = "#D78AAE",
            "ASCEPI" = "#85733B", "ASCNOD" = "#C5B47B", "BARSPP" = "#A9A9A9", "CHOMAS" = "#772C27",
-           "CRUCOR" = "#F9F5A1", "NONCOR" = "#9565C9","FUCEPI" = "#D5A82A", "FUCSPP" = "#FFD560",
+           "CRUCOR" = "#F9F5A1", "NONCOR" = "#574F91","FUCEPI" = "#D5A82A", "FUCSPP" = "#FFD560",
            "KELP"   = "#4DA551", "MUSSPP" = "#6F88BF", "OTHINV" = "#F59617", "OTHSUB" = "#8A838A",
            "PALPAL" = "#5E5571", "PORSPP" = "#8E3B4A", "ULVENT" = "#699052", "ULVINT" = "#9FCF87",
            "ULVLAC" = "#73EB31", "UNIDEN" = "#696969", "BOLT"   = "#EAEAEA", "ROCK"   = "#FED5FF",

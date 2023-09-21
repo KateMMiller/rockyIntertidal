@@ -264,40 +264,17 @@ plotSpeciesContours <- function(location = "BASHAR",
                         location %in% c("SCHPOI") ~ 3.5,
                         location %in% c("SHIHAR") ~ 1.75,
                         location %in% c("CALISL") ~ 5,
-                        location %in% c("GREISL") ~ 6,
+                        location %in% c("GREISL") ~ 5.5,
                         location %in% c("OUTBRE") ~ 5
                         )
 
-  # pie_ynudge <- case_when(location %in% c("BASHAR") ~ pie_size * 0.8,
-  #                         location %in% c("LITHUN") ~ pie_size * 0.1,
-  #                         location %in% c("LITMOO") ~ pie_size * 0.4,
-  #                         location %in% c("OTTPOI") ~ pie_size * 0.8,
-  #                         location %in% c("SCHPOI") ~ pie_size, # * 0.8,
-  #                         location %in% c("SHIHAR") ~ pie_size * 0.6,
-  #                         location %in% c("CALISL") ~ pie_size * 0.7,
-  #                         location %in% c("GREISL") ~ pie_size * 0.4,
-  #                         location %in% c("OUTBRE") ~ pie_size * 0.4
-  # )
-
-
-
-  #pie_ylim <- ifelse(location %in% "SHIHAR", 0.4, 0.3)
-
-  # Nudge elevation of median symbols, for when they overlap
-  # med_elev_nudge <- case_when(location %in% c("BASHAR") ~ 0.6,
-  #                             location %in% c("LITHUN") ~ 0.2,
-  #                             location %in% c("LITMOO") ~ 0.3,
-  #                             location %in% c("LITMOO") ~ 0.4,
-  #                             location %in% c("OTTPOI", "SCHPOI") ~ 0.8,
-  #                             location %in% c("OUTBRE") ~ 0.4,
-  #                             location %in% c("GREISL") ~ 0.4,
-  #                             location %in% c("SHIHAR") ~ 0.6
-  # )
-
-  # sp_dist$elev_med_nudge <- sp_dist$elev_med + 0.5
+  pie_ynudge <- case_when(location %in% c("LITHUN") ~ 2,
+                          location %in% c("SHIHAR") ~ 2,
+                          location %in% c("CALISL", "GREISL") ~ 3,
+                          TRUE ~ pie_size
+  )
 
   spdat_smooth <- cbind(spdat, dist_pred = predict(trsm, spdat |> select(elev = PI_Elevation)))
-  #spdat_smooth$dist_pred[is.na(spdat_smooth$dist_pred) & spdat_smooth$Spp_Code == "REDGRP"] <- max_dist
 
  p1 <-
   ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
@@ -310,12 +287,13 @@ plotSpeciesContours <- function(location = "BASHAR",
    #           linewidth = 2.5, alpha = 0.7)+
    geom_jitter(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = Spp_Code,
                                        fill = Spp_Code, group = Spp_Code),
-              position = position_jitter(height = 0.5)) + #,
+              position = position_jitter(height = 1), alpha = 0.8) + #,
               #shape = 21, color = '#797979') +
    geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
                                   fill = Spp_Code, group = Spp_Code,
                                   shape = Spp_Code),
-              position = position_dodge2(width = 5), size = 2, color = 'black') +
+              position = position_dodge2(width = 5), size = 2, color = 'black',
+              lwd = 1) +
    scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
                       labels = labels) +
    scale_color_manual(values = cols, name = "Species",
@@ -338,6 +316,9 @@ plotSpeciesContours <- function(location = "BASHAR",
     mutate(dist_nudge = case_when(Loc_Code == "LITMOO" & Target_Species == "Ascophyllum" ~ dist - pie_size/2,
                                   Loc_Code == "LITMOO" & Target_Species == "Fucus" ~ dist + pie_size/2,
 
+                                  Loc_Code == "LITHUN" & Target_Species == "Mussel" ~ dist + 2,#pie_size/6,
+                                  Loc_Code == "LITHUN" & Target_Species == "Ascophyllum" ~ dist + 0.5, #pie_size/4,
+
                                   Loc_Code == "OTTPOI" & Target_Species == "Ascophyllum" ~ dist + pie_size/2,
                                   Loc_Code == "OTTPOI" & Target_Species == "Fucus" ~ dist - pie_size/2,
 
@@ -347,16 +328,17 @@ plotSpeciesContours <- function(location = "BASHAR",
                                   Loc_Code == "CALISL" & Target_Species == "Ascophyllum" ~ dist - pie_size/2,
                                   Loc_Code == "CALISL" & Target_Species == "Fucus" ~ dist + pie_size/2,
 
-                                  Loc_Code == "GREISL" & Target_Species == "Ascophyllum" ~ dist + 0.6,
-                                  Loc_Code == "GREISL" & Target_Species == "Fucus" ~ dist - 0.6,
+                                  Loc_Code == "GREISL" & Target_Species == "Ascophyllum" ~ dist + 1.5,
+                                  Loc_Code == "GREISL" & Target_Species == "Fucus" ~ dist - 1.5,
 
                                   TRUE ~ dist
                                   ))
 
-  photo_dist_wide$elev_hor <- max(trsm_dat$elev + 1.5)#pie_size * 1.5)
+  #photo_dist_wide$elev_hor <- max(trsm_dat$elev + pie_size * 1.5)
 
   p2 <- p1 +
-   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = elev_hor), pie_scale = pie_size,
+   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = elev + pie_ynudge),
+                   pie_scale = pie_size,
                    cols = c("ASCNOD", "BARSPP", "FUCSPP", "MUSSPP", "REDGRP")) +
    coord_equal(expand = TRUE) + labs(x = "Distance (m)", y = "Elevation MLLW (m)") +
     theme(legend.position = 'none')

@@ -4,6 +4,7 @@
 #'
 #' @import ggplot2
 #' @importFrom dplyr arrange filter group_by slice_max summarize
+#' @importFrom plotly ggplotly
 #'
 #' @description This function plots median percent cover by species for a given park, location, years and
 #' target species. The point for each species is the median cover across the photoplots that site, year
@@ -117,7 +118,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
                            heatmap = FALSE, top_spp = NULL, palette = c('default'),
                            xlab = "Year", ylab = "% Cover", main_groups = FALSE,
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                           nrow = 1,
+                           nrow = 1, plotly = FALSE,
                            plot_title = NULL, QAQC = FALSE, drop_missing = TRUE){
 
 
@@ -132,7 +133,9 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
   stopifnot(target_species %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   stopifnot(is.numeric(top_spp) | is.null(top_spp))
   stopifnot(is.logical(heatmap))
+  stopifnot(is.logical(plotly))
 
+  if(plotly == TRUE & heatmap == TRUE){stop("Plotly not enabled for heatmap.")}
 
   spp_list <- c("all", "ALGBRO", "ALGGRE", "ALGRED", "ARTCOR",
                 "ASCEPI", "ASCNOD", "BARSPP", "CHOMAS",
@@ -157,7 +160,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
 
   cols = c("ALGBRO" = "#A4755B", "ALGGRE" = "#C4E133", "ALGRED" = "#FF4C53", "ARTCOR" = "#D78AAE",
            "ASCEPI" = "#85733B", "ASCNOD" = "#C5B47B", "BARSPP" = "#A9A9A9", "CHOMAS" = "#772C27",
-           "CRUCOR" = "#F9F5A1", "NONCOR" = "#9565C9","FUCEPI" = "#D5A82A", "FUCSPP" = "#FFD560",
+           "CRUCOR" = "#F9F5A1", "NONCOR" = "#574F91","FUCEPI" = "#D5A82A", "FUCSPP" = "#FFD560",
            "KELP"   = "#4DA551", "MUSSPP" = "#6F88BF", "OTHINV" = "#F59617", "OTHSUB" = "#8A838A",
            "PALPAL" = "#5E5571", "PORSPP" = "#8E3B4A", "ULVENT" = "#699052", "ULVINT" = "#9FCF87",
            "ULVLAC" = "#73EB31", "UNIDEN" = "#696969", "BOLT"   = "#EAEAEA", "ROCK"   = "#FED5FF",
@@ -227,15 +230,18 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
     # left join dat 1 top 4 to drop less abundant species
     dat <- left_join(top_df, dat1,
                      by = c("Site_Code", "Loc_Code", "Target_Species", "Spp_Code"))
-  } else if (main_groups == TRUE){
+
+    } else if (main_groups == TRUE){
     dat <- dat1 |> dplyr::mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
                                  Spp_Name = ifelse(Spp_Code %in% "REDGRP", "Red algae group", Spp_Name)) |>
-                   dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP")) |>
-                   group_by(Site_Code, Loc_Code, Year, Target_Species, Spp_Code) |>
+                   dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP", "NONCOR")) |>
+                   group_by(Site_Code, Loc_Code, Year, Target_Species, Spp_Code, Spp_Name) |>
                    summarize(avg_cover = sum(avg_cover),
                              median_cover = sum(median_cover),
                              min_cover = sum(min_cover),
                              max_cover = sum(max_cover),
+                             q25_cover = sum(q25_cover),
+                             q75_cover = sum(q75_cover),
                              .groups = 'drop')
   } else {dat <- dat1}
 
@@ -252,8 +258,9 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
   dat$Target_Species <- factor(dat$Target_Species, levels = c("Barnacle", "Mussel", "Fucus", "Ascophyllum", "Red Algae"))
 
   if(main_groups == TRUE){
-    dat$Spp_Code <- factor(dat$Spp_Code, levels = c("REDGRP", "ASCNOD", "FUCSPP", "MUSSPP", "BARSPP"))
-    dat$Target_Species <- factor(dat$Target_Species, levels = c("Red Algae", "Ascophyllum", "Fucus", "Mussel", "Barnacle"))
+    dat$Spp_Code <- factor(dat$Spp_Code, levels = c("REDGRP", "ASCNOD", "FUCSPP", "MUSSPP", "BARSPP", "NONCOR"))
+    dat$Target_Species <- factor(dat$Target_Species,
+                                 levels = c("Barnacle", "Mussel", "Fucus", "Ascophyllum", "Red Algae"))
     dat <- droplevels(dat)
   }
 
@@ -261,10 +268,16 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
   facet_loc <- if(length(unique(dat$Loc_Code)) > 1 & length(unique(dat$Target_Species)) == 1) {TRUE} else {FALSE}
   facet_targ <- if(length(unique(dat$Loc_Code)) == 1 & length(unique(dat$Target_Species)) > 1) {TRUE} else {FALSE}
 
+  dat <- dat |> group_by(Site_Code, Loc_Code, Target_Species, Spp_Code, Spp_Name) |>
+    mutate(nz = ifelse(sum(median_cover) == 0, 0, 1))
+
+  dat_nz <- dat |> filter(nz > 0)
+
   p <-
   if(heatmap == FALSE){
-  ggplot(dat, aes(x = Year, y = median_cover,  color = Spp_Code, fill = Spp_Code,
-                  shape = Spp_Code, size = Spp_Code)) +
+    if(plotly == FALSE){
+    ggplot(dat_nz, aes(x = Year, y = median_cover,  color = Spp_Code, fill = Spp_Code,
+                       shape = Spp_Code, size = Spp_Code)) +
          geom_errorbar(aes(ymin = min_cover, ymax = max_cover), linewidth = 1) +
          geom_line(aes(x = Year, y = avg_cover), linewidth = 1) +
          geom_point(aes(x = Year, y = avg_cover, fill = Spp_Code, size = Spp_Code), color = 'black') +
@@ -284,12 +297,51 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
          {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
          {if(facet_targ == TRUE) facet_wrap(~Target_Species)} +
          scale_x_continuous(breaks = c(unique(dat$Year)))+
-         #coord_flip() +
          theme_rocky() +
          labs(y = ylab, x = xlab, title = plot_title)+
          theme(legend.position = 'bottom',
                axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
-    } else{
+    } else if(plotly == TRUE){
+      suppressWarnings(
+        ggplot(dat_nz, aes(x = Year, y = median_cover, fill = Spp_Code, color = Spp_Code,
+                         shape = Spp_Code, group = Spp_Code)) +
+        geom_ribbon(aes(ymin = q25_cover, ymax = q75_cover, #fill = Spp_Code, color = Spp_Code,
+                        text = paste0("Upper 75% and lower 25% cover", "<br>",
+                                      "Species: ", Spp_Name, "<br>")),
+                    alpha = 0.3, linewidth = 0.5) +
+        geom_line(aes(x = Year, y = median_cover, #linewidth = 0.1,
+                      text = paste0("Median cover", "<br>",
+                                    "Species: ", Spp_Name, "<br>")),
+                  linewidth = 0.5) +
+        geom_point(aes(x = Year, y = median_cover, #size = Spp_Code,
+                       text = paste0("Median cover: ", median_cover, "<br>",
+                                     "Species: ", Spp_Name, "<br>",
+                                     "Year: ", Year, "<br>")),
+                   color = 'black', size = 4) +
+        scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
+                           labels = labels) +
+        # scale_size_manual(values = sz, name = "Species", breaks = names(sz),
+        #                   labels = labels) +
+        facet_wrap(~Target_Species, labeller = as_labeller(targ_labs)) +
+        {if(all(palette == 'default'))
+          scale_color_manual(values = cols, name = "Species",
+                             breaks = names(cols), labels = labels)} +
+        {if(all(palette == 'default'))
+          scale_fill_manual(values = cols, name = "Species",
+                            breaks = names(cols), labels = labels)} +
+        {if(all(palette == 'viridis')) scale_color_viridis_d("Species")}+
+        {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code,
+                                              labeller = as_labeller(c(targ_labs, loc_labs)))} +
+        {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
+        {if(facet_targ == TRUE) facet_wrap(~Target_Species, nrow = 1)} +
+        scale_x_continuous(breaks = c(unique(dat$Year)))+
+        #coord_flip() +
+        theme_rocky() +
+        labs(y = ylab, x = xlab, title = plot_title)+
+        theme(legend.position = 'bottom',
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5))
+      )} # end of plotly == T
+    } else if(heatmap == TRUE){
       ggplot(dat, aes(x = Year, y = Spp_Code,  color = median_cover, fill = median_cover)) +
         geom_tile(color = '#9F9F9F') +
         geom_text(aes(label = ifelse(median_cover > 0, round(median_cover, 1), NA)),
@@ -298,13 +350,46 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
         {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code,
                                               labeller = as_labeller(c(targ_labs, loc_labs)))} +
         {if(facet_loc_cat == FALSE) facet_wrap(~Target_Species, drop = T, nrow = nrow)} +
-        scale_fill_gradient(low = "white", high = "#5969B0", guide = 'legend', name = "Median % Cover") +
+        scale_fill_gradient(low = "white", high = "#5969B0", guide = 'legend',
+                            name = "Median % Cover") +
         scale_x_continuous(breaks = c(unique(dat$Year)))+
         ylab(NULL) +
         theme_rocky() +
         theme(legend.position = 'bottom')
       }
 
-  suppressWarnings(print(p))
+  if(plotly == TRUE){
+    pp <-
+      plotly::ggplotly(p, tooltip = 'text', layerData = 1, originalData = F)
+
+    spp_mat <- data.frame(unique(dat_nz[, c("Spp_Code", "Spp_Name")]))
+    #--- Simplify plotly traces in legend ---
+    # Get the names of the legend entries
+    pdf <- data.frame(id = seq_along(pp$x$data),
+                      legend_entries = unlist(lapply(pp$x$data, `[[`, "name")))
+    # Extract the group identifier
+    pdf$legend_group <- substr(gsub("[^A-Za-z///]", "", pdf$legend_entries), 1, 6)
+    # Determine the points based on max number of chars
+    max_char <- max(nchar(pdf$legend_entries))
+    pdf$points <- ifelse(nchar(pdf$legend_entries) == max_char, TRUE, FALSE)
+    # Add an indicator for the first entry per group
+    pdf$is_first1 <- !duplicated(pdf$legend_group[pdf$points == TRUE])
+    pdf$is_first <- ifelse(pdf$is_first1 == TRUE & pdf$points == TRUE, TRUE, FALSE)
+    pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "Spp_Code"))
+
+    for (i in seq_along(pdf$id)) {
+      # Is the layer the first entry of the group?
+      is_first <- pdf$is_first[[i]]
+      # Assign the group identifier to the name and legendgroup arguments
+      pp$x$data[[i]]$name <- pdf$Spp_Name[[i]]
+      pp$x$data[[i]]$legendgroup <- pp$x$data[[i]]$name
+      # Show the legend only for the first layer of the group
+      if (!is_first) pp$x$data[[i]]$showlegend <- FALSE
+    }
+
+    } else {pp <- p}
+
+
+  suppressWarnings(pp)
 
   }

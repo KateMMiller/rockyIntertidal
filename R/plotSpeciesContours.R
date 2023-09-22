@@ -13,7 +13,7 @@
 #'
 #' @description This function plots a loess smoothed contour averaging the transects across all years specified.
 #' Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the main species groups
-#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, ALGGRE, BARSPP, NONCOR). Photoplot cover is plotted as median cover and median elevation
+#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP, NONCOR). Photoplot cover is plotted as median cover and median elevation
 #' for each target species plot.
 #'
 #' @param location Must choose a location to plot
@@ -76,18 +76,21 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   # create color palette by species code
 
-  cols = c("NONCOR" = "#574F91", "BARSPP" = "#A9A9A9", "ALGGRE" = "#C4E133", "MUSSPP" = "#6F88BF",
+  cols = c("NONCOR" = "#574F91", "BARSPP" = "#A9A9A9", #"ALGGRE" = "#C4E133",
+           "MUSSPP" = "#6F88BF",
            "ASCNOD" = "#C5B47B", "FUCSPP" = "#FFD560", "REDGRP" = "#FF4C53")
 
-  shps = c("NONCOR" = 23, "BARSPP" = 24, "ALGGRE" = 23, "MUSSPP" = 23,
+  shps = c("NONCOR" = 23, "BARSPP" = 24, #"ALGGRE" = 23,
+           "MUSSPP" = 23,
            "ASCNOD" = 23, "FUCSPP" = 25, "REDGRP" = 25)
 
-  sz = c("NONCOR" = 5.5, "BARSPP" = 5, "ALGGRE" = 4.5, "MUSSPP" = 5.5,
+  sz = c("NONCOR" = 5.5, "BARSPP" = 5, #"ALGGRE" = 4.5,
+         "MUSSPP" = 5.5,
          "ASCNOD" = 5.5, "FUCSPP" = 5, "REDGRP" = 4)
 
   labels = c("NONCOR" = "Crustose non-coraline",
              "BARSPP" = "Barnacles",
-             "ALGGRE" = "Algae - Green",
+             #"ALGGRE" = "Algae - Green",
              "MUSSPP" = "Mussels",
              "ASCNOD" = "A. nodosum (Knotted wrack)",
              "FUCSPP" = "Fucus spp. (Rockweed)",
@@ -108,7 +111,7 @@ plotSpeciesContours <- function(location = "BASHAR",
                                                category = 'all', years = years, QAQC = FALSE,
                                                species = c("ASCNOD",  "ASCEPI", "BARSPP",
                                                            "FUCSPP", "FUCEPI", "NONCOR",
-                                                           "MUSSPP", "ALGRED", "CHOMAS", "ALGGRE"),
+                                                           "MUSSPP", "ALGRED", "CHOMAS"), #"ALGGRE"),
                                                target_species = 'all'))) |>
                            dplyr::filter(!is.na(Perc_Cover))
 
@@ -139,7 +142,7 @@ plotSpeciesContours <- function(location = "BASHAR",
   spdat1 <- suppressWarnings(force(sumPISpecies(location = location, plotName = 'all',
                                                years = years,
                                                QAQC = FALSE,
-                                               species = c("ASCNOD", "BARSPP", "FUCSPP", "ALGGRE",
+                                               species = c("ASCNOD", "BARSPP", "FUCSPP",#"ALGGRE",
                                                            "MUSSPP", "ALGRED", "CHOMAS", "NONCOR"))))
 
   # Combine ALGRED and CHOMAS
@@ -258,18 +261,18 @@ plotSpeciesContours <- function(location = "BASHAR",
   # # pie_size <- diff(range(trsm_dat$dist_pred))/diff(range(trsm_dat$elev)) * 0.2
 
   pie_size <- case_when(location %in% c("BASHAR") ~ 3,
-                        location %in% c("LITHUN") ~ 8,
+                        location %in% c("LITHUN") ~ 6,
                         location %in% c("LITMOO") ~ 3,
-                        location %in% c("OTTPOI") ~ 2,
+                        location %in% c("OTTPOI") ~ 3.5,
                         location %in% c("SCHPOI") ~ 3.5,
                         location %in% c("SHIHAR") ~ 1.75,
-                        location %in% c("CALISL") ~ 5,
-                        location %in% c("GREISL") ~ 5.5,
+                        location %in% c("CALISL") ~ 3,
+                        location %in% c("GREISL") ~ 4,
                         location %in% c("OUTBRE") ~ 5
                         )
 
   pie_ynudge <- case_when(location %in% c("LITHUN") ~ 2,
-                          location %in% c("SHIHAR") ~ 2,
+                          location %in% c("SHIHAR") ~ 4,
                           location %in% c("CALISL", "GREISL") ~ 3,
                           TRUE ~ pie_size
   )
@@ -279,21 +282,15 @@ plotSpeciesContours <- function(location = "BASHAR",
  p1 <-
   ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
    geom_line(color = '#676767')+
-   # geom_line(data = minmax_spp, aes(y = elev_nudge, x = dist_pred_mm,
-   #                                  color = Spp_Code, group = Spp_Code),
-   #           linewidth = 2, alpha = 0.9) +
-   # geom_line(data = mid50_spp, aes(y = elev_nudge, x = dist_pred_50,
-   #                                  color = Spp_Code, group = Spp_Code),
-   #           linewidth = 2.5, alpha = 0.7)+
    geom_jitter(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = Spp_Code,
                                        fill = Spp_Code, group = Spp_Code),
-              position = position_jitter(height = 1), alpha = 0.8) + #,
+              position = position_jitter(height = 1), alpha = 0.7) + #,
               #shape = 21, color = '#797979') +
    geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
                                   fill = Spp_Code, group = Spp_Code,
                                   shape = Spp_Code),
-              position = position_dodge2(width = 5), size = 2, color = 'black',
-              lwd = 1) +
+              position = position_dodge2(width = 1), size = 2, color = 'black',
+              stroke = 1.3) +
    scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
                       labels = labels) +
    scale_color_manual(values = cols, name = "Species",

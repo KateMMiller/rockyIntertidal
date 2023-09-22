@@ -3,7 +3,7 @@
 #' @include plotPITransects.R
 #'
 #' @import ggplot2
-#' @importFrom dplyr desc filter group_by summarize
+#' @importFrom dplyr desc filter group_by left_join mutate summarize ungroup
 #' @importFrom plotly ggplotly
 #'
 #' @description This function plots species by bolt elevation a given park, location, and years.
@@ -121,6 +121,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(is.logical(facet))
   stopifnot(is.logical(ribbon))
+  stopifnot(is.logical(plotly))
 
   if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
     stop("Package 'plotly' needed for this function for plotly = TRUE. Please install it or set plotly = FALSE.", call. = FALSE)
@@ -153,12 +154,18 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
-  if(all(is.null(species)) & main_groups == FALSE){
-    warning("Species not specified. Plotting all species.")
-    species <- 'all'
+  if(all(is.na(species)) & main_groups == TRUE){
+    species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
   }
 
-  if(all(is.null(species)) & main_groups == TRUE){
+  if(all(is.na(species))){species = 'all'}
+
+  # if(all(is.na(species)) & main_groups == FALSE){
+  #   warning("Species not specified. Plotting all species.")
+  #   species <- 'all'
+  # }
+
+  if(all(is.na(species)) & main_groups == TRUE){
     species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
   }
 
@@ -209,8 +216,8 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   dat1 <- suppressWarnings(
     force(sumPISpecies(park = park, location = location, plotName = plotName,
-                                  years = years, QAQC = QAQC, drop_missing = drop_missing,
-                                  species = species)) |>
+                       years = years, QAQC = QAQC, drop_missing = drop_missing,
+                       species = species)) |>
           dplyr::filter(!is.na(PI_Elevation)))
 
   dat <-
@@ -272,7 +279,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                                                            "Species: ", Spp_Name, "<br>")),
                                          alpha = 0.2, linewidth = 0.5)}+
          {if(ribbon == TRUE) geom_line(aes(x = Year, y = elev_med, #group = Spp_Code,
-                                           linewidth = 0.5,
+                                           #linewidth = 0.5,
                                            #color = Spp_Code,
                                            #fill = Spp_Code,
                                            text = paste0("Median elev.", "<br>",
@@ -292,7 +299,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                       #position = position_dodge(width = 1),
                       linewidth = 0.5)} +
          {if(ribbon == FALSE)
-          geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
+         geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
                      size = Spp_Code, shape = Spp_Code), color = 'black')} +
          scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
                             labels = labels) +
@@ -320,9 +327,36 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
          labs(y = ylab, x = xlab, title = ptitle)
   )
 
-  pp <-
-  if(plotly == TRUE){plotly::ggplotly(p, tooltip = 'text', layerData = 1, originalData = F)} else {p}
+  if(plotly == TRUE){
+    pp <- plotly::ggplotly(p, tooltip = 'text')#, layerData = 2, originalData = F)
 
-  suppressWarnings(print(pp))
+    spp_mat <- unique(dat_sum[, c("Spp_Code", "Spp_Name")])
+
+    #--- Simplify plotly traces in legend ---
+    # Get the names of the legend entries
+    pdf <- data.frame(id = seq_along(pp$x$data),
+                      legend_entries = unlist(lapply(pp$x$data, `[[`, "name")),
+                      mode = unlist(lapply(pp$x$data, `[[`, 'mode')))
+    # Extract the group identifier
+    pdf$legend_group <- substr(gsub("[^A-Za-z///]", "", pdf$legend_entries), 1, 6)
+
+    pdf$keep <- pdf$mode == 'markers'
+
+    pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "Spp_Code"))
+
+    for (i in seq_along(pdf$id)) {
+      # Is the layer the first entry of the group?
+      keep <- pdf$keep[[i]]
+      # Assign the group identifier to the name and legendgroup arguments
+      pp$x$data[[i]]$name <- pdf$Spp_Name[[i]]
+      pp$x$data[[i]]$legendgroup <- pp$x$data[[i]]$name
+      # Show the legend only for the first layer of the group
+      if(!keep) pp$x$data[[i]]$showlegend <- FALSE
+      if(keep) pp$x$data[[i]]$showlegend <- TRUE
+    }
+
+    } else {pp <- p}
+
+  suppressWarnings(pp)
 
   }

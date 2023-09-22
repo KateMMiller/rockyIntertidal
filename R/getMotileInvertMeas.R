@@ -2,7 +2,7 @@
 #'
 #' @importFrom dplyr filter mutate rename select
 #'
-#' @description This function filters motile invertebrate measurement data by park, location, and plot name. The returned data frame lists measurement data of each species detected for each sampling event and plot. Species codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
+#' @description This function filters motile invertebrate measurement data by park, location, and plot name. The returned data frame lists measurement data of each species detected for each sampling event and plot. Spp_Code codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -33,6 +33,9 @@
 #' @param species Filter on species code. Options include:
 #' c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"). If a new species is added,
 #' the function will warn the user that an unrecognized species was specified in case it was an error.
+#'
+#' @param target_species Filter on target species (ie photoplot). Options include:
+#' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
@@ -67,8 +70,8 @@
 #' @export
 
 getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all",
-                                species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                QAQC = FALSE){
+                                years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE,
+                                species = 'all', target_species = 'all'){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -78,7 +81,7 @@ getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all"
   stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
                                    "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
                                    "R1", "R2", "R3", "R4", "R5"))
-
+  stopifnot(target_species %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   unmatch_spp <- setdiff(species, c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"))
   if(length(unmatch_spp) > 0){
     warning(paste0("Unrecognized species were specified in the species argument: ",
@@ -87,14 +90,13 @@ getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all"
                    "Check that this wasn't a typo."))
   }
 
-
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
   tryCatch(motinv <- get("MotileInvert_Measurements", envir = env) |>
-             dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))) |>
-             dplyr::rename(Species = MotileInvert_spp),
+             dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))), #|>
+             #dplyr::rename(Spp_Code = MotileInvert_spp),
            error = function(e){stop("MotileInvert_Measurements data frame not found. Please import rocky intertidal data.")})
 
   motinv_park <- if(any(park %in% 'all')){ filter(motinv, Site_Code %in% c("ACAD", "BOHA"))
@@ -107,16 +109,19 @@ getMotileInvertMeas <- function(park = "all", location = "all", plotName = "all"
   } else {filter(motinv_loc, Plot_Name %in% plotName)}
 
   motinv_spp <- if(any(species %in% 'all')){ motinv_pname
-  } else {filter(motinv_pname, Species %in% species)}
+  } else {filter(motinv_pname, Spp_Code %in% species)}
 
-  motinv_year <- filter(motinv_spp, Year %in% years)
+  motinv_tspp <- if(any(target_species %in% 'all')){motinv_spp
+  } else {filter(motinv_spp, Target_Species %in% target_species)}
+
+  motinv_year <- filter(motinv_tspp, Year %in% years)
 
   motinv_qaqc <- if(QAQC == TRUE){motinv_year
   } else {filter(motinv_year, QAQC == FALSE)}
 
   motinv_final <- motinv_qaqc |>
     select(Site_Name, Site_Code, State_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
-           Target_Species, Plot_Name, Spp_Name, Species, Measurement, Event_ID, Plot_ID)
+           Target_Species, Plot_Name, Spp_Name, Spp_Code, Measurement, Event_ID, Plot_ID)
 
   if(nrow(motinv_final) == 0){stop("Specified arguments returned an empty data frame. If filtering on species, make sure the code was spelled correctly.")}
 

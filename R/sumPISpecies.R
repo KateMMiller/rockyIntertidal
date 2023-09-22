@@ -78,8 +78,8 @@
 #' @export
 
 sumPISpecies <- function(park = "all", location = "all", plotName = "all",
-                               species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                               QAQC = FALSE, drop_missing = TRUE){
+                         species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                         QAQC = FALSE, drop_missing = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -185,7 +185,7 @@ sumPISpecies <- function(park = "all", location = "all", plotName = "all",
 
 
   #write.csv(spp_merge, "./testing_scripts/spp_merge.csv", row.names = F)
-  spp_final <- if(all(species == "all")){spp_merge
+  spp_final <- if(any(species == "all")){spp_merge
     } else {spp_merge |> filter(Spp_Code %in% species)}
 
   return(spp_final)

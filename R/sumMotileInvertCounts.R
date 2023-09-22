@@ -110,21 +110,30 @@ sumMotileInvertCounts <- function(park = "all", location = "all", plotName = "al
 
   cnt_sum <- cnt |> group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
                              Target_Species, Spp_Code, Spp_Name) |>
-    summarize(total_count = sum(Total_Count, na.rm = T),
-              med_count = median(Total_Count, na.rm = T),
-              avg_count = mean(Total_Count, na.rm = T),
-              min_count = min(Total_Count, na.rm = T),
-              max_count = max(Total_Count, na.rm = T),
-              total_damaged = sum(Damage, na.rm = T),
-              med_damaged = median(Damage, na.rm = T),
-              avg_damaged = mean(Damage, na.rm = T),
-              min_damaged = min(Damage, na.rm = T),
-              max_damaged = max(Damage, na.rm = T),
-              total_notdamaged = sum(No.Damage, na.rm = T),
-              med_notdamaged = median(No.Damage, na.rm = T),
-              avg_notdamaged = mean(No.Damage, na.rm = T),
-              min_notdamaged = min(No.Damage, na.rm = T),
-              max_notdamaged = max(No.Damage, na.rm = T),
+    summarize(count_total = sum(Total_Count, na.rm = T),
+              count_med = median(Total_Count, na.rm = T),
+              count_avg = mean(Total_Count, na.rm = T),
+              count_min = min(Total_Count, na.rm = T),
+              count_max = max(Total_Count, na.rm = T),
+              count_l25 = quantile(Total_Count, probs = 0.25, na.rm = T),
+              count_u75 = quantile(Total_Count, probs = 0.75, na.rm = T),
+
+              damaged_total = sum(Damage, na.rm = T),
+              damaged_med = median(Damage, na.rm = T),
+              damaged_avg = mean(Damage, na.rm = T),
+              damaged_min = min(Damage, na.rm = T),
+              damaged_max = max(Damage, na.rm = T),
+              damaged_l25 = quantile(Damage, probs = 0.25, na.rm = T),
+              damaged_u75 = quantile(Damage, probs = 0.75, na.rm = T),
+
+              notdamaged_total = sum(No.Damage, na.rm = T),
+              notdamaged_med = median(No.Damage, na.rm = T),
+              notdamaged_avg = mean(No.Damage, na.rm = T),
+              notdamaged_min = min(No.Damage, na.rm = T),
+              notdamaged_max = max(No.Damage, na.rm = T),
+              notdamaged_l25 = quantile(No.Damage, probs = 0.25, na.rm = T),
+              notdamaged_u75 = quantile(No.Damage, probs = 0.75, na.rm = T),
+
               .groups = 'drop'
     )
 

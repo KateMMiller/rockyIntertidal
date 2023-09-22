@@ -122,8 +122,8 @@ sumPhotoCover <- function(park = "all", location = "all", plotName = "all",
                                 median_cover = median(Perc_Cover, na.rm = T),
                                 min_cover = min(Perc_Cover, na.rm = T),
                                 max_cover = max(Perc_Cover, na.rm = T),
-                                # q25_cover = quantile(Perc_Cover, probs = 0.25, na.rm = T),
-                                # q75_cover = quantile(Perc_Cover, probs = 0.75, na.rm = T),
+                                q25_cover = quantile(Perc_Cover, probs = 0.25, na.rm = T),
+                                q75_cover = quantile(Perc_Cover, probs = 0.75, na.rm = T),
                                 .groups = 'drop'
                                 )
 

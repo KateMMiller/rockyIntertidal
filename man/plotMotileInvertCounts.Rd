@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotMotileInvertCounts.R
 \name{plotMotileInvertCounts}
 \alias{plotMotileInvertCounts}
-\title{plotMotileInvertCounts: plots average cover by species and year}
+\title{plotMotileInvertCounts: summary plot of counts by species and year}
 \usage{
 plotMotileInvertCounts(
   park = "all",
@@ -11,7 +11,6 @@ plotMotileInvertCounts(
   species = "all",
   category = "all",
   target_species = "all",
-  heatmap = FALSE,
   top_spp = NULL,
   palette = c("default"),
   xlab = "Year",
@@ -48,7 +47,10 @@ plotMotileInvertCounts(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
+\item{plotName}{Filter on plot name. Options include:
+c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+"F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+"R1", "R2", "R3", "R4", "R5")}
 
 \item{species}{Filter on species code. Options include:
 c("all", "CARMAE", "HEMISAN", "LITLIT",  "LITOBT", "LITSAX", "NUCLAP", "TECTES").
@@ -73,21 +75,21 @@ plots a ggplot object.}
 \item{xaxis}{Logical. If TRUE (Default), plots years on x axis. If FALSE, drops x axis.
 FALSE is useful for combining plotly photocover plots in a subplot.}
 
-\item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
+\item{plot_title}{If specified, plots the title on the figure. If blank, no plot title included.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
 }
 \value{
-Returns a ggplot object of percent cover from photos filtered by function arguments
+Returns a ggplot object of counts from photoplots filtered by function arguments
 }
 \description{
-This function plots median percent cover by species for a given park, location, years and
-target species. The point for each species is the median cover across the photoplots that site, year
-and target species. The error bars are the minimum and maximum cover recorded in photoplots for a target
-species. Note that if more than 1 location is specified, more than one target species is specified, or both,
-the resulting figure will facet on those variables. If elev = TRUE, data will be plotted by elevation
-instead of plot name.
+This function plots median count by species for a given park, location, years and
+target species. The point for each species is the median count across the photoplots that site, year
+and target species. The error bars are the middle 50\% (lower 25\% and upper 75\% quantiles)
+recorded in photoplots for a target species. Note that if more than 1 location is specified,
+more than one target species is specified, or both, the resulting figure will facet on those
+variables.
 }
 \examples{
 \dontrun{

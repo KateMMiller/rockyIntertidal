@@ -1,4 +1,4 @@
-#' @title plotMotileInvertCounts: plots average cover by species and year
+#' @title plotMotileInvertCounts: summary plot of counts by species and year
 #'
 #' @include sumMotileInvertCounts.R
 #'
@@ -6,12 +6,12 @@
 #' @importFrom dplyr arrange filter group_by slice_max summarize
 #' @importFrom plotly ggplotly
 #'
-#' @description This function plots median percent cover by species for a given park, location, years and
-#' target species. The point for each species is the median cover across the photoplots that site, year
-#' and target species. The error bars are the minimum and maximum cover recorded in photoplots for a target
-#' species. Note that if more than 1 location is specified, more than one target species is specified, or both,
-#' the resulting figure will facet on those variables. If elev = TRUE, data will be plotted by elevation
-#' instead of plot name.
+#' @description This function plots median count by species for a given park, location, years and
+#' target species. The point for each species is the median count across the photoplots that site, year
+#' and target species. The error bars are the middle 50% (lower 25% and upper 75% quantiles)
+#' recorded in photoplots for a target species. Note that if more than 1 location is specified,
+#' more than one target species is specified, or both, the resulting figure will facet on those
+#' variables.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -36,7 +36,10 @@
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #'
-#' @param plotName Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")
+#' @param plotName Filter on plot name. Options include:
+#'   c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+#'     "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+#'     "R1", "R2", "R3", "R4", "R5")
 #'
 #' @param species Filter on species code. Options include:
 #' c("all", "CARMAE", "HEMISAN", "LITLIT",  "LITOBT", "LITSAX", "NUCLAP", "TECTES").
@@ -62,7 +65,7 @@
 #' @param xaxis Logical. If TRUE (Default), plots years on x axis. If FALSE, drops x axis.
 #' FALSE is useful for combining plotly photocover plots in a subplot.
 #'
-#' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
+#' @param plot_title If specified, plots the title on the figure. If blank, no plot title included.
 #'
 #' @examples
 #' \dontrun{
@@ -83,12 +86,12 @@
 #' }
 #'
 #'
-#' @return Returns a ggplot object of percent cover from photos filtered by function arguments
+#' @return Returns a ggplot object of counts from photoplots filtered by function arguments
 #' @export
 
 plotMotileInvertCounts <- function(park = "all", location = "all", plotName = "all",
                            species = 'all', category = "all", target_species = 'all',
-                           heatmap = FALSE, top_spp = NULL, palette = c('default'),
+                           top_spp = NULL, palette = c('default'),
                            xlab = "Year", ylab = "Median Count", main_groups = FALSE,
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
                            nrow = 1, plotly = F, xaxis = TRUE,
@@ -99,13 +102,14 @@ plotMotileInvertCounts <- function(park = "all", location = "all", plotName = "a
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
-  stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
+  stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+                            "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+                            "R1", "R2", "R3", "R4", "R5"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(category %in% c("all", "Genus", "Species", "Species Group", "Substrate"))
   stopifnot(target_species %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   stopifnot(is.numeric(top_spp) | is.null(top_spp))
-  stopifnot(is.logical(heatmap))
   stopifnot(is.logical(plotly))
   stopifnot(is.logical(xaxis))
   stopifnot(is.numeric(nrow) | is.integer(nrow))

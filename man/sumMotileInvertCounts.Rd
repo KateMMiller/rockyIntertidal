@@ -56,7 +56,7 @@ Can specify a vector of years.}
 returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
 }
 \value{
-Returns a data frame of location-level photo plot percent cover data filtered by function arguments
+Returns a data frame of location-level photoplot count data filtered by function arguments
 }
 \description{
 This function summarizes location-level average, median, min and max counts

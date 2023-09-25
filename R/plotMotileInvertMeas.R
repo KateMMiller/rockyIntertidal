@@ -1,6 +1,6 @@
 #' @title plotMotileInvertMeas: plots a heatmap of motile invertebrates by species, location and size class
 #'
-#' @include sumPhotoCover.R
+#' @include sumMotileInvertMeas.R
 #'
 #' @import ggplot2
 #' @importFrom plotly ggplotly
@@ -31,17 +31,14 @@
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #'
-#' @param plotName Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")
+#' @param plotName Filter on plot name (transect). Options include:
+#'   c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+#'     "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+#'     "R1", "R2", "R3", "R4", "R5")
 #'
 #' @param species Filter on species code. Options include:
-#' c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
-#' "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
-#' "OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",
-#' "ULVINT", "ULVLAC", "UNIDEN"). If a new species is added, the function will warn the user
-#' that an unrecognized species was specified in case it was an error.
-#' If a new species is added, the function will warn the user that an unrecognized species was specified
-#' in case it was an error. The default color palette will also need to be updated, if a new species is added.
-#' The viridis palette will work with new species without adaptation, but labels will only be species codes.
+#' c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"). If a new species is added,
+#' the function will warn the user that an unrecognized species was specified in case it was an error.
 #'
 #' @param target_species Filter on target species (ie photoplot). Options include:
 #' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
@@ -49,16 +46,13 @@
 #' @param QAQC Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
-#' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
-#' Viridis uses a color-blind friendly palette of blues, purples and yellows.
-#'
 #' @param xlab Quoted text label for x axis. If not specified, defaults to 'Year'
 #'
-#' @param ylab Quoted text label for y axis. If not specified, defaults to '% Cover'
+#' @param ylab Quoted text label for y axis. If not specified, defaults to 'Length (mm)'
 #'
 #' @param plot_title If specified, plots the title on the figure. If NULL, no plot title included.
 #'
-#' @param nrow Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected and heatmap = T.
+#' @param nrow Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected.
 #'
 #' @examples
 #' \dontrun{
@@ -78,11 +72,10 @@
 #' @export
 
 plotMotileInvertMeas <- function(park = "all", location = "all", plotName = "all",
-                           species = 'all', category = "all", target_species = 'all',
-                           palette = c('default'),
-                           xlab = "Year", ylab = "Measurement (mm)",
+                           species = 'all', target_species = 'all',
+                           xlab = "Year", ylab = "Length (mm)",
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                           plotly = F, nrow = 1,
+                           nrow = 1,
                            plot_title = NULL, QAQC = FALSE){
 
 
@@ -90,15 +83,12 @@ plotMotileInvertMeas <- function(park = "all", location = "all", plotName = "all
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
-  stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
+  stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+                            "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+                            "R1", "R2", "R3", "R4", "R5"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
-  stopifnot(palette %in% c("default", "viridis"))
-  stopifnot(category %in% c("all", "Genus", "Species", "Species Group", "Substrate"))
   stopifnot(target_species %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
-  stopifnot(is.numeric(top_spp) | is.null(top_spp))
-  stopifnot(is.logical(heatmap))
-  stopifnot(is.logical(plotly))
-  stopifnot(is.logical(xaxis))
+
   stopifnot(is.numeric(nrow) | is.integer(nrow))
 
   spp_list <- c("all", "CARMAE", "HEMISAN", "LITLIT",  "LITOBT", "LITSAX", "NUCLAP", "TECTES")
@@ -133,9 +123,9 @@ plotMotileInvertMeas <- function(park = "all", location = "all", plotName = "all
 
   labels = c(c("CARMAE" = "Green crab (Carcinus maenas)",
                "HEMISAN" = "Asian shore crab (H. sanguineus)",
-               "LITLIT" = "Common periwinkle (Littorina littorea)",
-               "LITOBT" = "Smooth periwinkle (Littorina obtusata)",
-               "LITSAX" = "Rough periwinkle (Littorina saxatilis)",
+               "LITLIT" = "Common periwinkle (L. littorea)",
+               "LITOBT" = "Smooth periwinkle (L. obtusata)",
+               "LITSAX" = "Rough periwinkle (L. saxatilis)",
                "NUCLAP" = "Dogwhelk (Nucella lapillus)",
                "TECTES" = "Limpet (Tectura testudinalis)"))
 
@@ -155,63 +145,59 @@ plotMotileInvertMeas <- function(park = "all", location = "all", plotName = "all
     dplyr::filter(!is.na(num_meas))
 
 
-  dat$Target_Species <- factor(dat$Target_Species, levels = c("Barnacle", "Mussel", "Fucus", "Ascophyllum", "Red Algae"))
+  # expand to include all size classes, so see full grid in geom_tile
+  grid_full <- expand.grid(Site_Code = unique(dat$Site_Code), Loc_Code = unique(dat$Loc_Code),
+                           Year = unique(dat$Year), Target_Species = unique(dat$Target_Species),
+                           Spp_Code = unique(dat$Spp_Code), #Spp_Name = unique(dat$Spp_Name),
+                           Meas_5mm_fac = unique(dat$Meas_5mm_fac))
 
-  facet_loc_cat <- if(length(unique(dat$Loc_Code)) > 1 & length(unique(dat$Target_Species)) > 1) {TRUE} else {FALSE}
-  facet_loc <- if(length(unique(dat$Loc_Code)) > 1 & length(unique(dat$Target_Species)) == 1) {TRUE} else {FALSE}
-  facet_targ <- if(length(unique(dat$Loc_Code)) == 1 & length(unique(dat$Target_Species)) > 1) {TRUE} else {FALSE}
+  dat_full <- left_join(grid_full, dat, by = c("Site_Code", "Loc_Code", "Year",
+                                               "Target_Species", "Spp_Code", "Meas_5mm_fac"))
+  dat_full$Target_Species <- factor(dat_full$Target_Species, levels = c("Barnacle", "Mussel", "Fucus", "Ascophyllum", "Red Algae"))
 
+  facet_loc_cat <- if(length(unique(dat_full$Loc_Code)) > 1 & length(unique(dat_full$Target_Species)) > 1) {TRUE} else {FALSE}
+  facet_loc <- if(length(unique(dat_full$Loc_Code)) > 1 & length(unique(dat_full$Target_Species)) == 1) {TRUE} else {FALSE}
+  facet_targ <- if(length(unique(dat_full$Loc_Code)) == 1 & length(unique(dat_full$Target_Species)) > 1) {TRUE} else {FALSE}
+
+  dat_full$num_meas[dat_full$num_meas == 0] <- NA_real_ # Change 0 to NA, so plots white
+  table(dat_full$num_meas, useNA = 'always')
+
+  dat_full$text_col <- ifelse(dat_full$num_meas < 20, 'low', 'high')
+
+  text_pal <- c("low" = "black", "high" = "white", `NA_real_` = "white")
+#  tile_maxlim = max(ceiling(dat$num_meas/5)*5, na.rm = T)
+#  max(dat$num_meas)
+  # table(dat_full$num_meas, useNA = 'always')
+  # head(dat_full)
+
+  spp_cols <- length(unique(dat_full$Spp_Code))
 
   p <-
-      ggplot(dat, aes(x = Year, y = as.factor(Measurement),
-                      color = num_meas, fill = num_meas, group = Spp_Code)) +
+      ggplot(dat_full, aes(x = Year, y = Meas_5mm_fac,
+                      color = text_col,
+                      fill = num_meas, group = Meas_5mm_fac)) +
         geom_tile(color = '#9F9F9F') +
-#        geom_text(aes(label = ifelse(num_meas > 0, round(num_meas, 0), NA)), color = 'black')+
+        geom_text(aes(label = ifelse(!is.na(num_meas) & num_meas > 0,
+                                     round(num_meas, 0), NA), color = text_col))+
+        scale_color_manual(values = text_pal, drop = FALSE) +
         #scale_y_discrete(limits = rev, labels = labels)+
         {if(facet_loc_cat == TRUE) facet_wrap(~Target_Species + Loc_Code,
-                                              labeller = as_labeller(c(targ_labs, loc_labs)))} +
-        {if(facet_targ == TRUE) facet_wrap(~Target_Species + Spp_Code, drop = T,
+                                              labeller = as_labeller(c(targ_labs, loc_labs)), ncol = spp_cols)} +
+        {if(facet_targ == TRUE) facet_wrap(~Target_Species + Spp_Code, drop = T, ncol = spp_cols,
                                            labeller = as_labeller(c(targ_labs, labels)))} +
-        scale_fill_gradient(low = "white", high = "#5969B0", guide = 'legend',
-                            name = "Number of Measurments") +
+        scale_fill_gradientn(colors = c("#FFFFD9", "#EDF8B1", "#C7E9B4", "#7FCDBB", "#41B6C4",
+                                        "#1D91C0", "#225EA8", "#253494", "#081D58"),
+                             #c(rev(viridis::viridis(length(seq(0, 100, 5))))),
+                             guide = 'colorbar',
+                             name = "Number of Measurments",
+                             na.value = 'white') + #,
         scale_x_continuous(breaks = c(unique(dat$Year)))+
-        ylab(NULL) +
+        labs(y = ylab, x = xlab, title = plot_title) +
         theme_rocky() +
-        theme(legend.position = 'bottom')
+        theme(legend.position = 'bottom',
+              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        guides(color = "none")
 
-
-  if(plotly == TRUE){
-    pp <-
-      plotly::ggplotly(p, tooltip = 'text', layerData = 1, originalData = F)
-    #++++ ENDED HERE ++++
-    # spp_mat <- unique(dat_nz[, c("Spp_Code", "Spp_Name")])
-    # #--- Simplify plotly traces in legend ---
-    # # Get the names of the legend entries
-    # pdf <- data.frame(id = seq_along(pp$x$data),
-    #                   legend_entries = unlist(lapply(pp$x$data, `[[`, "name")))
-    # # Extract the group identifier
-    # pdf$legend_group <- substr(gsub("[^A-Za-z///]", "", pdf$legend_entries), 1, 6)
-    # # Determine the points based on max number of chars
-    # max_char <- max(nchar(pdf$legend_entries))
-    # pdf$points <- ifelse(nchar(pdf$legend_entries) == max_char, TRUE, FALSE)
-    # # Add an indicator for the first entry per group
-    # pdf$is_first1 <- !duplicated(pdf$legend_group[pdf$points == TRUE])
-    # pdf$is_first <- ifelse(pdf$is_first1 == TRUE & pdf$points == TRUE, TRUE, FALSE)
-    # pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_entries" = "Spp_Code"))
-    #
-    # for (i in seq_along(pdf$id)) {
-    #   # Is the layer the first entry of the group?
-    #   is_first <- pdf$is_first[[i]]
-    #   # Assign the group identifier to the name and legendgroup arguments
-    #   pp$x$data[[i]]$name <- pdf$Spp_Name[[i]]
-    #   pp$x$data[[i]]$legendgroup <- pp$x$data[[i]]$name
-    #   # Show the legend only for the first layer of the group
-    #   if (!is_first) pp$x$data[[i]]$showlegend <- FALSE
-    # }
-    #
-  } else {pp <- p}
-
-
-  suppressWarnings(pp)
+  suppressWarnings(p)
 
 }

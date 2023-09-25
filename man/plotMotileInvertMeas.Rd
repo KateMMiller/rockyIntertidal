@@ -9,13 +9,10 @@ plotMotileInvertMeas(
   location = "all",
   plotName = "all",
   species = "all",
-  category = "all",
   target_species = "all",
-  palette = c("default"),
   xlab = "Year",
-  ylab = "Measurement (mm)",
+  ylab = "Length (mm)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  plotly = F,
   nrow = 1,
   plot_title = NULL,
   QAQC = FALSE
@@ -43,31 +40,25 @@ plotMotileInvertMeas(
 \item{"OUTBRE"}{Outer Brewster}
 }}
 
-\item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
+\item{plotName}{Filter on plot name (transect). Options include:
+c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
+"F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
+"R1", "R2", "R3", "R4", "R5")}
 
 \item{species}{Filter on species code. Options include:
-c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
-"CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
-"OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",
-"ULVINT", "ULVLAC", "UNIDEN"). If a new species is added, the function will warn the user
-that an unrecognized species was specified in case it was an error.
-If a new species is added, the function will warn the user that an unrecognized species was specified
-in case it was an error. The default color palette will also need to be updated, if a new species is added.
-The viridis palette will work with new species without adaptation, but labels will only be species codes.}
+c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"). If a new species is added,
+the function will warn the user that an unrecognized species was specified in case it was an error.}
 
 \item{target_species}{Filter on target species (ie photoplot). Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
-\item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
-Viridis uses a color-blind friendly palette of blues, purples and yellows.}
-
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Year'}
 
-\item{ylab}{Quoted text label for y axis. If not specified, defaults to '\% Cover'}
+\item{ylab}{Quoted text label for y axis. If not specified, defaults to 'Length (mm)'}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.}
 
-\item{nrow}{Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected and heatmap = T.}
+\item{nrow}{Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected.}
 
 \item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
 

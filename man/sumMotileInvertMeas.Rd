@@ -2,7 +2,7 @@
 % Please edit documentation in R/sumMotileInvertMeas.R
 \name{sumMotileInvertMeas}
 \alias{sumMotileInvertMeas}
-\title{sumMotileInvertMeas: summarize Motile Invertebrate measurement data by species and cm}
+\title{sumMotileInvertMeas: summarize Motile Invertebrate measurement data by species and 5 mm size classes}
 \usage{
 sumMotileInvertMeas(
   park = "all",
@@ -58,7 +58,7 @@ c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 Returns a data frame of summarized motile invertebrate measurement data filtered by function arguments.
 }
 \description{
-This function summarizes number of individuals in each 1 mm size class by park, location, and species. Spp_Code codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
+This function summarizes number of individuals in each 5 mm size class by park, location, and species. Spp_Code codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
 }
 \examples{
 \dontrun{

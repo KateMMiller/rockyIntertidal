@@ -70,7 +70,7 @@
 #' }
 #'
 #'
-#' @return Returns a data frame of location-level photo plot percent cover data filtered by function arguments
+#' @return Returns a data frame of location-level photoplot count data filtered by function arguments
 #' @export
 
 sumMotileInvertCounts <- function(park = "all", location = "all", plotName = "all",

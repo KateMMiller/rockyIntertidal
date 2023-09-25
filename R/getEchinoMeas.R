@@ -72,8 +72,20 @@ getEchinoMeas <- function(park = "all", location = "all", plotName = "all",
   stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "X1", "X2", "X3"))
-  stopifnot(species %in% c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO"))
+
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+
+  spp_list <- c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO")
+
+  unmatch_spp <- setdiff(species, c(spp_list, NA))
+
+  if(length(unmatch_spp) > 0){
+    warning(paste0("Unrecognized species were specified in the species argument: ",
+                   paste0(unmatch_spp, collapse = ", "),
+                   "\n",
+                   "Check that this wasn't a typo."))
+  }
+
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 

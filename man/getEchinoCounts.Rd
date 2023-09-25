@@ -8,8 +8,9 @@ getEchinoCounts(
   park = "all",
   location = "all",
   plotName = "all",
-  years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  QAQC = FALSE
+  species = "all",
+  QAQC = FALSE,
+  years = 2013:as.numeric(format(Sys.Date(), "\%Y"))
 )
 }
 \arguments{
@@ -36,17 +37,25 @@ getEchinoCounts(
 
 \item{plotName}{Filter on plot name. Options include: c("all", "X1", "X2", and "X3")}
 
-\item{years}{Filter on year of data collected. Default is 2013 to current year.
-Can specify a vector of years.}
+\item{species}{Filter on species code. Options include:
+c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO"). If a new species is added,
+the function will warn the user that an unrecognized species was specified in case it was an error.}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
+
+\item{years}{Filter on year of data collected. Default is 2013 to current year.
+Can specify a vector of years.}
 }
 \value{
 Returns a data frame of echinoderm count data in wide form filtered by function arguments.
 }
 \description{
-This function filters echinoderm count data by park, location, and plot name. The returned data frame lists counts of each species detected for each sampling event and plot. If a given species was not detected during a visit, its count is 0. Species codes are: ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star); HENSAN = Henricia sanguinolenta (blood sea star); and STRDRO = Strongylocentrotus droebachiensis (sea urchin).
+This function filters echinoderm count data by park, location, and plot name. The returned
+data frame is long, rather than wide, which is how it's imported. If a given species was not detected
+during a visit, its count is 0.
+Species codes are: ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star);
+HENSAN = Henricia sanguinolenta (blood sea star); STRDRO = Strongylocentrotus droebachiensis (sea urchin)
 }
 \examples{
 \dontrun{

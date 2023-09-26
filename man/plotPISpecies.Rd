@@ -63,8 +63,8 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 If FALSE (default), plots points and error bars for each species. Ribbon only works if multiple years are plotted.}
 
 \item{main_groups}{Logical. If TRUE, only plots red algae (combined Irish moss and red algae group), Fucus spp.,
-Ascophyllum nodosum, mussels, and barnacles. If FALSE (Default), plots all species or only species specified. If species
-are specified, this argument will be ignored.}
+Ascophyllum nodosum (epibionts included), mussels, barnacles, and Crustose non-coraline. If FALSE (Default),
+plots all species or only species specified. If species are specified, this argument will be ignored.}
 
 \item{plotly}{Logical. If TRUE, converts ggplot object to plotly object and includes tooltips. If FALSE (default),
 plots a ggplot object.}

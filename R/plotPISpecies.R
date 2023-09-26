@@ -49,8 +49,8 @@
 #' will work with new species without adaptation, but labels will only be species codes.
 #'
 #' @param main_groups Logical. If TRUE, only plots red algae (combined Irish moss and red algae group), Fucus spp.,
-#' Ascophyllum nodosum, mussels, and barnacles. If FALSE (Default), plots all species or only species specified. If species
-#' are specified, this argument will be ignored.
+#' Ascophyllum nodosum (epibionts included), mussels, barnacles, and Crustose non-coraline. If FALSE (Default),
+#' plots all species or only species specified. If species are specified, this argument will be ignored.
 #'
 #' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
 #' Viridis uses a color-blind friendly palette of blues, purples and yellows.
@@ -155,7 +155,9 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
   if(all(is.na(species)) & main_groups == TRUE){
-    species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
+    species = c("ASCNOD",  "ASCEPI", "BARSPP",
+                "FUCSPP", "FUCEPI", "NONCOR",
+                "MUSSPP", "ALGRED", "CHOMAS")
   }
 
   if(all(is.na(species))){species = 'all'}
@@ -166,7 +168,9 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
   # }
 
   if(all(is.na(species)) & main_groups == TRUE){
-    species = c("ALGRED", "CHOMAS", "FUCSPP", "ASCNOD", "BARSPP", "MUSSPP")
+    species = c("ASCNOD",  "ASCEPI", "BARSPP",
+                "FUCSPP", "FUCEPI", "NONCOR",
+                "MUSSPP", "ALGRED", "CHOMAS")
   }
 
 
@@ -222,9 +226,15 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   dat <-
   if(main_groups == TRUE){
-    dat1 |> dplyr::mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
-                          Spp_Name = ifelse(Spp_Code %in% "REDGRP", "Red algae group", Spp_Name)) |>
-            dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP"))
+    dat1 |> dplyr::mutate(Spp_Code = case_when(Spp_Code %in% c("ALGRED", "CHOMAS") ~ "REDGRP",
+                                               Spp_Code %in% c("FUCSPP", "FUCEPI") ~ "FUCSPP",
+                                               Spp_Code %in% c("ASCNOD", "ASCEPI") ~ "ASCNOD",
+                                               TRUE ~ Spp_Code),
+                          Spp_Name = case_when(Spp_Code %in% "REDGRP" ~ "Red algae group",
+                                               Spp_Code %in% "FUCSPP" ~ "Fucus spp. (Rockweed)",
+                                               Spp_Code %in% "ASCNOD" ~ "A. nodosum (knotted wrack)",
+                                               TRUE ~ Spp_Name)) |>
+            dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP", "NONCOR"))
   } else {dat1}
 
   ptitle <- ifelse(title == TRUE, unique(dat$Loc_Name), "")
@@ -339,8 +349,11 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                       mode = unlist(lapply(pp$x$data, `[[`, 'mode')))
     # Extract the group identifier
     pdf$legend_group <- substr(gsub("[^A-Za-z///]", "", pdf$legend_entries), 1, 6)
-
-    pdf$keep <- pdf$mode == 'markers'
+    pdf <- pdf |> group_by(legend_group, mode) |>
+      mutate(rank = row_number(),
+             keep = ifelse(mode == 'markers' & rank == 1, TRUE, FALSE)) |>
+      data.frame()
+    #pdf$keep <- pdf$mode == 'markers'
 
     pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "Spp_Code"))
 

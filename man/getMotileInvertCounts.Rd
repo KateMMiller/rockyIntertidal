@@ -49,7 +49,7 @@ the function will warn the user that an unrecognized species was specified in ca
 Can specify a vector of years.}
 
 \item{target_species}{Filter on target species (ie photoplot). Options include:
-c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
+c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}

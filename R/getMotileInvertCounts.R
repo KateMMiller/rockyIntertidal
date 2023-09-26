@@ -37,7 +37,7 @@
 #' the function will warn the user that an unrecognized species was specified in case it was an error.
 #'
 #' @param target_species Filter on target species (ie photoplot). Options include:
-#' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
+#' c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
@@ -102,9 +102,13 @@ getMotileInvertCounts <- function(park = "all", location = "all", plotName = "al
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("MotileInvert_Counts data frame not found. Please import rocky intertidal data.")})
 
-  bolts <- force(getBolts(park = park, location = location, plotName = plotName, species = 'all_records',
+  bolts1 <- force(getBolts(park = park, location = location, plotName = plotName,
+                          target_species = 'all_records',
                           plotType = 'Photoplot')) |>
     filter(grepl("label", Label))
+
+  bolts <- if(any(target_species %in% 'all')){bolts1
+  } else {filter(bolts1, Target_Species %in% target_species)}
 
   motinv_park <- if(any(park %in% 'all')){ filter(motinv, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(motinv, Site_Code %in% park)}

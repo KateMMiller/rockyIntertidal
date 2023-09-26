@@ -37,7 +37,7 @@
 #'     "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
 #'     "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")
 #'
-#' @param species Filter on target species. Note that "all_records" returns all options, whereas
+#' @param target_species Filter on target species. Note that "all_records" returns all options, whereas
 #' "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
 #'  Options include:
 #' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
@@ -60,7 +60,7 @@
 #'   species = c("Ascophyllum", "Fucus", "Red Algae"))
 #'
 #' # Return bolts for barnacle recruitment plots in ACAD
-#' acad_barn <- getBolts(park = "ACAD", )
+#' acad_barn <- getBolts(park = "ACAD")
 #'
 #' # Return bolts for summer barnacle recruitment photoplots at Little Hunter
 #' lihu_sb <- getBolts(location = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))
@@ -76,7 +76,7 @@
 #' @export
 
 getBolts <- function(park = "all", location = "all", plotType = "all",
-                     plotName = "all", species = "all_records"){
+                     plotName = "all", target_species = "all_records"){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -84,7 +84,8 @@ getBolts <- function(park = "all", location = "all", plotType = "all",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotType %in% c("all", "Band Transect", "Benchmark", "Photoplot", "Point Intercept Transect",
     "Recruitment Plot", "Reference", "Temperature logger"))
-  stopifnot(species %in% c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus",
+
+  stopifnot(target_species %in% c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus",
                            "Mussel", "Red Algae", "Not Applicable"))
   stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5",
                             "B1", "B2", "B3", "B4", "B5", "BM",
@@ -112,8 +113,8 @@ getBolts <- function(park = "all", location = "all", plotType = "all",
   bolts_plottype <- if(any(plotType %in% 'all')){ bolts_loc
   } else {filter(bolts_loc, Plot_Type %in% plotType)}
 
-  bolts_species <- if(any(species %in% 'all_records')){ bolts_plottype
-  } else {filter(bolts_plottype, Target_Species %in% species)}
+  bolts_species <- if(any(target_species %in% 'all_records')){ bolts_plottype
+  } else {filter(bolts_plottype, Target_Species %in% target_species)}
 
   bolts_pname <- if(any(plotName %in% 'all')){ bolts_species
   } else {filter(bolts_species, Plot_Name %in% plotName)}

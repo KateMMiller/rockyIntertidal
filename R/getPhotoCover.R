@@ -112,11 +112,14 @@ getPhotoCover <- function(park = "all", location = "all", plotName = "all",
              dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
            error = function(e){stop("PhotoQuadrats_Cover data frame not found. Please import rocky intertidal data.")})
 
-  bolts <- force(getBolts(park = park, location = location, plotName = plotName, species = 'all_records',
-                          plotType = 'Photoplot')) |>
+  bolts1 <- force(getBolts(park = park, location = location, plotName = plotName,
+                          target_species = 'all_records', plotType = 'Photoplot')) |>
     filter(grepl("label", Label))
 
-    cov_park <- if(any(park %in% 'all')){ filter(cover, Site_Code %in% c("ACAD", "BOHA"))
+  bolts <- if(any(target_species %in% 'all')){bolts1
+    } else {filter(bolts1, Target_Species %in% target_species)}
+
+  cov_park <- if(any(park %in% 'all')){ filter(cover, Site_Code %in% c("ACAD", "BOHA"))
   } else {filter(cover, Site_Code %in% park)}
 
   cov_loc <- if(any(location %in% 'all')){ cov_park

@@ -9,7 +9,7 @@ getBolts(
   location = "all",
   plotType = "all",
   plotName = "all",
-  species = "all_records"
+  target_species = "all_records"
 )
 }
 \arguments{
@@ -46,7 +46,7 @@ c("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "BM",
 "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
 "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")}
 
-\item{species}{Filter on target species. Note that "all_records" returns all options, whereas
+\item{target_species}{Filter on target species. Note that "all_records" returns all options, whereas
 "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
 Options include:
 c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
@@ -74,7 +74,7 @@ acad_alg <- getBolts(location = c("BASHAR", "SHIHAR"),
   species = c("Ascophyllum", "Fucus", "Red Algae"))
 
 # Return bolts for barnacle recruitment plots in ACAD
-acad_barn <- getBolts(park = "ACAD", )
+acad_barn <- getBolts(park = "ACAD")
 
 # Return bolts for summer barnacle recruitment photoplots at Little Hunter
 lihu_sb <- getBolts(location = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))

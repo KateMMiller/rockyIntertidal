@@ -3,7 +3,7 @@
 #' @include sumPhotoCover.R
 #'
 #' @import ggplot2
-#' @importFrom dplyr arrange filter group_by slice_max summarize
+#' @importFrom dplyr arrange filter group_by mutate row_number slice_max summarize
 #' @importFrom plotly ggplotly
 #'
 #' @description This function plots median percent cover by species for a given park, location, years and
@@ -251,8 +251,6 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
                "MUSSPP", "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ULVENT", "ULVINT",
                "ULVLAC", "UNIDEN", "BOLT", "ROCK", "WATER", "REDGRP")
 
-
-
   dat$Spp_Code <- factor(dat$Spp_Code, levels = sppcode) |> droplevels()
   spp <- levels(dat$Spp_Code)
   dat$Target_Species <- factor(dat$Target_Species, levels = c("Barnacle", "Mussel", "Fucus", "Ascophyllum", "Red Algae"))
@@ -271,7 +269,7 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
   dat <- dat |> group_by(Site_Code, Loc_Code, Target_Species, Spp_Code, Spp_Name) |>
     mutate(nz = ifelse(sum(median_cover) == 0, 0, 1))
 
-  dat_nz <- dat |> filter(nz > 0)
+  dat_nz <- dat |> filter(nz > 0) |> droplevels()
 
   p <-
   if(heatmap == FALSE){
@@ -372,9 +370,13 @@ plotPhotoCover <- function(park = "all", location = "all", plotName = "all",
     # Determine the points based on max number of chars
     max_char <- max(nchar(pdf$legend_entries))
     pdf$points <- ifelse(nchar(pdf$legend_entries) == max_char, TRUE, FALSE)
+
+    pdf <- pdf |> group_by(legend_group, points) |>
+      mutate(rank = row_number(),
+             is_first = ifelse(points == TRUE & rank == 1, TRUE, FALSE)) |>
+      data.frame()
+
     # Add an indicator for the first entry per group
-    pdf$is_first1 <- !duplicated(pdf$legend_group[pdf$points == TRUE])
-    pdf$is_first <- ifelse(pdf$is_first1 == TRUE & pdf$points == TRUE, TRUE, FALSE)
     pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "Spp_Code"))
 
     for (i in seq_along(pdf$id)) {

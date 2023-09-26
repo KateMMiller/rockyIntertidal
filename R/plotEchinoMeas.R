@@ -67,7 +67,7 @@
 #' @export
 
 plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
-                           species = 'all', target_species = 'all',
+                           species = 'all',
                            xlab = "Year", ylab = "Length (mm)",
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
                            nrow = 1,
@@ -146,7 +146,9 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
 
   spp_cols <- length(unique(dat_full$Spp_Code))
 
-  head(dat_full)
+  dat_full <- dat_full |> filter(!is.na(Meas_5mm_fac))
+
+  #head(dat_full)
   p <-
       ggplot(dat_full, aes(x = Year, y = Meas_5mm_fac,
                       color = text_col,
@@ -154,7 +156,7 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
         geom_tile(color = '#9F9F9F') +
         geom_text(aes(label = ifelse(!is.na(num_meas) & num_meas > 0,
                                      round(num_meas, 0), NA), color = text_col))+
-        scale_color_manual(values = text_pal, drop = FALSE) +
+        scale_color_manual(values = text_pal, drop = TRUE) +
         #scale_y_discrete(limits = rev, labels = labels)+
         {if(facet_loc_spp == TRUE) facet_wrap(~Loc_Code + Spp_Code,
                                               labeller = as_labeller(c(loc_labs, labels)),
@@ -170,7 +172,7 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
                              guide = 'colorbar',
                              name = "Number of Measurments",
                              na.value = 'white') + #,
-        scale_x_continuous(breaks = c(unique(dat$Year)))+
+        scale_x_continuous(breaks = c(unique(dat_full$Year)))+
         labs(y = ylab, x = xlab, title = plot_title) +
         theme_rocky() +
         theme(legend.position = 'bottom',

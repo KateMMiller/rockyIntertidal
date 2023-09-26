@@ -9,7 +9,6 @@ plotEchinoMeas(
   location = "all",
   plotName = "all",
   species = "all",
-  target_species = "all",
   xlab = "Year",
   ylab = "Length (mm)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),

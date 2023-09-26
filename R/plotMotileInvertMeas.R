@@ -171,6 +171,7 @@ plotMotileInvertMeas <- function(park = "all", location = "all", plotName = "all
   # head(dat_full)
 
   spp_cols <- length(unique(dat_full$Spp_Code))
+  dat_full <- dat_full |> filter(!is.na(Meas_5mm_fac))
 
   p <-
       ggplot(dat_full, aes(x = Year, y = Meas_5mm_fac,

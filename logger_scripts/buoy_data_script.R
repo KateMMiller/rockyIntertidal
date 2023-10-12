@@ -49,7 +49,7 @@ wdir <- combine_buoy_data(buoyid = "44034", variable = "WDIR", inDir = dir) |>
 wvht <- combine_buoy_data(buoyid = "44034", variable = "WVHT", inDir = dir) |>
   add_hour()
 
-comb_44034 <- purrr::reduce(list(wtmp_44034, wspd_44034, wdir_44034, wvht_44034),
+comb_44034 <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
 write.csv(comb_44034, "../data/rocky/temp_data/Buoy_data_2013-2022_ACAD_44034.csv", row.names = F)

@@ -168,12 +168,8 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
 #  if(plotly == FALSE){
   p_wspd <- suppressWarnings(
       ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt)) +
-        geom_line(#aes(text = paste0("Date: ", DATE, "<br>",
-                  #                  "Max. Wind (mph): ", WSPD_max_mph, "<br>",
-                  #                  "Avg. Wind Dir.: ", WDIR_max, "<br>",
-                  #                  "Wind Dir. Text: ", WDIR_txt2, "<br>")),
-                  color = cols[3]) +
-        geom_text(data = wdir, aes(angle = -WDIR_max + 90), label="→", size = 10) +
+        geom_line(color = cols[3]) +
+        geom_text(data = wdir, aes(angle = -WDIR_max + 90), label = expression(symbol('\256')), size = 10) +
         ylim(0, max(dat2$WSPD_max_mph) + 5) +
         theme_rocky() +
         theme(legend.position = 'bottom',

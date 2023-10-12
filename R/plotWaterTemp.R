@@ -174,8 +174,8 @@ plotWaterTemp <- function(park = "all", location = "all", palette = c('default')
     {if(all(palette == 'default'))
       scale_color_manual(values = cols, name = "Location", breaks = names(cols), labels = labels)} +
     {if(all(palette == 'viridis')) scale_color_viridis_d("Loc_Name")} +
-    {if(all(palette == "black")) scale_color_manual(values = "black")} +
-    {if(all(palette == "greyscale")) scale_color_manual(values = "#676767")} +
+    {if(all(palette == "black")) scale_color_manual(values = rep("black", 9))} +
+    {if(all(palette == "greyscale")) scale_color_manual(values = rep("#676767", 9))} +
     {if(facet == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(labels), ncol = facet_col)} +
     {if(plot_tmax == TRUE) geom_line(data = ht_tmax, aes(x = timestamp, y = tmax), linetype = 'dashed')} +
     {if(plot_tmin == TRUE) geom_line(data = ht_tmin, aes(x = timestamp, y = tmin), linetype = 'dashed')} +

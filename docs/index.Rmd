@@ -1,0 +1,178 @@
+---
+output: html_document
+title: "Using rockyIntertidal R pkg." 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 10)
+```
+
+```{css echo = FALSE}
+.indent {
+margin-left: 25px;
+font-size: 14px;
+}
+
+.indent2 {
+margin-left: 50px;
+font-size: 12px;
+}
+
+.drop{
+  font-family: "Arial",Arial,sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding:0px 0px 0px 0px;
+  margin:0px 0px 0px 0px;
+}
+
+.fxn{
+  color:#1942B5;
+  font-size:14px;
+  font-weight: bold;
+}
+
+.title{
+ display:none;
+}
+/*
+h4{
+  color:#1942B5;
+}
+*/
+```
+
+```{r echo = F, include = F}
+print_head <- function(df){
+  knitr::kable(df[1:6,]) |> #, table.attr = "style='width:60%;'") |> 
+    kableExtra::kable_classic(full_width = F, font_size = 12, 
+                              bootstrap_options = c("condensed"))
+}
+library(tidyverse)
+```
+
+## Using the rockyIntertidal R package {.tabset .tabset-pills}
+
+### Getting started {.tabset}
+
+#### Installation
+<h4><b>Step 1.</b> Install R, RStudio, and RTools44 in Software Center</h4>
+<h4><b>Step 2.</b> Install devtools package in R:</h4>
+```{r, eval = F, class.source = "indent"}
+install.packages('devtools')
+```
+<h4><b>Step 3.</b> Install rockyIntertidal from GitHub</h4>
+Note that whenever the `rockyIntertidal` package is updated, you can rerun this code to install the latest version.
+```{r, eval = F, class.source = "indent"}
+library(devtools)
+install_github("KateMMiller/rockyIntertidal")
+```
+<h4><b>Step 4.</b> Load rockyIntertidal R package</h4>
+```{r, class.source = "indent"}
+library(rockyIntertidal)
+```
+<h4><b>Step 5.</b> Import data</h4>
+Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). Currently, the `importData()` function only imports queries from the rocky intertidal backend database. Once the data package is completed, the import function will be updated to be able to import csvs, either as individual files or as a zipped file. The latest backend (as far as I know) is on the MS Team here: NPS ACAD Intertidal Zone > Data_Pipeline > Files > <a href="https://doimspp.sharepoint.com/:f:/s/NPSACADIntertidalZone/EsF2TueyuqFFkJ9IMcOV7-gB1pBmw5JreVZ3QJ5NWR4sPQ?e=7n0eyI">NETN_RockyIntertidal_Database_be_20231011.mdb.</a> Note that this is the link to the folder, not the actual database. You'll need to download the database (or move it to the Z drive).
+
+The default option for importing data adds the data package views (i.e., flatfiles) to an environment called ROCKY to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
+```{r echo = F, results = 'hide', include = F}
+importData()
+```
+<p class = 'indent'>
+<span style='color:#1942B5;'><b>Option 1.</b> Import data via data package database file on your computer</span></p>
+```{r eval = F, class.source = "indent"}
+importData(type = 'file',
+           path = "C:/NETN/R_Dev/data/rocky/NETN_RockyIntertidal_Database_be_20231011.mdb")
+```
+<p class = 'indent'>
+<span style='color:#1942B5;'><b>Option 2.</b> Import data via data package database DSN (Data Source Name) on your computer. </span>
+Note that this is the default setting. As long as you have a named DSN called "rocky_BE" that links to the latest rocky backend database, the code below will run. See <i>Setting up DSN</i> tab for how to set up DSN.</p>
+```{r eval = F, class.source = "indent"}
+importData() # easiest
+importData(type = 'DSN', odbc = "rocky_BE") # equivalent to line above
+```
+
+<h4><b>Step 6.</b> Play with the data </h4>
+The functions in the `rockyIntertidal` package are designed to work with the views, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to view the raw data, and you imported the data into the ROCKY environment, you can access them with the code below:
+```{r eval = F}
+# See list of the views
+names(ROCKY)
+
+# View one of the views
+View(ROCKY$Bolts)
+
+# Assign a view to a data frame named bolts in R. Interact with bolts the way you would work with any normal data frame in R. 
+bolts <- ROCKY$Bolts
+
+```
+
+If you want to use the `print_head()` function that shows output in the markdown, run the code below. This makes the results print cleaner in the markdown report. For your purposes, you can just run: `head(dataframe)`.
+```{r}
+print_head <- function(df){
+  knitr::kable(df[1:6,]) |> #, table.attr = "style='width:60%;'") |> 
+    kableExtra::kable_classic(full_width = F, font_size = 12, 
+                              bootstrap_options = c("condensed"))
+}
+
+```
+
+<h4><b>Troubleshooting Built Tools:</b></h4> If you're contributing to the package, you'll need to use build tools to build and install the package to test changes before posting to GitHub. Unfortunately Software Center installs RTools44 in C:/Program Files/, not C:/, which is where RStudio looks for it by default. The following code helps RStudio find RTools. You may occasionally have to rerun this code (except for the usethis line), so keep it handy. You know when you have to rerun the code when you try to rebuild a package, and a window pops up to ask if you want to install missing build files. 
+
+```{r echo = T, eval = F}
+# Set r environ to find rtools on opening
+usethis::edit_r_environ()
+Sys.setenv(PATH = paste("C:\\PROGRA~1\\Rtools44\\bin", Sys.getenv("PATH"), sep=";"))
+Sys.setenv(BINPREF = "C:\\PROGRA~1\\Rtools44\\mingw_$(WIN)\\bin\\")
+```
+
+
+#### Getting help
+<h4><b>Getting (and improving) help</b></h4>
+The functions in `rockyIntertidal` have help documentation like any R package. To view the help, you can go to the Packages tab and click on rockyIntertidal (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
+```{r echo = F, out.height = '95px', out.width = '551px', fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/finding_R_package.jpg")
+```
+
+<p class = 'fxn'>You can also see the help of a function by running, for example: </p>
+```{r, class.source = 'indent', eval = F}
+?importData
+```
+
+<p class = 'fxn'>If `rockyIntertidal` isn't loaded yet, you'd run: </p>
+```{r, class.source = 'indent', eval = F}
+?rockyIntertidal::importData
+```
+
+Each function's help includes a Description, Usage (i.e. function arguments and their defaults), Argument options/definitions, and several examples showing how the function can be used. 
+
+<b><span style='color:red;'>This is where you come in! If you notice typos or can think of better descriptions, examples, error messages, etc., please send them my way!</b></span> After we're more comfortable with R packages and get versed on GitHub, you'll be able to make those changes directly in the package. For now, you can just send me your suggestions and I'll make the changes.
+
+Finally, if you ever want to peak under the hood at the function, you can view it several ways. 
+<ol>
+<li>Keep F2 key pressed and click on the function name in R. This trick works for many but not all functions in R.</li>
+<li>View code in the <a href="https://github.com/KateMMiller/rockyIntertidal/tree/main">GitHub katemmiller/rockyIntertidal repo</a>. The functions are in the R folder. 
+
+#### Setting up DSN
+<h4><b>Setting up a DSN</b></h4>
+<ol>
+<li>Go to Windows Start Menu and search ODBC. Click on ODBC Data Sources (64-bit) </li>
+
+```{r echo = F, out.height = '457px', out.width = '564px', fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_1.jpg")
+```
+<li>Click on <i>Add</i>, then select <i>Microsoft Access Driver (\*.mdb, \*.accdb)</i> then click <i>Finish</i> in next menu.</li>
+
+```{r echo = F, out.height = '450px', out.width = '1018px', fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_2.jpg")
+```
+
+<li>Enter <b>rocky_BE</b> into the Data Source Name (red arrow), click on Select (red circle). In new window, click on C:/ (orange arrow) and find the path to your database. If it's on the Z drive, then click on the Drives window and select correct Drive. Click on the data package database (yellow arrow). When complete, click OK. Finally, add the name of the database file to the Description (blue arrow), so it's easier to check whether you're using the latest version.  </li>
+```{r echo = F, out.height = '486px', out.width = '600px', fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_3.jpg")
+```
+
+<li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
+</ol>
+
+### get Data functions {.tabset}

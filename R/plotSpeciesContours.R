@@ -332,9 +332,10 @@ plotSpeciesContours <- function(location = "BASHAR",
                                   ))
 
   #photo_dist_wide$elev_hor <- max(trsm_dat$elev + pie_size * 1.5)
+  photo_dist_wide$pie_ynudge = photo_dist_wide$elev + photo_dist_wide$dist_nudge
 
   p2 <- p1 +
-   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = elev + pie_ynudge),
+   geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = pie_ynudge),
                    pie_scale = pie_size,
                    cols = c("ASCNOD", "BARSPP", "FUCSPP", "MUSSPP", "REDGRP")) +
    coord_equal(expand = TRUE) + labs(x = "Distance (m)", y = "Elevation MLLW (m)") +

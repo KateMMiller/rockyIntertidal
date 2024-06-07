@@ -1,5 +1,7 @@
 ---
-output: html_document
+output: 
+  html_document:
+    css: www/styles.css
 title: "Using rockyIntertidal R pkg." 
 ---
 
@@ -72,7 +74,7 @@ install_github("KateMMiller/rockyIntertidal")
 ```{r, class.source = "indent"}
 library(rockyIntertidal)
 ```
-<h4><b>Step 5.</b> Import data</h4>
+<h4><b>Step 5.</b> Import rocky monitoring data</h4>
 Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). Currently, the `importData()` function only imports queries from the rocky intertidal backend database. Once the data package is completed, the import function will be updated to be able to import csvs, either as individual files or as a zipped file. The latest backend (as far as I know) is on the MS Team here: NPS ACAD Intertidal Zone > Data_Pipeline > Files > <a href="https://doimspp.sharepoint.com/:f:/s/NPSACADIntertidalZone/EsF2TueyuqFFkJ9IMcOV7-gB1pBmw5JreVZ3QJ5NWR4sPQ?e=7n0eyI">NETN_RockyIntertidal_Database_be_20231011.mdb.</a> Note that this is the link to the folder, not the actual database. You'll need to download the database (or move it to the Z drive).
 
 The default option for importing data adds the data package views (i.e., flatfiles) to an environment called ROCKY to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
@@ -93,6 +95,15 @@ importData() # easiest
 importData(type = 'DSN', odbc = "rocky_BE") # equivalent to line above
 ```
 
+<h4><b>Step 5b.</b>Import water temperature data</h4>
+The water temperature data is stored as separate csvs and so has a different import function and process. 
+The temp logger files will go into your ROCKY environment named the 6 letter location code. The `buoy = T` loads the buoy data for each park to the ROCKY environment. The `simplify = T` simplifies the datasets to include only 1 logger measurement per high tide event (for water temp) and 1 buoy record per day. All plotting functions require the simplified data.
+The latest compiled files are on the Z drive here: "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/".  This reminds me that I need to update the data to include 2023.
+```{r, results = 'hide'}
+path = "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+importWaterTemp(path = path, buoy = T, simplify = T)
+```
+
 <h4><b>Step 6.</b> Play with the data </h4>
 The functions in the `rockyIntertidal` package are designed to work with the views, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to view the raw data, and you imported the data into the ROCKY environment, you can access them with the code below:
 ```{r eval = F}
@@ -106,6 +117,7 @@ View(ROCKY$Bolts)
 bolts <- ROCKY$Bolts
 
 ```
+While this works, the better approach is to use the "getter" functions within the R package, which access the same files, but allow you to also query data based on park, location, years, plot name, species, etc. See the specific getter function tabs for details. 
 
 If you want to use the `print_head()` function that shows output in the markdown, run the code below. This makes the results print cleaner in the markdown report. For your purposes, you can just run: `head(dataframe)`.
 ```{r}
@@ -176,3 +188,206 @@ knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step
 </ol>
 
 ### get Data functions {.tabset}
+<details open><summary class = 'drop'><h3>Bolt data </h3></summary>
+```{r}
+print_head(getBolts(location = "CALISL", plotType = "Photoplot"))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Point Intercept Data </h3></summary>
+These are the transect point intercept distances before elevation is determined. Elevation is calculated in `sumPISpecies()`
+```{r}
+print_head(getPIBoltDistance()) # PointIntercept_BoltDist_C
+print_head(getPISpecies(location = c("BASHAR", "OTTPOI"))) # PointIntercept_SppDetections
+```
+</details>
+
+<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+```{r}
+print_head(getPhotoCover(location = c("BASHAR", "OTTPOI"), target_species = "Barnacle"))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Motile Invert Counts</h3></summary>
+```{r}
+print_head(getMotileInvertCounts(park = "ACAD", years = 2013:2021, species = c("LITLIT", "LITOBT", "LITSAX")))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Motile Invert Meas</h3></summary>
+```{r}
+print_head(getMotileInvertMeas(location = "SHIHAR", years = 2013:2019))
+```
+</details>
+
+
+<details open><summary class = 'drop'><h3>Echinoderm Counts </h3></summary>
+```{r}
+print_head(getEchinoCounts(park = "ACAD", years = 2013:2021, species = "STRDRO"))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Echinoderm Meas </h3></summary>
+```{r}
+print_head(getEchinoMeas(location = "SHIHAR", years = 2013:2019))
+```
+</details>
+
+### Summarize Data
+For every get function, there's a sum function that summarizes the data. This is typically at the location level for a given species and year. For example, averaging across the 3 point intercept transects, or averaging percent cover across the 5 barnacle photoplots. Summary functions are demonstrated below. 
+
+<details open><summary class = 'drop'><h3>Point Intercept Data </h3></summary>
+This the function where elevation is calculated for point intercept distances along the transects.
+```{r}
+print_head(sumPISpecies(location = c("BASHAR", "OTTPOI"))) 
+```
+</details>
+
+<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+```{r}
+print_head(sumPhotoCover(location = c("BASHAR", "OTTPOI"), target_species = c("Ascophyllum", "Barnacle")))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Motile Invert Counts</h3></summary>
+```{r}
+print_head(sumMotileInvertCounts(park = "ACAD", years = 2013:2021, species = c("CARMAE", "HEMISAN")))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Motile Invert Meas</h3></summary>
+Measurements are summarized into 5mm bins.
+```{r}
+print_head(sumMotileInvertMeas(location = "SHIHAR", years = 2013:2019))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Echinoderm Counts </h3></summary>
+```{r}
+print_head(sumEchinoCounts(park = "ACAD", years = 2013:2021, species = "STRDRO"))
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Echinoderm Meas </h3></summary>
+Measurements are summarized into 5mm bins.
+```{r}
+print_head(sumEchinoMeas(location = "SHIHAR", years = 2013:2019))
+```
+</details>
+
+### Plot Data
+For most getter and summary functions, there are plotting functions with the same suffix. Examples are below. 
+<details open><summary class = 'drop'><h3>Species Contours </h3></summary>
+These plots combine the point intercept data (dots and symbols on the graph) and the photoplot cover data (pie charts) to compare changes across years.
+```{r fig.height = 12, fig.width = 10, warning = FALSE, message = FALSE}
+plotSpeciesContours(location = "BASHAR", years = 2013:2018)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Point Intercept Transect </h3></summary>
+Plot the transect contours faceted on transect number
+```{r, warning = FALSE, message = FALSE}
+plotPITransects(location = "SHIHAR", years = 2013:2019)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Point Intercept Species </h3></summary>
+Plot point intercept species detections summarized as median and middle 50% distribution of elevation. There are a lot of arguments to produce different plots and figures. Some of the ones I find most useful are below. Note when years aren't specified, all years are included by default.
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPISpecies(location = "BASHAR", facet = T, main_groups = T, plotly = T)
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPISpecies(park = "BOHA", facet = T, main_groups = T)
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPISpecies(location = "SHIHAR", rev_axis = T, facet = T)
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPISpecies(location = "OTTPOI", species = c("FUCSPP", "ASCNOD"), plotly = T)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+Plots the photoplot cover summarized as median cover and middle 50% distribution of cover across the photoplots within a target species. Note that there are a lot of arguments that produce different plots and figures (all explained in the help). Here are a few I tend to use the most.
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPhotoCover(park = "ACAD", target_species = "Barnacle", plotly = T)
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPhotoCover(location = "LITHUN", main_groups = T) 
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPhotoCover(location = "LITHUN", top_spp = 3)
+```
+```{r, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 8}
+plotPhotoCover(location = "LITHUN", top_spp = 3, plotly = T, xlab = NULL, plot_title = "Little Hunter")
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPhotoCover(location = "LITHUN", main_groups = T, target_species = "Fucus", plotly = T)
+```
+```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
+plotPhotoCover(location = "BASHAR", main_groups = T, heatmap = TRUE)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Motile Inverts</h3></summary>
+Plot the Counts
+```{r fig.height = 10, fig.width = 12, warning = FALSE, message = FALSE}
+plotMotileInvertCounts(location = "OUTBRE", years = 2013:2021)
+```
+
+```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
+plotMotileInvertCounts(location = "OUTBRE", years = 2013:2021, plotly = T)
+```
+
+Plot the measurements
+```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
+plotMotileInvertMeas(location = "SHIHAR", years = 2013:2019)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Echinoderms </h3></summary>
+Plot the Counts
+```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
+plotEchinoCounts(location = "OUTBRE", years = 2013:2021)
+```
+
+```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
+plotEchinoCounts(location = "OUTBRE", years = 2013:2021, plotly = T)
+```
+
+
+Plot the measurements
+```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
+plotEchinoMeas(location = "SHIHAR", years = 2013:2019)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Water temp </h3></summary>
+```{r fig.height = 8, fig.width = 10}
+plotWaterTemp(park = "ACAD", years = 2022, facet_col = 1)
+```
+```{r, warning = FALSE, message = FALSE}
+plotWaterTemp(location = "BASHAR", years = 2011:2022)
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Buoy Data </h3></summary>
+```{r, warning = FALSE, message = FALSE}
+plotBuoyData(park = "ACAD", metric = 'all')
+```
+```{r, warning = FALSE, message = FALSE}
+plotBuoyData(park = "ACAD", metric = "temp", year = 2022)
+
+```
+</details>
+
+<details open><summary class = 'drop'><h3>Rocky ggplot theme</h3></summary>
+The default ggplot aesthetics are too busy, and require several lines of code to turn off. For every package, I create a theme that turns those off and can just be run with the ggplot code. For this package use `theme_rocky()` as shown below.
+```{r}
+dat <- sumPhotoCover(location = "SHIHAR", target_species = "Ascophyllum", species = "ASCNOD")
+
+library(ggplot2)
+ggplot(dat, aes(x = Year, y = median_cover)) +
+  geom_point() +
+  theme_rocky()
+```

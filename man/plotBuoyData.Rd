@@ -62,7 +62,7 @@ plotBuoyData()
 
 # Other variations
 # Windspeed and direction only
-plotBuoyData(metric = 'wspd'))
+plotBuoyData(metric = 'wspd')
 
 plotBuoyData(park = "ACAD", years = 2013:2022, palette = 'black')
 

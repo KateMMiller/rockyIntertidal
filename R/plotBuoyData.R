@@ -48,7 +48,7 @@
 #'
 #' # Other variations
 #' # Windspeed and direction only
-#' plotBuoyData(metric = 'wspd'))
+#' plotBuoyData(metric = 'wspd')
 #'
 #' plotBuoyData(park = "ACAD", years = 2013:2022, palette = 'black')
 #'
@@ -169,7 +169,8 @@ plotBuoyData <- function(park = "ACAD", palette = c('default'),
   p_wspd <- suppressWarnings(
       ggplot(dat2, aes(x = DATE, y = WSPD_max_mph, color = WDIR_txt)) +
         geom_line(color = cols[3]) +
-        geom_text(data = wdir, aes(angle = -WDIR_max + 90), label = expression(symbol('\256')), size = 10) +
+        #geom_text(data = wdir, aes(angle = -WDIR_max + 90), label = expression(symbol('\256')), size = 10) +
+        geom_text(data = wdir, aes(angle = -WDIR_max + 90), label = sprintf('\u2794'), size = 10) +
         ylim(0, max(dat2$WSPD_max_mph) + 5) +
         theme_rocky() +
         theme(legend.position = 'bottom',

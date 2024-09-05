@@ -9,7 +9,7 @@ getBolts(
   site = "all",
   plotType = "all",
   plotName = "all",
-  target_species = "all_records",
+  community = "all_records",
   coords = c("all")
 )
 }
@@ -47,7 +47,7 @@ c("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "BM",
 "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
 "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")}
 
-\item{target_species}{Filter on target species. Note that "all_records" returns all options, whereas
+\item{community}{Filter on target community type. Note that "all_records" returns all options, whereas
 "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
 Options include:
 c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",

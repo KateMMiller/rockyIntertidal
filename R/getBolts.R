@@ -37,7 +37,7 @@
 #'     "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
 #'     "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")
 #'
-#' @param target_species Filter on target species. Note that "all_records" returns all options, whereas
+#' @param community Filter on target community type. Note that "all_records" returns all options, whereas
 #' "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
 #'  Options include:
 #' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
@@ -79,7 +79,7 @@
 #' @export
 
 getBolts <- function(park = "all", site = "all", plotType = "all",
-                     plotName = "all", target_species = "all_records", coords = c("all")){
+                     plotName = "all", community = "all_records", coords = c("all")){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -88,7 +88,7 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
   stopifnot(plotType %in% c("all", "Band Transect", "Benchmark", "Photoplot", "Point Intercept Transect",
     "Recruitment Plot", "Reference", "Temperature logger"))
 
-  stopifnot(target_species %in% c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus",
+  stopifnot(community %in% c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus",
                            "Mussel", "Red Algae", "Not Applicable"))
   stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5",
                             "B1", "B2", "B3", "B4", "B5", "BM",
@@ -116,8 +116,8 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
   bolts_plottype <- if(any(plotType %in% 'all')){ bolts_loc
   } else {filter(bolts_loc, PlotType %in% plotType)}
 
-  bolts_species <- if(any(target_species %in% 'all_records')){ bolts_plottype
-  } else {filter(bolts_plottype, TargetSpecies %in% target_species)}
+  bolts_species <- if(any(community %in% 'all_records')){ bolts_plottype
+  } else {filter(bolts_plottype, CommunityType %in% community)}
 
   bolts_pname <- if(any(plotName %in% 'all')){ bolts_species
   } else {filter(bolts_species, PlotName %in% plotName)}
@@ -125,18 +125,18 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
   bolts_final <-
     if(coords == "all"){
     bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          Label, PlotName, PlotType, CommunityType, Datum,
                           BoltLatitude, BoltLongitude, Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
                           Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
                           Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
   } else if(coords == "latlong"){
     bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          Label, PlotName, PlotType, CommunityType, Datum,
                           BoltLatitude, BoltLongitude, Bolt_NAVD88_Elev,
                           Bolt_MLLW_Elev, Notes, IsBoltCUI)
   } else if(coords == "utm"){
     bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          Label, PlotName, PlotType, CommunityType, Datum,
                           Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
                           Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
                           Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)

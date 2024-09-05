@@ -6,12 +6,12 @@
 \usage{
 getMotileInvertMeas(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE,
   species = "all",
-  target_species = "all"
+  community = "all"
 )
 }
 \arguments{
@@ -22,9 +22,9 @@ getMotileInvertMeas(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -33,7 +33,7 @@ getMotileInvertMeas(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include:
@@ -51,14 +51,18 @@ returns all events, including QAQC events.}
 c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"). If a new species is added,
 the function will warn the user that an unrecognized species was specified in case it was an error.}
 
-\item{target_species}{Filter on target species (ie photoplot). Options include:
+\item{community}{Filter on target community. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 }
 \value{
 Returns a data frame of motile invertebrate measurement data filtered by function arguments.
 }
 \description{
-This function filters motile invertebrate measurement data by park, location, and plot name. The returned data frame lists measurement data of each species detected for each sampling event and plot. Spp_Code codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
+This function filters motile invertebrate measurement data by park, site, and plot name.
+The returned data frame lists measurement data of each species detected for each sampling event and plot.
+Species codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab);
+LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle);
+LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
 }
 \examples{
 \dontrun{
@@ -74,7 +78,7 @@ minv_acad <- getMotileInvertMeas(park = "ACAD")
 # Motile Invert measurement data for specific sites, plots, species, and years
 
 minv_r <- getMotileInvertMeas(park = "ACAD", plotName = c("R1", "R2", "R3", "R4", "R5"))
-minv_BOHA2 <- getMotileInvertMeas(location = c("CALISL", "GREISL"))
+minv_BOHA2 <- getMotileInvertMeas(site = c("CALISL", "GREISL"))
 minv_lit <- getMotileInvertMeas(species = c("LITLIT", "LITOBT", "LITSAX"))
 minv_5yr <- getMotileInvertMeas(years = 2016:2021)
 minv_first_last <- getMotileInvertMeas(years = c(2013, 2021))

@@ -33,7 +33,7 @@
 #'     "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
 #'     "R1", "R2", "R3", "R4", "R5")
 #'
-#' @param species Filter on species code. Options include:
+#' @param species Filter on species/cover code. Options include:
 #' c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 #' "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
 #' "OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",
@@ -130,7 +130,7 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
   } else {filter(cov_loc, PlotName %in% plotName)}
 
   cov_species <- if(any(species %in% 'all')){ cov_pname
-  } else {filter(cov_pname, SpeciesCode %in% species)}
+  } else {filter(cov_pname, CoverCode %in% species)}
 
   cov_targ <- if(any(community %in% "all")){cov_species
   } else{filter(cov_species, CommunityType %in% community)}

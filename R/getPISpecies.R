@@ -3,7 +3,7 @@
 #' @importFrom dplyr filter mutate select
 #'
 #' @description This function filters point intercept species detection data by park,
-#' location, plot name, and species.
+#' site, plot name, and species.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -12,9 +12,9 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Include data from all locations, or choose specific locations based on location code.
+#' @param site Include data from all sites, or choose specific sites based on site code.
 #' \describe{
-#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{'all'}{Includes all sites returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
@@ -23,12 +23,12 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #' @param plotName Filter on plot name. Options include: c("all", "T1", "T2", and "T3")
 #'
-#' @param species Filter on species code. Options include:
+#' @param species Filter on species/cover code. Options include:
 #' c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 #' "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
 #' "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
@@ -55,7 +55,7 @@
 #' # Species detections for specific sites, plots, species, and years
 #'
 #' spp_t3 <- getPISpecies(park = "ACAD", plotName = "T3")
-#' spp_BOHA2 <- getPISpecies(location = c("CALISL", "GREISL"))
+#' spp_BOHA2 <- getPISpecies(site = c("CALISL", "GREISL"))
 #' spp_fuc <- getPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
 #' spp_5yr <- getPISpecies(years = 2016:2021)
 #' spp_first_last <- getPISpecies(years = c(2013, 2021))
@@ -67,14 +67,14 @@
 #' @return Returns a data frame of point intercept species detection data filtered by function arguments
 #' @export
 
-getPISpecies <- function(park = "all", location = "all", plotName = "all",
-                               species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                               QAQC = FALSE){
+getPISpecies <- function(park = "all", site = "all", plotName = "all",
+                         species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                         QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
-  stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
 
   unmatch_spp <- setdiff(species, c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
@@ -95,20 +95,19 @@ getPISpecies <- function(park = "all", location = "all", plotName = "all",
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
   tryCatch(sppdet <- get("PointIntercept_SppDetections", envir = env) |>
-             dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
+             dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
            error = function(e){stop("PointIntercept_SppDetections data frame not found. Please import rocky intertidal data.")})
 
-  sppdet_park <- if(any(park %in% 'all')){ filter(sppdet, Site_Code %in% c("ACAD", "BOHA"))
-  } else {filter(sppdet, Site_Code %in% park)}
+  sppdet_park <- if(any(park %in% 'all')){sppdet} else {filter(sppdet, UnitCode %in% park)}
 
-  sppdet_loc <- if(any(location %in% 'all')){ sppdet_park
-  } else {filter(sppdet_park, Loc_Code %in% location)}
+  sppdet_loc <- if(any(site %in% 'all')){ sppdet_park
+  } else {filter(sppdet_park, SiteCode %in% site)}
 
   sppdet_pname <- if(any(plotName %in% 'all')){ sppdet_loc
-  } else {filter(sppdet_loc, Plot_Name %in% plotName)}
+  } else {filter(sppdet_loc, PlotName %in% plotName)}
 
   sppdet_species <- if(any(species %in% 'all')){ sppdet_pname
-  } else {filter(sppdet_pname, Spp_Code %in% species)}
+  } else {filter(sppdet_pname, CoverCode %in% species)}
 
   sppdet_year <- filter(sppdet_species, Year %in% years)
 
@@ -116,8 +115,8 @@ getPISpecies <- function(park = "all", location = "all", plotName = "all",
     } else {filter(sppdet_year, QAQC == FALSE)}
 
   sppdet_final <- sppdet_qaqc |>
-    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name,
-           PI_Distance, Spp_Code, Spp_Name, Event_ID, Plot_ID)
+    select(GroupCode, GroupName, UnitName, UnitCode, SiteName, SiteCode, StartDate,
+           PlotName, PiDistance, CoverCode, CoverType, ScientificName, IsPointCUI)
 
   if(nrow(sppdet_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

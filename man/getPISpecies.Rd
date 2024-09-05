@@ -6,7 +6,7 @@
 \usage{
 getPISpecies(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -21,9 +21,9 @@ getPISpecies(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -32,12 +32,12 @@ getPISpecies(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
 
-\item{species}{Filter on species code. Options include:
+\item{species}{Filter on species/cover code. Options include:
 c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 "BOLT", "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR",
 "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "ULVENT", "ULVINT", "ULVLAC",
@@ -55,7 +55,7 @@ Returns a data frame of point intercept species detection data filtered by funct
 }
 \description{
 This function filters point intercept species detection data by park,
-location, plot name, and species.
+site, plot name, and species.
 }
 \examples{
 \dontrun{
@@ -71,7 +71,7 @@ spp <- getPISpecies(park = "ACAD")
 # Species detections for specific sites, plots, species, and years
 
 spp_t3 <- getPISpecies(park = "ACAD", plotName = "T3")
-spp_BOHA2 <- getPISpecies(location = c("CALISL", "GREISL"))
+spp_BOHA2 <- getPISpecies(site = c("CALISL", "GREISL"))
 spp_fuc <- getPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
 spp_5yr <- getPISpecies(years = 2016:2021)
 spp_first_last <- getPISpecies(years = c(2013, 2021))

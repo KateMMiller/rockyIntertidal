@@ -6,7 +6,7 @@
 \usage{
 getPIBoltDistance(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -21,9 +21,9 @@ getPIBoltDistance(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -32,7 +32,7 @@ getPIBoltDistance(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
@@ -47,7 +47,7 @@ returns all events, including QAQC events.}
 Returns a data frame of point intercept bolt data filtered by function arguments
 }
 \description{
-This function filters point intercept bolt data by park, location, plot name, and species.
+This function filters point intercept bolt data by park, site, plot name, and species.
 }
 \examples{
 \dontrun{
@@ -60,10 +60,10 @@ bolt <- getPIBoltDistance()
 # PI Bolt distances for ACAD only sites
 bolt <- getPIBoltDistance(park = "ACAD")
 
-# PI Bolt distances for specific parks, locations, plots, and years
+# PI Bolt distances for specific parks, sites, plots, and years
 
 bolt_t3 <- getPIBoltDistance(park = "ACAD", plotName = "T3")
-bolt_BOHA2 <- getPIBoltDistance(location = c("CALISL", "GREISL"))
+bolt_BOHA2 <- getPIBoltDistance(site = c("CALISL", "GREISL"))
 bolt_5yr <- getPIBoltDistance(years = 2016:2021)
 bolt_first_last <- getPIBoltDistance(years = c(2013, 2021))
 bolt_with_qaqc <- getPIBoltDistance(years = 2021, QAQC = TRUE)

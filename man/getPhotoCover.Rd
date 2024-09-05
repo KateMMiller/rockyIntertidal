@@ -41,7 +41,7 @@ c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
 "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
 "R1", "R2", "R3", "R4", "R5")}
 
-\item{species}{Filter on species code. Options include:
+\item{species}{Filter on species/cover code. Options include:
 c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 "CHOMAS", "CRUCOR", "FUCEPI", "FUCSPP", "KELP", "MUSSPP", "NONCOR", "NOSAMP",
 "OTHINV", "OTHPLA", "OTHSUB", "PALPAL", "PORSPP", "ROCK", "SAND", "TAR",

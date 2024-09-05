@@ -6,7 +6,7 @@
 \usage{
 plotEchinoCounts(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   palette = c("default"),
@@ -30,9 +30,9 @@ plotEchinoCounts(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -41,7 +41,7 @@ plotEchinoCounts(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "X1", "X2", and "X3")}
@@ -71,10 +71,10 @@ returns all events, including QAQC events.}
 Returns a ggplot object of percent cover from photos filtered by function arguments
 }
 \description{
-This function plots average counts by species for a given park, location, years and
+This function plots average counts by species for a given park, site, years and
 species. The point for each species is the median count across the tidepools for that site, year
 and pecies. The error bars are the middle 50\% (lower 25\% and upper 75\% quantiles)
-recorded in tidepools for a species. Note that if more than 1 location is specified,
+recorded in tidepools for a species. Note that if more than 1 site is specified,
 the resulting figure will facet on those variables.
 }
 \examples{
@@ -82,15 +82,15 @@ the resulting figure will facet on those variables.
 
 importData()
 
-# Default filter returns a plot faceted on location and species
+# Default filter returns a plot faceted on site and species
 plotEchinoCounts()
 
 # Other variations
 
-plotEchinoCounts(park = "ACAD", location = "SHIHAR")
+plotEchinoCounts(park = "ACAD", site = "SHIHAR")
 
 stars = c("ASTFOR", "ASTRUB", "HENSAN")
-plotEchinoCounts(location = "CALISL", palette = "default", species = stars)
+plotEchinoCounts(site = "CALISL", palette = "default", species = stars)
 
 }
 

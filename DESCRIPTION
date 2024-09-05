@@ -36,7 +36,6 @@ Collate:
     'getMotileInvertMeas.R'
     'getPIBoltDistance.R'
     'getPISpecies.R'
-    'getPISppDetections.R'
     'getPhotoCover.R'
     'importData.R'
     'importWaterTemp.R'

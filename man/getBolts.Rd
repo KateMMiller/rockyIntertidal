@@ -9,7 +9,8 @@ getBolts(
   site = "all",
   plotType = "all",
   plotName = "all",
-  target_species = "all_records"
+  target_species = "all_records",
+  coords = c("all")
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ c("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "BM",
 Options include:
 c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
 "Red Algae", "Not Applicable")}
+
+\item{coords}{Specify which GPS coordinates to return, Lat/Long, UTM Zone 19N, or both. Options:
+c("latlong", "utm", "all")}
 }
 \value{
 Returns a data frame of bolt data filtered by function arguments

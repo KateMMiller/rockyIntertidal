@@ -43,6 +43,9 @@
 #' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
 #' "Red Algae", "Not Applicable")
 #'
+#' @param coords Specify which GPS coordinates to return, Lat/Long, UTM Zone 19N, or both. Options:
+#' c("latlong", "utm", "all")
+#'
 #'
 #' @examples
 #' \dontrun{
@@ -76,7 +79,7 @@
 #' @export
 
 getBolts <- function(park = "all", site = "all", plotType = "all",
-                     plotName = "all", target_species = "all_records"){
+                     plotName = "all", target_species = "all_records", coords = c("all")){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -119,10 +122,26 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
   bolts_pname <- if(any(plotName %in% 'all')){ bolts_species
   } else {filter(bolts_species, PlotName %in% plotName)}
 
-  bolts_final <- bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                                       Label, PlotName, PlotType, TargetSpecies, Datum,
-                                       BoltLatitude, BoltLongitude, Bolt_NAVD88_Elev,
-                                       Bolt_MLLW_Elev, Notes, IsBoltCUI)
+  bolts_final <-
+    if(coords == "all"){
+    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          BoltLatitude, BoltLongitude, Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
+                          Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
+                          Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
+  } else if(coords == "latlong"){
+    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          BoltLatitude, BoltLongitude, Bolt_NAVD88_Elev,
+                          Bolt_MLLW_Elev, Notes, IsBoltCUI)
+  } else if(coords == "utm"){
+    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                          Label, PlotName, PlotType, TargetSpecies, Datum,
+                          Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
+                          Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
+                          Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
+
+  }
 
   if(nrow(bolts_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

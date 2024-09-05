@@ -1,9 +1,9 @@
-#' @title getEventNotes: get notes recorded during specified events
+#' @title getEvents: get specified events
 #'
 #' @importFrom dplyr filter mutate select
 #'
-#' @description This function filters notes recorded during sampling events by park,
-#' location, plot name, and species.
+#' @description This function filters events and returns notes recorded during sampling events by park,
+#' site, plot name, and species.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -12,9 +12,9 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Include data from all locations, or choose specific locations based on location code.
+#' @param site Include data from all sites, or choose specific sites based on site code.
 #' \describe{
-#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{'all'}{Includes all sites returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
@@ -23,7 +23,7 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #' @param plotType Type of plot to filter. Options include:
@@ -51,11 +51,10 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' notes <- getEventNotes()
+#' notes <- getEvents()
 #'
 #' # Event Notes for ACAD only sites
-#' notes_ACAD <- getEventNotes(park = "ACAD")
-#'
+#' notes_ACAD <- getEvents(park = "ACAD")
 #'
 #' }
 #'
@@ -63,14 +62,14 @@
 #' @return Returns a data frame of point intercept species detection data filtered by function arguments
 #' @export
 
-getEventNotes <- function(park = "all", location = "all", plotName = "all", plotType = 'all',
-                          years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                          QAQC = FALSE){
+getEvents <- function(park = "all", site = "all", plotName = "all", plotType = 'all',
+                      years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                      QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
-  stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotType %in% c("all", "Band Transect", "Benchmark", "Photoplot", "Point Intercept Transect",
                             "Recruitment Plot", "Reference", "Temperature logger"))
@@ -89,33 +88,32 @@ getEventNotes <- function(park = "all", location = "all", plotName = "all", plot
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
-
-  tryCatch(notes <- get("Event_Notes", envir = env) |>
-             dplyr::mutate(Year = as.numeric(format(Start_Date, "%Y"))),
+  tryCatch(events <- get("Events", envir = env) |>
+             dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
            error = function(e){stop("Event_Notes data frame not found. Please import rocky intertidal data.")})
 
-  notes_park <- if(any(park %in% 'all')){ filter(notes, Site_Code %in% c("ACAD", "BOHA"))
-  } else {filter(notes, Site_Code %in% park)}
+  events_park <- if(any(park %in% 'all')){ filter(events, UnitCode %in% c("ACAD", "BOHA"))
+  } else {filter(events, UnitCode %in% park)}
 
-  notes_loc <- if(any(location %in% 'all')){ notes_park
-  } else {filter(notes_park, Loc_Code %in% location)}
+  events_loc <- if(any(site %in% 'all')){ events_park
+  } else {filter(events_park, SiteCode %in% site)}
 
-  notes_pname <- if(any(plotName %in% 'all')){ notes_loc
-  } else {filter(notes_loc, Plot_Name %in% plotName)}
+  events_pname <- if(any(plotName %in% 'all')){ events_loc
+  } else {filter(events_loc, Plot_Name %in% plotName)}
 
-  notes_year <- filter(notes_pname, Year %in% years)
+  events_year <- filter(events_pname, Year %in% years)
 
-  notes_qaqc <- if(QAQC == TRUE){notes_year
-    } else {filter(notes_year, QAQC == FALSE)}
+  events_qaqc <- if(QAQC == TRUE){events_year
+    } else {filter(events_year, QAQC == FALSE)}
 
-  notes_final <- notes_qaqc |>
-    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
-           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp) |>
-    unique()
+  events_final <- events_qaqc |>
+    select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, BM_Latitude, BM_Longitude, LatLong_Datum,
+           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp, IsPointCUI) #|>
+    #unique()
 
-  if(nrow(notes_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(events_final) == 0){stop("Specified arguments returned an empty data frame.")}
 
-  return(notes_final)
+  return(events_final)
 
 
 }

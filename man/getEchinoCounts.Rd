@@ -6,7 +6,7 @@
 \usage{
 getEchinoCounts(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   QAQC = FALSE,
@@ -21,9 +21,9 @@ getEchinoCounts(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -32,7 +32,7 @@ getEchinoCounts(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include: c("all", "X1", "X2", and "X3")}
@@ -51,11 +51,10 @@ Can specify a vector of years.}
 Returns a data frame of echinoderm count data in wide form filtered by function arguments.
 }
 \description{
-This function filters echinoderm count data by park, location, and plot name. The returned
-data frame is long, rather than wide, which is how it's imported. If a given species was not detected
-during a visit, its count is 0.
-Species codes are: ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star);
-HENSAN = Henricia sanguinolenta (blood sea star); STRDRO = Strongylocentrotus droebachiensis (sea urchin)
+This function filters echinoderm count data by park, site, and plot name.
+If a given species was not detected during a visit, its count is 0. Species codes are:
+ASTFOR = Asterias forbesi (Northern sea star); ASTRUB = Asterias rubens (common sea star);
+HENSAN = Henricia sanguinolenta (blood sea star); STRDRO = Strongylocentrotus droebachiensis (sea urchin).
 }
 \examples{
 \dontrun{
@@ -71,7 +70,7 @@ ech_acad <- getEchinoCounts(park = "ACAD")
 # Echino counts for specific sites, plots, species, and years
 
 ech_t3 <- getEchinoCounts(park = "ACAD", plotName = "X3")
-ech_BOHA2 <- getEchinoCounts(location = c("CALISL", "GREISL"))
+ech_BOHA2 <- getEchinoCounts(site = c("CALISL", "GREISL"))
 ech_5yr <- getEchinoCounts(years = 2016:2021)
 ech_first_last <- getEchinoCounts(years = c(2013, 2021))
 ech21_qaqc <- getEchinoCounts(years = 2021, QAQC = TRUE)

@@ -6,7 +6,7 @@
 \usage{
 getBolts(
   park = "all",
-  location = "all",
+  site = "all",
   plotType = "all",
   plotName = "all",
   target_species = "all_records"
@@ -20,9 +20,9 @@ getBolts(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -31,7 +31,7 @@ getBolts(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotType}{Type of plot to filter. Options include:
@@ -56,7 +56,7 @@ c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Muss
 Returns a data frame of bolt data filtered by function arguments
 }
 \description{
-This function filters bolt data by park, location, plot type or plot name.
+This function filters bolt data by park, site, plot type or plot name.
 }
 \examples{
 \dontrun{
@@ -70,18 +70,18 @@ bolts <- getBolts()
 boha_photo <- getBolts(park = "BOHA", plotType = "Photoplot")
 
 # Return bolts for algal only in ACAD's Ship Harbor and Bass Harbor
-acad_alg <- getBolts(location = c("BASHAR", "SHIHAR"),
+acad_alg <- getBolts(site = c("BASHAR", "SHIHAR"),
   species = c("Ascophyllum", "Fucus", "Red Algae"))
 
 # Return bolts for barnacle recruitment plots in ACAD
 acad_barn <- getBolts(park = "ACAD")
 
 # Return bolts for summer barnacle recruitment photoplots at Little Hunter
-lihu_sb <- getBolts(location = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))
+lihu_sb <- getBolts(site = "LITHUN", plotName = c("S1", "S2", "S3", "S4", "S5"))
 
 
 # Return bolts for point intercept transects in Outer Brewster
-ob_tr <- getBolts(location = "OUTBRE", plotType = "Point Intercept Transect")
+ob_tr <- getBolts(site = "OUTBRE", plotType = "Point Intercept Transect")
 
 }
 

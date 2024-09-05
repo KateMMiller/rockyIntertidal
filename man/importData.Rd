@@ -4,43 +4,59 @@
 \alias{importData}
 \title{importData: Import views directly from NETN rocky intertidal database}
 \usage{
-importData(
-  type = c("DSN", "file"),
-  DSN = "rocky_BE",
-  path = NA,
-  new_env = TRUE
-)
+importData(type = "DSN", odbc = "rocky_FE", filepath = NA, new_env = TRUE)
 }
 \arguments{
-\item{type}{Specify whether you are connecting to a DSN or file.
+\item{type}{Select how to import the data package.
 \describe{
-\item{"DSN"}{Default. DSN database. If odbc argument is not specified, will default to rocky_BE.}
-\item{"file"}{Connects to a backend based on the specified path}}}
+\item{"DSN"}{Default. DSN database. If odbc is not specified, will default to rocky_FE.
+Using this argument requires that you have a User DSN named rocky_FE that points to the
+database containing the data package queries. Note that the database that generates
+the data package views must also be linked to the latest rocky intertidal backend.}
+\item{"dbfile"}{A specified database containing the data package queries for each view. If selected,
+must provide the database filepath in the filepath argument.}
+\item{"csv"}{Imports the csv version of the data package views. If selected, must provide the
+filepath for the csvs in the filepath argument. This option that does not require MS Access and
+ODBC driver on your computer.}
+\item{"zip"}{Imports the csv versions of the data package views, as a zipped file. If selected,
+must provide the filepath and name of the zip file. This option that does not require MS Access and
+ODBC driver on your computer.}
+}}
 
-\item{DSN}{DSN name of the database when using type = DSN. If not specified will defaut to "rocky_BE".}
+\item{odbc}{DSN of the database when using type = DSN. If not specified will default to "NETNWQ_DP",
+which should represent the database that generates the data package views.}
 
-\item{path}{Quoted path of database backend file, including the name of the backend.}
+\item{filepath}{Quoted filepath where data package database (if type = "dbfile") or the csvs
+(if type = "csv" or type = "zip") live.}
 
 \item{new_env}{Logical. Specifies which environment to store views in. If \code{TRUE}(Default), stores
-views in ROCKY environment. If \code{FALSE}, stores views in global environment}
+views in VIEWS_WQ environment. If \code{FALSE}, stores views in global environment}
 }
 \value{
 Rocky intertidal database views in specified environment
 }
 \description{
-This function imports flat files from the rocky intertidal database. Each view
-is added to a ROCKY environment in your workspace, or to your global environment based on whether
-new_env = TRUE or FALSE. You must have the latest ODBC SQL driver installed for this function to
-work. It can be downloaded from: https://go.microsoft.com/fwlink/?linkid=2168524
+This function imports views in the NETN rocky intertidal data package either as csv files or
+queries in the rocky intertidal front end Access database. Each view is added to a ROCKY environment in
+your workspace, or to your global environment based on whether new_env = TRUE or FALSE.
 }
 \examples{
 \dontrun{
 
 # Import views using DSN
-importData(type='DSN', DSN="rocky_BE") # this is the same as importData()
+importData(type ='DSN', odbc = "rocky_FE") # this is the same as importData()
 
-# Import database in specific folder:
-importData(type='file', path='./Data/NETN_RockyIntertidal_Database_be_20230120.mdb')
+# Import views from specified database:
+importData(type ='dbfile',
+  path = 'C:/NETN/R_Dev/data/rocky/Data_Package/DB files/NETN_RockyIntertidal_Database_fe_07112024a.accdb')
+
+# Import views from folder with csvs
+importData(type = 'csv', filepath = "C:/NETN/R_Dev/data/rocky/Data_Package/RI Data Package/")
+
+# Import views from zip file of csvs
+importData(type = 'zip',
+  filepath = "C:/NETN/R_Dev/data/rocky/Data_Package/RI Data Package/RI_data_package.zip")
+
 
 }
 

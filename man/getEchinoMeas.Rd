@@ -6,7 +6,7 @@
 \usage{
 getEchinoMeas(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -21,9 +21,9 @@ getEchinoMeas(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -32,7 +32,7 @@ getEchinoMeas(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include: c("X1", "X2", and "X3")}
@@ -50,7 +50,7 @@ returns all events, including QAQC events.}
 Returns a data frame of echinoderm measurement data filtered by function arguments.
 }
 \description{
-This function filters echinoderm measurement data by park, location, plot name, and species. The returned data frame has a row for each species measured per sampling event and plot.
+This function filters echinoderm measurement data by park, site, plot name, and species. The returned data frame has a row for each species measured per sampling event and plot.
 #'
 }
 \examples{
@@ -67,7 +67,7 @@ ech_acad <- getEchinoMeas(park = "ACAD")
 # Echino counts for specific sites, plots, species, and years
 
 ech_t3 <- getEchinoMeas(park = "ACAD", plotName = "X3")
-ech_BOHA2 <- getEchinoMeas(location = c("CALISL", "GREISL"))
+ech_BOHA2 <- getEchinoMeas(site = c("CALISL", "GREISL"))
 ech_5yr <- getEchinoMeas(years = 2016:2021)
 ech_first_last <- getEchinoMeas(years = c(2013, 2021))
 ech21_qaqc <- getEchinoMeas(years = 2021, QAQC = TRUE)

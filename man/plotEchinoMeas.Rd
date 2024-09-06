@@ -2,11 +2,11 @@
 % Please edit documentation in R/plotEchinoMeas.R
 \name{plotEchinoMeas}
 \alias{plotEchinoMeas}
-\title{plotEchinoMeas: plots a heatmap of echinoderm by species, location and size class}
+\title{plotEchinoMeas: plots a heatmap of echinoderm by species, site and size class}
 \usage{
 plotEchinoMeas(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   xlab = "Year",
@@ -25,9 +25,9 @@ plotEchinoMeas(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -36,14 +36,14 @@ plotEchinoMeas(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include:
 c("all", "X1", "X2", "X3")}
 
 \item{species}{Filter on species code. Options include:
-c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO"). If a new species is added,
+c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO"). If a new species is added,
 the function will warn the user that an unrecognized species was specified in case it was an error.}
 
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Year'}
@@ -64,7 +64,7 @@ Returns a ggplot object of number of records by measurment by year per species
 }
 \description{
 This function plots a heatmap of the distribution of invertebrate size classes in 1 mm increments
-by year for each specified location, target species photoplot, and species.
+by year for each specified site, target species photoplot, and species.
 }
 \examples{
 \dontrun{
@@ -73,7 +73,7 @@ importData()
 
 plotMotileInvertMeas(park = "ACAD", species = c("CARMAE", "HEMISAN"))
 
-plotMotileInvertMeas(location = "CALISL", palette = "default", title = FALSE,
+plotMotileInvertMeas(site = "CALISL", palette = "default", title = FALSE,
                       species = "LITLIT")
 
 

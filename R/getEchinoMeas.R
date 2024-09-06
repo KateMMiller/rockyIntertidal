@@ -3,7 +3,7 @@
 #' @importFrom dplyr filter mutate select
 #'
 #' @description This function filters echinoderm measurement data by park, site, plot name, and species. The returned data frame has a row for each species measured per sampling event and plot.
-#' #'
+#'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
 #' \item{'all'}{Includes all parks monitored in the network}
@@ -75,7 +75,7 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
 
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
-  spp_list <- c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO")
+  spp_list <- c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO")
 
   unmatch_spp <- setdiff(species, c(spp_list, NA))
 
@@ -112,7 +112,7 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
 
   echino_final <- echino_qaqc |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
-           PlotName, ScientificName, CommonName, SpeciesCode, IsPointCUI)
+           PlotName, ScientificName, CommonName, SpeciesCode, Measurement, IsPointCUI)
 
   if(nrow(echino_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

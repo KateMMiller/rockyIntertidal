@@ -1,4 +1,4 @@
-#' @title plotEchinoMeas: plots a heatmap of echinoderm by species, location and size class
+#' @title plotEchinoMeas: plots a heatmap of echinoderm by species, site and size class
 #'
 #' @include sumEchinoMeas.R
 #'
@@ -6,7 +6,7 @@
 #' @importFrom plotly ggplotly
 #'
 #' @description This function plots a heatmap of the distribution of invertebrate size classes in 1 mm increments
-#' by year for each specified location, target species photoplot, and species.
+#' by year for each specified site, target species photoplot, and species.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -15,9 +15,9 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Include data from all locations, or choose specific locations based on location code.
+#' @param site Include data from all sites, or choose specific sites based on site code.
 #' \describe{
-#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{'all'}{Includes all sites returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
@@ -26,7 +26,7 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
@@ -35,7 +35,7 @@
 #'   c("all", "X1", "X2", "X3")
 #'
 #' @param species Filter on species code. Options include:
-#' c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO"). If a new species is added,
+#' c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO"). If a new species is added,
 #' the function will warn the user that an unrecognized species was specified in case it was an error.
 #'
 #' @param QAQC Logical. If FALSE (Default), does not return QAQC events. If TRUE,
@@ -56,7 +56,7 @@
 #'
 #' plotMotileInvertMeas(park = "ACAD", species = c("CARMAE", "HEMISAN"))
 #'
-#' plotMotileInvertMeas(location = "CALISL", palette = "default", title = FALSE,
+#' plotMotileInvertMeas(site = "CALISL", palette = "default", title = FALSE,
 #'                       species = "LITLIT")
 #'
 #'
@@ -66,7 +66,7 @@
 #' @return Returns a ggplot object of number of records by measurment by year per species
 #' @export
 
-plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
+plotEchinoMeas <- function(park = "all", site = "all", plotName = "all",
                            species = 'all',
                            xlab = "Year", ylab = "Length (mm)",
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
@@ -76,13 +76,13 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
-  stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "X1", "X2", "X3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
 
-  spp_list <- c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO")
+  spp_list <- c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO")
 
   unmatch_spp <- setdiff(species, c(spp_list, NA))
 
@@ -114,27 +114,27 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
                 "OTTPOI" = "Otter Point", "SCHPOI" = "Schoodic Point", "SHIHAR" = "Ship Harbor",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
-  dat <- suppressWarnings(force(sumEchinoMeas(park = park, location = location, plotName = plotName,
+  dat <- suppressWarnings(force(sumEchinoMeas(park = park, site = site, plotName = plotName,
                                                years = years, QAQC = QAQC, species = species))) |>
     dplyr::filter(!is.na(num_meas))
 
   # expand to include all size classes, so see full grid in geom_tile
-  grid_full <- expand.grid(Site_Code = unique(dat$Site_Code), Loc_Code = unique(dat$Loc_Code),
+  grid_full <- expand.grid(UnitCode = unique(dat$UnitCode), SiteCode = unique(dat$SiteCode),
                            Year = unique(dat$Year),
-                           Spp_Code = unique(dat$Spp_Code), #Spp_Name = unique(dat$Spp_Name),
+                           SpeciesCode = unique(dat$SpeciesCode), #Spp_Name = unique(dat$Spp_Name),
                            Meas_5mm_fac = unique(dat$Meas_5mm_fac))
 
-  dat_full <- left_join(grid_full, dat, by = c("Site_Code", "Loc_Code", "Year",
-                                               "Spp_Code", "Meas_5mm_fac"))
+  dat_full <- left_join(grid_full, dat, by = c("UnitCode", "SiteCode", "Year",
+                                               "SpeciesCode", "Meas_5mm_fac"))
 
-  facet_loc_spp <- if(length(unique(dat$Loc_Code)) > 1 &
-                      length(unique(dat$Spp_Code))>1) {TRUE} else {FALSE}
+  facet_loc_spp <- if(length(unique(dat$SiteCode)) > 1 &
+                      length(unique(dat$SpeciesCode))>1) {TRUE} else {FALSE}
 
-  facet_loc <- if(length(unique(dat$Loc_Code)) > 1 &
-                      length(unique(dat$Spp_Code)) == 1) {TRUE} else {FALSE}
+  facet_loc <- if(length(unique(dat$SiteCode)) > 1 &
+                      length(unique(dat$SpeciesCode)) == 1) {TRUE} else {FALSE}
 
-  facet_spp <- if(length(unique(dat$Loc_Code)) == 1 &
-                  length(unique(dat$Spp_Code)) > 1) {TRUE} else {FALSE}
+  facet_spp <- if(length(unique(dat$SiteCode)) == 1 &
+                  length(unique(dat$SpeciesCode)) > 1) {TRUE} else {FALSE}
 
 
   dat_full$num_meas[dat_full$num_meas == 0] <- NA_real_ # Change 0 to NA, so plots white
@@ -144,7 +144,7 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
 
   text_pal <- c("low" = "black", "high" = "white", `NA_real_` = "white")
 
-  spp_cols <- length(unique(dat_full$Spp_Code))
+  spp_cols <- length(unique(dat_full$SpeciesCode))
 
   dat_full <- dat_full |> filter(!is.na(Meas_5mm_fac))
 
@@ -158,12 +158,12 @@ plotEchinoMeas <- function(park = "all", location = "all", plotName = "all",
                                      round(num_meas, 0), NA), color = text_col))+
         scale_color_manual(values = text_pal, drop = TRUE) +
         #scale_y_discrete(limits = rev, labels = labels)+
-        {if(facet_loc_spp == TRUE) facet_wrap(~Loc_Code + Spp_Code,
+        {if(facet_loc_spp == TRUE) facet_wrap(~SiteCode + SpeciesCode,
                                               labeller = as_labeller(c(loc_labs, labels)),
                                       ncol = spp_cols)} +
-        {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(c(loc_labs)),
+        {if(facet_loc == TRUE) facet_wrap(~SiteCode, labeller = as_labeller(c(loc_labs)),
                                           ncol = spp_cols)} +
-        {if(facet_spp == TRUE) facet_wrap(~Spp_Code,
+        {if(facet_spp == TRUE) facet_wrap(~SpeciesCode,
                                           labeller = as_labeller(labels),
                                           ncol = spp_cols)} +
         scale_fill_gradientn(colors = c("#FFFFD9", "#EDF8B1", "#C7E9B4", "#7FCDBB", "#41B6C4",

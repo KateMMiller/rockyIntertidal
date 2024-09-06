@@ -51,7 +51,6 @@ Returns a data frame of echinoderm measurement data filtered by function argumen
 }
 \description{
 This function filters echinoderm measurement data by park, site, plot name, and species. The returned data frame has a row for each species measured per sampling event and plot.
-#'
 }
 \examples{
 \dontrun{

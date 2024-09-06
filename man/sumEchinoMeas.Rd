@@ -6,7 +6,7 @@
 \usage{
 sumEchinoMeas(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE,
@@ -14,16 +14,9 @@ sumEchinoMeas(
 )
 }
 \arguments{
-\item{park}{Include data from all parks, or choose one.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all parks monitored in the network}
-\item{'ACAD'}{Includes only sites in Acadia National Park}
-\item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
-}}
-
-\item{location}{Include data from all locations, or choose specific locations based on location code.
-\describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -32,7 +25,7 @@ sumEchinoMeas(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include:
@@ -45,14 +38,20 @@ Can specify a vector of years.}
 returns all events, including QAQC events.}
 
 \item{species}{Filter on species code. Options include:
-c("all", "ASTFOR", "ASTRUN", "HENSAN", "STRDRO"). If a new species is added,
+c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO"). If a new species is added,
 the function will warn the user that an unrecognized species was specified in case it was an error.}
 }
 \value{
 Returns a data frame of summarized echinoderm measurement data filtered by function arguments.
 }
 \description{
-This function summarizes number of individuals in each 5 mm size class by park, location, and species. Spp_Code codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
+This function summarizes number of individuals in each 5 mm size class by park, site, and species.
+
+\describe{
+\item{'all'}{Includes all parks monitored in the network}
+\item{'ACAD'}{Includes only sites in Acadia National Park}
+\item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
+}
 }
 \examples{
 \dontrun{
@@ -68,7 +67,7 @@ minv_acad <- sumEchinoMeas(park = "ACAD")
 # Motile Invert measurement data for specific sites, plots, species, and years
 
 minv_r <- sumEchinoMeas(park = "ACAD", plotName = c("X1", "X2"))
-minv_BOHA2 <- sumEchinoMeas(location = c("CALISL", "GREISL"))
+minv_BOHA2 <- sumEchinoMeas(site = c("CALISL", "GREISL"))
 minv_lit <- sumEchinoMeas(species = c("ASTFOR", "ASTRUB"))
 minv_5yr <- sumEchinoMeas(years = 2016:2021)
 minv_first_last <- sumEchinoMeas(years = c(2013, 2021))

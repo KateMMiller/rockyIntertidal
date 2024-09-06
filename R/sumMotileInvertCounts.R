@@ -4,8 +4,8 @@
 #'
 #' @importFrom dplyr group_by select summarize
 #'
-#' @description This function summarizes location-level average, median, min and max counts
-#' by park, location, plot name, and species.
+#' @description This function summarizes site-level average, median, min and max counts
+#' by park, site, plot name, and species.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -14,9 +14,9 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Include data from all locations, or choose specific locations based on location code.
+#' @param site Include data from all sites, or choose specific sites based on site code.
 #' \describe{
-#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{'all'}{Includes all sites returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
@@ -25,7 +25,7 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #' @param plotName Filter on plot name. Options include:
@@ -38,7 +38,7 @@
 #' If a new species is added, the function will warn the user
 #' that an unrecognized species was specified in case it was an error.
 #'
-#' @param target_species Filter on target species (ie photoplot). Options include:
+#' @param community Filter on target community. Options include:
 #' c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
@@ -61,7 +61,7 @@
 #' # Species detections for specific sites, plots, species, and years
 #'
 #' cnt_a1 <- sumMotileInvertCounts (park = "ACAD", plotName = "A1")
-#' cnt_BOHA2 <- sumMotileInvertCounts (location = c("CALISL", "GREISL"))
+#' cnt_BOHA2 <- sumMotileInvertCounts (site = c("CALISL", "GREISL"))
 #' cnt_gc <- sumMotileInvertCounts (park = "BOHA", species = c("CARMAE"))
 #' cnt_5yr <- sumMotileInvertCounts (years = 2016:2021)
 #' cnt_first_last <- sumMotileInvertCounts (years = c(2013, 2021))
@@ -70,19 +70,19 @@
 #' }
 #'
 #'
-#' @return Returns a data frame of location-level photoplot count data filtered by function arguments
+#' @return Returns a data frame of site-level photoplot count data filtered by function arguments
 #' @export
 
-sumMotileInvertCounts <- function(park = "all", location = "all", plotName = "all",
-                          species = "all", target_species = 'all',
+sumMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
+                          species = "all", community = 'all',
                           years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
-  stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
-  stopifnot(target_species %in% c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
+  stopifnot(community %in% c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
   unmatch_spp <- setdiff(species, c("all", "CARMAE", "HEMISAN", "LITLIT",
                                     "LITOBT", "LITSAX", "NUCLAP", "TECTES"))
 
@@ -100,16 +100,14 @@ sumMotileInvertCounts <- function(park = "all", location = "all", plotName = "al
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
-  cnt <- force(getMotileInvertCounts(park = park, location = location, plotName = plotName,
-                               species = species, target_species = target_species,
+  cnt <- force(getMotileInvertCounts(park = park, site = site, plotName = plotName,
+                               species = species, community = community,
                                years = years, QAQC = QAQC)) |>
-    select(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC, Plot_Name,
-           Target_Species, Spp_Code, Spp_Name, Damage, No.Damage, Subsampled) |>
     mutate(Total_Count = No.Damage + Damage)
 
 
-  cnt_sum <- cnt |> group_by(Site_Name, Site_Code, Loc_Name, Loc_Code, Start_Date, Year, QAQC,
-                             Target_Species, Spp_Code, Spp_Name) |>
+  cnt_sum <- cnt |> group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year,
+                             QAQC, CommunityType, SpeciesCode, ScientificName, CommonName) |>
     summarize(count_total = sum(Total_Count, na.rm = T),
               count_med = median(Total_Count, na.rm = T),
               count_avg = mean(Total_Count, na.rm = T),

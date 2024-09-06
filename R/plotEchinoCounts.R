@@ -141,7 +141,7 @@ plotEchinoCounts <- function(park = "all", site = "all", plotName = "all",
   p <- suppressWarnings(
   ggplot(dat_nz, aes(x = Year, y = count_avg, fill = SpeciesCode, color = SpeciesCode,
                        shape = SpeciesCode, group = SpeciesCode, size = SpeciesCode)) +
-      geom_ribbon(aes(ymin = count_l25, ymax = count_u75, #fill = Spp_Code, color = Spp_Code,
+      geom_ribbon(aes(ymin = count_l25, ymax = count_u75, #fill = SpeciesCode, color = SpeciesCode,
                       text = paste0("Upper 75% and lower 25% counts", "<br>",
                                     "Species: ", ScientificName, "<br>")),
                   alpha = 0.3, linewidth = 0.5) +
@@ -149,7 +149,7 @@ plotEchinoCounts <- function(park = "all", site = "all", plotName = "all",
                     text = paste0("Mean count", "<br>",
                                   "Species: ", ScientificName, "<br>")),
                 linewidth = 0.5) +
-      geom_point(aes(x = Year, y = count_med, #size = Spp_Code,
+      geom_point(aes(x = Year, y = count_med, #size = SpeciesCode,
                      text = paste0("Mean count: ", count_avg, "<br>",
                                    "Species: ", ScientificName, "<br>",
                                    "Year: ", Year, "<br>")),

@@ -38,7 +38,7 @@
 #'     "U1", "U2", "U3", "U4", "U5", "X1", "X2", "X3")
 #'
 #' @param community Filter on target community type. Note that "all_records" returns all options, whereas
-#' "All" is part of the Target_Species lookup, and will return records where Target_Species == "All".
+#' "All" is part of the CommunityType lookup, and will return records where CommunityType == "All".
 #'  Options include:
 #' c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Mussel",
 #' "Red Algae", "Not Applicable")

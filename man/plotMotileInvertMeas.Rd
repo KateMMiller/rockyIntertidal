@@ -2,14 +2,14 @@
 % Please edit documentation in R/plotMotileInvertMeas.R
 \name{plotMotileInvertMeas}
 \alias{plotMotileInvertMeas}
-\title{plotMotileInvertMeas: plots a heatmap of motile invertebrates by species, location and size class}
+\title{plotMotileInvertMeas: plots a heatmap of motile invertebrates by species, site and size class}
 \usage{
 plotMotileInvertMeas(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
-  target_species = "all",
+  community = "all",
   xlab = "Year",
   ylab = "Length (mm)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -26,9 +26,9 @@ plotMotileInvertMeas(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -37,7 +37,7 @@ plotMotileInvertMeas(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include:
@@ -49,7 +49,7 @@ c("all", A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
 c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"). If a new species is added,
 the function will warn the user that an unrecognized species was specified in case it was an error.}
 
-\item{target_species}{Filter on target species (ie photoplot). Options include:
+\item{community}{Filter on target community. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{xlab}{Quoted text label for x axis. If not specified, defaults to 'Year'}
@@ -70,17 +70,23 @@ Returns a ggplot object of number of records by measurment by year per species
 }
 \description{
 This function plots a heatmap of the distribution of invertebrate size classes in 1 mm increments
-by year for each specified location, target species photoplot, and species.
+by year for each specified site, target species photoplot, and species. To ensure facets are working properly,
+can either specify multiple sites or specify multiple communities, but not both. Not every combination of facet
+may be plotted correctly. If the returned plot has multiple numbers on top of each other and mostly white cells,
+try a more refined call, like only specifying 1 site and 1 community.
 }
 \examples{
 \dontrun{
 
 importData()
 
-plotMotileInvertMeas(park = "ACAD", species = c("CARMAE", "HEMISAN"))
+plotMotileInvertMeas(site = "BASHAR")
 
-plotMotileInvertMeas(location = "CALISL", palette = "default", title = FALSE,
-                      species = "LITLIT")
+plotMotileInvertMeas(site = "SHIHAR", community = "Ascophyllum")
+
+plotMotileInvertMeas(park = "BOHA", community = "Barnacle", plot_title = "BOHA Barnacle Plots")
+
+plotMotileInvertMeas(site = "CALISL", species = "LITLIT", plot_title = "Littorina littorea (common periwinkle)")
 
 
 }

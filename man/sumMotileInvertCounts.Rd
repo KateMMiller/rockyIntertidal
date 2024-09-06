@@ -6,10 +6,10 @@
 \usage{
 sumMotileInvertCounts(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
-  target_species = "all",
+  community = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE
 )
@@ -22,9 +22,9 @@ sumMotileInvertCounts(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -33,7 +33,7 @@ sumMotileInvertCounts(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include:
@@ -46,7 +46,7 @@ c("all", "CARMAE", "HEMISAN", "LITLIT",  "LITOBT", "LITSAX", "NUCLAP", "TECTES")
 If a new species is added, the function will warn the user
 that an unrecognized species was specified in case it was an error.}
 
-\item{target_species}{Filter on target species (ie photoplot). Options include:
+\item{community}{Filter on target community. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
@@ -56,11 +56,11 @@ Can specify a vector of years.}
 returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
 }
 \value{
-Returns a data frame of location-level photoplot count data filtered by function arguments
+Returns a data frame of site-level photoplot count data filtered by function arguments
 }
 \description{
-This function summarizes location-level average, median, min and max counts
-by park, location, plot name, and species.
+This function summarizes site-level average, median, min and max counts
+by park, site, plot name, and species.
 }
 \examples{
 \dontrun{
@@ -76,7 +76,7 @@ cnts <- sumMotileInvertCounts (park = "ACAD")
 # Species detections for specific sites, plots, species, and years
 
 cnt_a1 <- sumMotileInvertCounts (park = "ACAD", plotName = "A1")
-cnt_BOHA2 <- sumMotileInvertCounts (location = c("CALISL", "GREISL"))
+cnt_BOHA2 <- sumMotileInvertCounts (site = c("CALISL", "GREISL"))
 cnt_gc <- sumMotileInvertCounts (park = "BOHA", species = c("CARMAE"))
 cnt_5yr <- sumMotileInvertCounts (years = 2016:2021)
 cnt_first_last <- sumMotileInvertCounts (years = c(2013, 2021))

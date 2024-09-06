@@ -100,7 +100,7 @@ getMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
 
   tryCatch(motinv <- get("MotileInvert_Measurements", envir = env) |>
              dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))), #|>
-             #dplyr::rename(Spp_Code = MotileInvert_spp),
+             #dplyr::rename(SpeciesCode = MotileInvert_spp),
            error = function(e){stop("MotileInvert_Measurements data frame not found. Please import rocky intertidal data.")})
 
   motinv_park <- if(any(park %in% 'all')){ filter(motinv, UnitCode %in% c("ACAD", "BOHA"))

@@ -21,7 +21,7 @@ ggplot(spp_pi |> filter(Plot_Name == "T3"),
          aes(x = dist_bolt_first, y = elev_first,
              group = as.factor(Year), color = as.factor(Year))) +
        geom_line(lwd = 1) +
-       facet_wrap(~Loc_Code, scales = 'free') +
+       facet_wrap(~SiteCode, scales = 'free') +
        scale_color_brewer("Year", type = 'div', palette = 'Dark2') +
        theme_rocky()
 }

@@ -2,7 +2,7 @@
 #'
 #' @include getBolts.R
 #'
-#' @importFrom dplyr filter left_join mutate select
+#' @importFrom dplyr filter right_join mutate select
 #'
 #' @description This function filters photo quadrat percent cover data by park,
 #' site, plot name, and species.
@@ -79,7 +79,7 @@
 #' @export
 
 getPhotoCover <- function(park = "all", site = "all", plotName = "all",
-                          species = "all", #category = "all",
+                          species = "all", category = "all",
                           community = 'all',
                           years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE){
 
@@ -101,7 +101,7 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
                    "Check that this wasn't a typo."))
   }
 
-  #stopifnot(category %in% c("all", "Genus", "Species", "Species Group", "Substrate"))
+  stopifnot(category %in% c("all", "Genus", "Species", "Species Group", "Substrate"))
   stopifnot(plotName %in% c("all", "A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5",
                             "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
                             "R1", "R2", "R3", "R4", "R5"))
@@ -135,23 +135,22 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
   cov_targ <- if(any(community %in% "all")){cov_species
   } else{filter(cov_species, CommunityType %in% community)}
 
-  # cov_cat <- if(any(category %in% 'all')){ cov_targ
-  # } else {filter(cov_targ, Category %in% category)}
+  cov_cat <- if(any(category %in% 'all')){ cov_targ
+  } else {filter(cov_targ, Category %in% category)}
 
-  cov_year <- filter(cov_targ, Year %in% years)
+  cov_year <- filter(cov_cat, Year %in% years)
 
   cov_qaqc <- if(QAQC == TRUE){cov_year
   } else {cov_year |> filter(QAQC == FALSE) }
 
   # Join bolt elevation with cover data
-  cov_comb <- left_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
+  cov_comb <- right_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
                                         BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev) |> unique(),
                     cov_qaqc,
                     by = c("UnitCode", "SiteCode", "PlotName", "CommunityType")) |>
-
-  select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
-         PlotName, CommunityType, BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
-         CoverType, ScientificName, SpeciesCode, PercentCover, IsPointCUI)
+              select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
+              PlotName, CommunityType, BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
+              CoverType, ScientificName, CoverCode, PercentCover, IsPointCUI)
 
   if(nrow(cov_comb) == 0){stop("Specified arguments returned an empty data frame.")}
 

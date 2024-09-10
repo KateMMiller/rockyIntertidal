@@ -92,6 +92,8 @@ getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
            error = function(e){
              stop("Echinoderm_Counts data frame not found. Please import rocky intertidal data.")})
 
+  echino$Count[echino$Count == -999] <- NA_real_
+
   echino_park <- if(any(park %in% 'all')){ filter(echino, UnitCode %in% c("ACAD", "BOHA"))
   } else {filter(echino, UnitCode %in% park)}
 

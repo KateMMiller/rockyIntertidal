@@ -102,6 +102,9 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
              dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
            error = function(e){stop("MotileInvert_Counts data frame not found. Please import rocky intertidal data.")})
 
+  motinv$Damage[motinv$Damage == -999] <- NA_real_
+  motinv$No.Damage[motinv$No.Damage == -999] <- NA_real_
+
   bolts1 <- force(getBolts(park = park, site = site, plotName = plotName,
                           community = 'all_records',
                           plotType = 'Photoplot')) |>

@@ -90,7 +90,8 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
   tryCatch(echino <- get("Echinoderm_Measurements", envir = env) |>
-             dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
+             dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))) |>
+             filter(!is.na(Measurement)),
            error = function(e){stop("Echinoderm_Measurments data frame not found. Please import rocky intertidal data.")})
 
   echino_park <- if(any(park %in% 'all')){ filter(echino, UnitCode %in% c("ACAD", "BOHA"))

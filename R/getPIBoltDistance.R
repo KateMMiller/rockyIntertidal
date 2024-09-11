@@ -93,7 +93,7 @@ getPIBoltDistance <- function(park = "all", site = "all", plotName = "all",
 
   bolt_final <- bolt_qaqc |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
-           PlotName, PiDistance, ScientificName, CoverCode, CoverType, IsPointCUI)
+           PlotName, Distance_m, ScientificName, CoverCode, CoverType, IsPointCUI)
 
   if(nrow(bolt_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

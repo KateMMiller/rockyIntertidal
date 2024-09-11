@@ -45,9 +45,9 @@ plots a ggplot object. Currently not functional.}
 Returns a ggplot object of water temperature data
 }
 \description{
-This function plots water temperature at high tide by location. Note that function works on
+This function plots water temperature at high tide by site. Note that function works on
 compiled logger data, rather than working off the raw logger data. Compiled datasets should be imported
-using importWaterTemp(). To speed up plotting of multiple locations or long time-series, plot the simplified
+using importWaterTemp(). To speed up plotting of multiple sites or long time-series, plot the simplified
 water temperature data derived from importWaterTemp(simplify = TRUE).
 }
 \examples{

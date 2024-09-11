@@ -80,8 +80,8 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
     return(dat1)
   }
 
-  prep_tempdata <- function(loc_code){
-    dat <- read.csv(paste0(path, wt_files[grep(loc_code, wt_files)]))
+  prep_tempdata <- function(SiteCode){
+    dat <- read.csv(paste0(path, wt_files[grep(SiteCode, wt_files)]))
     dat$timestamp <- as.POSIXct(dat$timestamp,
                                 format = "%Y-%m-%d %H:%M:%S",
                                 tz = "America/New_York") #Sys.timezone() also works
@@ -89,10 +89,10 @@ importWaterTemp <- function(path = NA, simplify = TRUE, new_env = TRUE, buoy = T
                                      format = "%Y-%m-%d %H:%M:%S")
     dat$Date <- as.Date(dat$timestamp)
     dat$vert_tide_height <- dat$v
-    dat$Loc_Code <- paste0(loc_code)
-    dat$Site_Code <- ifelse(dat$Loc_Code %in% c("CALISL", "GREISL", "OUTBRE"), "BOHA", "ACAD")
+    dat$SiteCode <- paste0(SiteCode)
+    dat$UnitCode <- ifelse(dat$SiteCode %in% c("CALISL", "GREISL", "OUTBRE"), "BOHA", "ACAD")
     dat$Year <- format(as.Date(dat$timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "America/New_York"), "%Y")
-    dat <- dat[, c("Site_Code", "Loc_Code", "Date", "Year", "timestamp", "Degrees_F",
+    dat <- dat[, c("UnitCode", "SiteCode", "Date", "Year", "timestamp", "Degrees_F",
                    "timestamp_tide", "time_diff", "vert_tide_height")]
 
     dat1 <-

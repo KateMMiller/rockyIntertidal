@@ -6,7 +6,7 @@
 \usage{
 plotWaterTemp(
   park = "all",
-  location = "all",
+  site = "all",
   palette = c("default"),
   xlab = "Year",
   ylab = "High Tide Water Temp (F)",
@@ -29,10 +29,10 @@ plotWaterTemp(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Specify location to generate water temperature plot. If more than one location chosen, will
-plot lines on the same plot unless facet = TRUE. Note that plotting data from all locations will be slow.
+\item{site}{Specify site to generate water temperature plot. If more than one site chosen, will
+plot lines on the same plot unless facet = TRUE. Note that plotting data from all sites will be slow.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -41,7 +41,7 @@ plot lines on the same plot unless facet = TRUE. Note that plotting data from al
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{palette}{Choices are "default", "viridis", "greyscale", or "black". Default assigns logical colors to common species.
@@ -54,7 +54,7 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{gam}{Logical. If FALSE (default), only plots temperature values. If TRUE, plots a trend line
 derived from generalize additive modelling. NOT CURRENTLY FUNCTIONAL}
 
-\item{facet}{Logical. If TRUE, will plot locations in separate facets. FALSE (default) plots all locations
+\item{facet}{Logical. If TRUE, will plot sites in separate facets. FALSE (default) plots all sites
 on one figure.}
 
 \item{plot_tmin}{Logical. If TRUE, will plot a line connecting minimum recorded temperatures across years.}
@@ -77,9 +77,9 @@ For no legend, specify 'none'.}
 Returns a ggplot object of water temperature data
 }
 \description{
-This function plots water temperature at high tide by location. Note that function works on
+This function plots water temperature at high tide by site. Note that function works on
 compiled logger data, rather than working off the raw logger data. Compiled datasets should be imported
-using importWaterTemp(). To speed up plotting of multiple locations or long time-series, plot the simplified
+using importWaterTemp(). To speed up plotting of multiple sites or long time-series, plot the simplified
 water temperature data derived from importWaterTemp(simplify = TRUE).
 }
 \examples{
@@ -93,10 +93,10 @@ importWaterTemp(path, simplify = TRUE, buoy = TRUE) # import water temp and buoy
 plotWaterTemp()
 
 # Other variations
-plotWaterTemp(location = "CALISL", years = 2016:2022, plot_title = "Calf Island",
+plotWaterTemp(site = "CALISL", years = 2016:2022, plot_title = "Calf Island",
 plot_tmax = T, plot_tmin = T)
 
-plotWaterTemp(location = "SCHPOI", years = 2013:2022, palette = 'black')
+plotWaterTemp(site = "SCHPOI", years = 2013:2022, palette = 'black')
 
 }
 

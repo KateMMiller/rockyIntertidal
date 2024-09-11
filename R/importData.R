@@ -99,7 +99,8 @@ importData <- function(type = "DSN",
              "qryR_DataPackage_MotileInvert_Counts",
              "qryR_DataPackage_MotileInvert_Measurements",
              "qryR_DataPackage_PhotoQuadrats_Cover",
-             "qryR_DataPackage_PointIntercept_SppDetections")
+             "qryR_DataPackage_PointIntercept_SppDetections",
+             "qryR_DataPackage_PointIntercept_BoltDist")
 
   view_names <- gsub("qryR_DataPackage_", "", views)
 

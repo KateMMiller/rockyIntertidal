@@ -8,7 +8,6 @@ getPIBoltDistance(
   park = "all",
   site = "all",
   plotName = "all",
-  species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE
 )

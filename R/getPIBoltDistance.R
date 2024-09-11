@@ -59,8 +59,8 @@
 #' @export
 
 getPIBoltDistance <- function(park = "all", site = "all", plotName = "all",
-                               species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                               QAQC = FALSE){
+                              years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                              QAQC = FALSE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -73,10 +73,10 @@ getPIBoltDistance <- function(park = "all", site = "all", plotName = "all",
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
-  tryCatch(bolt <- get("PointIntercept_SppDetections", envir = env) |>
+  tryCatch(bolt <- get("PointIntercept_BoltDist", envir = env) |>
              dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
            error = function(e){
-             stop("PointIntercept_BoltDist_C data frame not found. Please import rocky intertidal data.")})
+             stop("PointIntercept_BoltDist data frame not found. Please import rocky intertidal data.")})
 
   bolt_park <- if(any(park %in% 'all')){bolt} else {filter(bolt, UnitCode %in% park)}
 

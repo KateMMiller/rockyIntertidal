@@ -6,7 +6,7 @@
 \usage{
 sumPISpecies(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
@@ -22,9 +22,9 @@ sumPISpecies(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -33,7 +33,7 @@ sumPISpecies(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include: c("all", "T1", "T2", and "T3")}
@@ -59,9 +59,9 @@ Returns a data frame of point intercept species detection data filtered by funct
 }
 \description{
 This function relates bolt elevation data with point intercept species detection data by park,
-location, plot name, and species. Returned values include elevation change between bolts, median elevation
+site, plot name, and species. Returned values include elevation change between bolts, median elevation
 between bolts, min/max elevation between bolts, distance between bolts, slope percent and degree between bolts,
-horizontal distance between bolts, and interpolated elevation for point intercept sampling locations.
+horizontal distance between bolts, and interpolated elevation for point intercept sampling sites.
 }
 \examples{
 \dontrun{
@@ -77,7 +77,7 @@ spp <- sumPISpecies(park = "ACAD")
 # Species detections for specific sites, plots, species, and years
 
 spp_t3 <- sumPISpecies(park = "ACAD", plotName = "T3")
-spp_BOHA2 <- sumPISpecies(location = c("CALISL", "GREISL"))
+spp_BOHA2 <- sumPISpecies(site = c("CALISL", "GREISL"))
 spp_fuc <- sumPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
 spp_5yr <- sumPISpecies(years = 2016:2021)
 spp_first_last <- sumPISpecies(years = c(2013, 2021))

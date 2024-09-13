@@ -6,7 +6,7 @@
 #' @importFrom dplyr desc filter group_by left_join mutate summarize ungroup
 #' @importFrom plotly ggplotly
 #'
-#' @description This function plots species by bolt elevation a given park, location, and years.
+#' @description This function plots species by bolt elevation a given park, site, and years.
 #' The point for each species is the median elevation across the three transects for that year. The
 #' ribbon represents upper 75% and lower 25% elevation recorded for a species within a given year.
 #' The thicker lines on the error bars are the 25% and 75% quantiles of elevation across the transects.
@@ -20,9 +20,9 @@
 #' \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 #' }
 #'
-#' @param location Choose specific location based on location code.
+#' @param site Choose specific site based on site code.
 #' \describe{
-#' \item{'all'}{Includes all locations returned by other filter arguments in function}
+#' \item{'all'}{Includes all sites returned by other filter arguments in function}
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
@@ -31,7 +31,7 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #'
@@ -91,10 +91,10 @@
 #'
 #' # Other variations
 #' spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-#' plotPISpecies(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+#' plotPISpecies(site = "CALISL", palette = "default", title = FALSE, facet = TRUE,
 #'                       species = spp)
 #'
-#' plotPISpecies(location = "SHIHAR", palette = "default",
+#' plotPISpecies(site = "SHIHAR", palette = "default",
 #'                       facet = FALSE, species = c("BARSPP"))
 #'
 #' }
@@ -103,7 +103,7 @@
 #' @return Returns a ggplot object of point intercept species detection data filtered by function arguments
 #' @export
 
-plotPISpecies <- function(park = "all", location = "all", plotName = "all",
+plotPISpecies <- function(park = "all", site = "all", plotName = "all",
                                   species = NA, palette = c('default'), ribbon = FALSE,
                                   main_groups = FALSE, plotly = FALSE,
                                   xlab = "Year", ylab = "Elevation MLLW (m)",
@@ -114,7 +114,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
-  stopifnot(location %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
@@ -142,8 +142,8 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
 
   unmatch_spp <- setdiff(species, c(spp_list, NA))
 
-  # if(length(location) > 1){
-  #   stop('Must only specify one location or one year, cannot plot multiple locations and years.')}
+  # if(length(site) > 1){
+  #   stop('Must only specify one site or one year, cannot plot multiple sites and years.')}
 
   if(length(unmatch_spp) > 0){
     warning(paste0("Unrecognized species were specified in the species argument: ",
@@ -219,28 +219,28 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
   dat1 <- suppressWarnings(
-    force(sumPISpecies(park = park, location = location, plotName = plotName,
+    force(sumPISpecies(park = park, site = site, plotName = plotName,
                        years = years, QAQC = QAQC, drop_missing = drop_missing,
                        species = species)) |>
           dplyr::filter(!is.na(PI_Elevation)))
 
   dat <-
   if(main_groups == TRUE){
-    dat1 |> dplyr::mutate(Spp_Code = case_when(Spp_Code %in% c("ALGRED", "CHOMAS") ~ "REDGRP",
-                                               Spp_Code %in% c("FUCSPP", "FUCEPI") ~ "FUCSPP",
-                                               Spp_Code %in% c("ASCNOD", "ASCEPI") ~ "ASCNOD",
-                                               TRUE ~ Spp_Code),
-                          Spp_Name = case_when(Spp_Code %in% "REDGRP" ~ "Red algae group",
-                                               Spp_Code %in% "FUCSPP" ~ "Fucus spp. (Rockweed)",
-                                               Spp_Code %in% "ASCNOD" ~ "A. nodosum (knotted wrack)",
-                                               TRUE ~ Spp_Name)) |>
-            dplyr::filter(Spp_Code %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP", "NONCOR"))
+    dat1 |> dplyr::mutate(CoverCode = case_when(CoverCode %in% c("ALGRED", "CHOMAS") ~ "REDGRP",
+                                                CoverCode %in% c("FUCSPP", "FUCEPI") ~ "FUCSPP",
+                                                CoverCode %in% c("ASCNOD", "ASCEPI") ~ "ASCNOD",
+                                                TRUE ~ CoverCode),
+                          CoverType = case_when(CoverCode %in% "REDGRP" ~ "Red algae group",
+                                               CoverCode %in% "FUCSPP" ~ "Fucus spp. (Rockweed)",
+                                               CoverCode %in% "ASCNOD" ~ "A. nodosum (knotted wrack)",
+                                               TRUE ~ CoverType)) |>
+            dplyr::filter(CoverCode %in% c("REDGRP", "ASCNOD", "FUCSPP", "BARSPP", "MUSSPP", "NONCOR"))
   } else {dat1}
 
-  ptitle <- ifelse(title == TRUE, unique(dat$Loc_Name), "")
+  ptitle <- ifelse(title == TRUE, unique(dat$SiteName), "")
 
   # Summary stats for species elevations at site level (not transect)
-  dat_sum <- dat |> group_by(Site_Code, Loc_Code, Year, QAQC, Spp_Code, Spp_Name) |>
+  dat_sum <- dat |> group_by(UnitCode, SiteCode, Year, QAQC, CoverCode, CoverType) |>
     summarize(elev_min = min(PI_Elevation, na.rm = T),
               elev_max = max(PI_Elevation, na.rm = T),
               elev_med = median(PI_Elevation, na.rm = T),
@@ -256,11 +256,11 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                "MUSSPP", "OTHINV", "OTHSUB", "PALPAL", "PORSPP", "ULVENT", "ULVINT",
                "ULVLAC", "UNIDEN", "BOLT", "ROCK", "WATER", "REDGRP")
 
-  dat_sum$Spp_Code <- factor(dat_sum$Spp_Code, levels = sppcode) |> droplevels()
-  spp <- levels(dat_sum$Spp_Code)
+  dat_sum$CoverCode <- factor(dat_sum$CoverCode, levels = sppcode) |> droplevels()
+  spp <- levels(dat_sum$CoverCode)
 
   # Ordering sites from west to east
-  dat_sum$Loc_Code <- factor(dat_sum$Loc_Code,
+  dat_sum$SiteCode <- factor(dat_sum$SiteCode,
                              levels = c("CALISL", "GREISL", "OUTBRE",
                                         "BASHAR", "SHIHAR", "LITHUN",
                                         "OTTPOI", "SCHPOI", "LITMOO"))
@@ -268,37 +268,37 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
   # labels <- labels[spp]
 
   locs <-
-    if(all(location == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
+    if(all(site == 'all')){c("BASHAR", "LITHUN", "LITMOO", "OTTPOI", "SCHPOI",
                                  "SHIHAR", "CALISL", "GREISL", "OUTBRE")
-    } else {location}
+    } else {site}
 
-  facet_loc_spp <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) > 1 & ribbon == FALSE) {TRUE} else {FALSE}
+  facet_loc_spp <- if(length(locs) > 1 & length(unique(dat$CoverCode)) > 1 & ribbon == FALSE) {TRUE} else {FALSE}
   facet_loc_ribbon <- if(length(locs) > 1 & ribbon == TRUE) {TRUE} else {FALSE}
-  facet_loc <- if(length(locs) > 1 & length(unique(dat$Spp_Code)) == 1) {TRUE} else {FALSE}
+  facet_loc <- if(length(locs) > 1 & length(unique(dat$CoverCode)) == 1) {TRUE} else {FALSE}
   facet_spp <- if(facet_loc == FALSE & facet_loc_spp == FALSE & facet == TRUE) {TRUE} else {FALSE}
 
   leg_position <- ifelse(any(facet_loc_spp, facet_loc, facet_spp) == TRUE, 'none', 'right')
 
   p <- suppressWarnings( #suppress tooltip warning
   ggplot(dat_sum, aes(x = Year, y = elev_med, #desc(elev_max),
-                      group = Spp_Code, color = Spp_Code, fill = Spp_Code,
-                      shape = Spp_Code, size = Spp_Code)) +
-         {if(ribbon == TRUE) geom_ribbon(aes(ymax = elev_u75, ymin = elev_l25, #group = Spp_Code,
-                                             #color = Spp_Code, fill = Spp_Code,
+                      group = CoverCode, color = CoverCode, fill = CoverCode,
+                      shape = CoverCode)) +
+         {if(ribbon == TRUE) geom_ribbon(aes(ymax = elev_u75, ymin = elev_l25, #group = CoverCode,
+                                             #color = CoverCode, fill = CoverCode,
                                              text = paste0("Upper 75% and lower 25% elev.", "<br>",
-                                                           "Species: ", Spp_Name, "<br>")),
+                                                           "Species: ", CoverType, "<br>")),
                                          alpha = 0.2, linewidth = 0.5)}+
-         {if(ribbon == TRUE) geom_line(aes(x = Year, y = elev_med, #group = Spp_Code,
+         {if(ribbon == TRUE) geom_line(aes(x = Year, y = elev_med, #group = CoverCode,
                                            #linewidth = 0.5,
-                                           #color = Spp_Code,
-                                           #fill = Spp_Code,
+                                           #color = CoverCode,
+                                           #fill = CoverCode,
                                            text = paste0("Median elev.", "<br>",
-                                                         "Species: ", Spp_Name, "<br>")),
+                                                         "Species: ", CoverType, "<br>")),
                                        linewidth = 0.5)} +
-         {if(ribbon == TRUE) geom_point(aes(x = Year, y = elev_med, #fill = Spp_Code, color = Spp_Code,
-                                            #size = Spp_Code, #shape = Spp_Code, group = Spp_Code,
+         {if(ribbon == TRUE) geom_point(aes(x = Year, y = elev_med, #fill = CoverCode, color = CoverCode,
+                                            size = CoverCode, #shape = CoverCode, group = CoverCode,
                                             text = paste0("Median elevation: ", round(elev_med, 2), "<br>",
-                                                          "Species: ", Spp_Name, "<br>",
+                                                          "Species: ", CoverType, "<br>",
                                                           "Year: ", Year)))} +#,
          {if(ribbon == FALSE)
          geom_errorbar(aes(ymin = elev_l25, ymax = elev_u75),
@@ -309,8 +309,8 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
                       #position = position_dodge(width = 1),
                       linewidth = 0.5)} +
          {if(ribbon == FALSE)
-         geom_point(aes(x = Year, y = elev_med, fill = Spp_Code,
-                     size = Spp_Code, shape = Spp_Code), color = 'black')} +
+         geom_point(aes(x = Year, y = elev_med, fill = CoverCode,
+                     size = CoverCode, shape = CoverCode), color = 'black')} +
          scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
                             labels = labels) +
          scale_size_manual(values = sz, name = "Species", breaks = names(sz),
@@ -324,10 +324,10 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
            scale_fill_manual(values = cols, name = "Species",
                               breaks = names(cols), labels = labels)} +
          {if(all(palette == 'viridis')) scale_color_viridis_d("Species")} +
-         {if(facet_loc_ribbon == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
-         {if(facet_spp == TRUE) facet_wrap(~Spp_Code, labeller = as_labeller(labels))} +
-         {if(facet_loc_spp == TRUE) facet_wrap(~Spp_Code + Loc_Code)} +
-         {if(facet_loc == TRUE) facet_wrap(~Loc_Code, labeller = as_labeller(loc_labs))} +
+         {if(facet_loc_ribbon == TRUE) facet_wrap(~SiteCode, labeller = as_labeller(loc_labs))} +
+         {if(facet_spp == TRUE) facet_wrap(~CoverCode, labeller = as_labeller(labels))} +
+         {if(facet_loc_spp == TRUE) facet_wrap(~CoverCode + SiteCode)} +
+         {if(facet_loc == TRUE) facet_wrap(~SiteCode, labeller = as_labeller(loc_labs))} +
          {if(rev_axis == TRUE) scale_y_continuous(limits = c(min(dat_sum$elev_min), max(dat_sum$elev_max)))} +
          {if(rev_axis == TRUE) scale_x_reverse(breaks = c(unique(dat_sum$Year)))} +
          {if(rev_axis == TRUE) coord_flip()} +
@@ -340,7 +340,7 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
   if(plotly == TRUE){
     pp <- plotly::ggplotly(p, tooltip = 'text')#, layerData = 2, originalData = F)
 
-    spp_mat <- unique(dat_sum[, c("Spp_Code", "Spp_Name")])
+    spp_mat <- unique(dat_sum[, c("CoverCode", "CoverType")])
 
     #--- Simplify plotly traces in legend ---
     # Get the names of the legend entries
@@ -355,13 +355,13 @@ plotPISpecies <- function(park = "all", location = "all", plotName = "all",
       data.frame()
     #pdf$keep <- pdf$mode == 'markers'
 
-    pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "Spp_Code"))
+    pdf <- dplyr::left_join(pdf, spp_mat, by = c("legend_group" = "CoverCode"))
 
     for (i in seq_along(pdf$id)) {
       # Is the layer the first entry of the group?
       keep <- pdf$keep[[i]]
       # Assign the group identifier to the name and legendgroup arguments
-      pp$x$data[[i]]$name <- pdf$Spp_Name[[i]]
+      pp$x$data[[i]]$name <- pdf$CoverType[[i]]
       pp$x$data[[i]]$legendgroup <- pp$x$data[[i]]$name
       # Show the legend only for the first layer of the group
       if(!keep) pp$x$data[[i]]$showlegend <- FALSE

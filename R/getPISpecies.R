@@ -115,7 +115,7 @@ getPISpecies <- function(park = "all", site = "all", plotName = "all",
     } else {filter(sppdet_year, QAQC == FALSE)}
 
   sppdet_final <- sppdet_qaqc |>
-    select(GroupCode, GroupName, UnitName, UnitCode, SiteName, SiteCode, StartDate,
+    select(GroupCode, GroupName, UnitName, UnitCode, SiteName, SiteCode, StartDate, Year, QAQC,
            PlotName, PiDistance, CoverCode, CoverType, ScientificName, IsPointCUI)
 
   if(nrow(sppdet_final) == 0){stop("Specified arguments returned an empty data frame.")}

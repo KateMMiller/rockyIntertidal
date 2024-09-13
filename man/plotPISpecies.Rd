@@ -6,7 +6,7 @@
 \usage{
 plotPISpecies(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = NA,
   palette = c("default"),
@@ -31,9 +31,9 @@ plotPISpecies(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Choose specific location based on location code.
+\item{site}{Choose specific site based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -42,7 +42,7 @@ plotPISpecies(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
@@ -94,7 +94,7 @@ elevation and distances and drops bolts that are not bolt 1 but have a distance 
 Returns a ggplot object of point intercept species detection data filtered by function arguments
 }
 \description{
-This function plots species by bolt elevation a given park, location, and years.
+This function plots species by bolt elevation a given park, site, and years.
 The point for each species is the median elevation across the three transects for that year. The
 ribbon represents upper 75\% and lower 25\% elevation recorded for a species within a given year.
 The thicker lines on the error bars are the 25\% and 75\% quantiles of elevation across the transects.
@@ -111,10 +111,10 @@ plotPISpecies()
 
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-plotPISpecies(location = "CALISL", palette = "default", title = FALSE, facet = TRUE,
+plotPISpecies(site = "CALISL", palette = "default", title = FALSE, facet = TRUE,
                       species = spp)
 
-plotPISpecies(location = "SHIHAR", palette = "default",
+plotPISpecies(site = "SHIHAR", palette = "default",
                       facet = FALSE, species = c("BARSPP"))
 
 }

@@ -62,7 +62,7 @@
 #' }
 #'
 #'
-#' @return Returns a data frame of echinoderm count data in wide form filtered by function arguments.
+#' @return Returns a data frame of echinoderm count data in long form filtered by function arguments.
 #' @export
 
 getEchinoCounts <- function(park = "all", site = "all", plotName = "all",

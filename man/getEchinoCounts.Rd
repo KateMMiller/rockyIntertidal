@@ -48,7 +48,7 @@ returns all events, including QAQC events.}
 Can specify a vector of years.}
 }
 \value{
-Returns a data frame of echinoderm count data in wide form filtered by function arguments.
+Returns a data frame of echinoderm count data in long form filtered by function arguments.
 }
 \description{
 This function filters echinoderm count data by park, site, and plot name.

@@ -2,11 +2,11 @@
 % Please edit documentation in R/plotPITransects.R
 \name{plotPITransects}
 \alias{plotPITransects}
-\title{plotPITransects: plots transect distance by elevation by location, year and transect}
+\title{plotPITransects: plots transect distance by elevation by site, year and transect}
 \usage{
 plotPITransects(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
@@ -25,9 +25,9 @@ plotPITransects(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -36,7 +36,7 @@ plotPITransects(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
@@ -65,7 +65,7 @@ Returns a ggplot object of point intercept species detection data filtered by fu
 }
 \description{
 This function plots bolt distance and elevation data by transect for each park,
-location, and year.
+site, and year.
 }
 \examples{
 \dontrun{
@@ -78,8 +78,8 @@ plotPITransects()
 # Other variations
 plotPITransects(years = 2018:2021)
 plotPITransects(park = "ACAD", years = 2019, facet_scales = 'fixed')
-plotPITransects(location = "GREISL", xlab = 'dist', ylab = 'elev')
-plotPITransects(location = "BASHAR", plotName = "T1", drop_missing = FALSE)
+plotPITransects(site = "GREISL", xlab = 'dist', ylab = 'elev')
+plotPITransects(site = "BASHAR", plotName = "T1", drop_missing = FALSE)
 
 }
 

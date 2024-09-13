@@ -11,12 +11,13 @@
 #' @importFrom cowplot draw_grob
 #' @importFrom purrr pmap_dfr
 #'
-#' @description This function plots a loess smoothed contour averaging the transects across all years specified.
-#' Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the main species groups
-#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP, NONCOR). Photoplot cover is plotted as median cover and median elevation
-#' for each target species plot.
+#' @description This function plots a loess smoothed contour averaging the transects
+#' across all years specified. Point intercept minimum and maximum elevation ranges
+#' are plotted along the contours by year for each of the main species groups:
+#' (REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP, NONCOR). Photoplot cover is plotted as
+#' median cover and median elevation for each target species plot.
 #'
-#' @param location Must choose a location to plot
+#' @param site Must choose a site to plot
 #' \describe{
 #' \item{"BASHAR"}{Bass Harbor, ACAD (default)}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
@@ -26,7 +27,7 @@
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
 #' \item{"GREISL"}{Green Island, BOHA}
-#' \item{"OUTBRE"}{Outer Brewster}
+#' \item{"OUTBRE"}{Outer Brewster, BOHA}
 #' }
 #'
 #' @param years Filter on year of data collected. Default is 2013 to current year.
@@ -35,19 +36,19 @@
 #' @param palette Choices are "default" or "viridis". Default assigns logical colors to common species.
 #' Viridis uses a color-blind friendly palette of blues, purples and yellows.
 #'
-#' @param plot_title Logical. If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.
+#' @param plot_title Logical. If TRUE (default), plots site code as plot title. If FALSE, doesn't include a title.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns a plot faceted on location and target species group
-#' plotSpeciesContours(location = "OTTPOI")
+#' # Default filter returns a plot faceted on site and target species group
+#' plotSpeciesContours(site = "OTTPOI")
 #'
 #' # Other variations
 #' spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-#' plotSpeciesContours(location = "CALISL", palette = "default", title = FALSE,
+#' plotSpeciesContours(site = "CALISL", palette = "default", title = FALSE,
 #'                    species = spp)
 #'
 #' }
@@ -56,7 +57,7 @@
 #' @return Returns a ggplot object of point intercept and percent cover data filtered by function arguments
 #' @export
 
-plotSpeciesContours <- function(location = "BASHAR",
+plotSpeciesContours <- function(site = "BASHAR",
                            palette = c('default'),
                            xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
@@ -64,13 +65,13 @@ plotSpeciesContours <- function(location = "BASHAR",
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
-  stopifnot(location %in% c("BASHAR", "LITHUN", "LITMOO", "OTTPOI",
+  stopifnot(site %in% c("BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(is.logical(plot_title))
 
-  if(length(location) > 1){stop("Multiple locations specified. Function can only plot one location at a time.")}
+  if(length(site) > 1){stop("Multiple sites specified. Function can only plot one site at a time.")}
 
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
@@ -107,64 +108,64 @@ plotSpeciesContours <- function(location = "BASHAR",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
   # Compile photo data
-  photo1 <- suppressWarnings(force(getPhotoCover(location = location, plotName = 'all',
+  photo1 <- suppressWarnings(force(getPhotoCover(site = site, plotName = 'all',
                                                category = 'all', years = years, QAQC = FALSE,
                                                species = c("ASCNOD",  "ASCEPI", "BARSPP",
                                                            "FUCSPP", "FUCEPI", "NONCOR",
                                                            "MUSSPP", "ALGRED", "CHOMAS"), #"ALGGRE"),
-                                               target_species = 'all'))) |>
-                           dplyr::filter(!is.na(Perc_Cover))
+                                               community = 'all'))) |>
+                           dplyr::filter(!is.na(PercentCover))
 
   # Combine ALGRED and CHOMAS
-  photo <- photo1 |> mutate(Spp_Code = case_when(Spp_Code %in% c("ALGRED", "CHOMAS") ~ "REDGRP",
-                                                 Spp_Code %in% c("FUCSPP", "FUCEPI") ~ "FUCSPP",
-                                                 Spp_Code %in% c("ASCNOD", "ASCEPI") ~ "ASCNOD",
-                                                 TRUE ~ Spp_Code),
-                            Spp_Name = case_when(Spp_Code %in% "REDGRP" ~ "Red algae group",
-                                                 Spp_Code %in% "FUCSPP" ~ "Fucus spp. (Rockweed)",
-                                                 Spp_Code %in% "ASCNOD" ~ "A. nodosum (knotted wrack)",
-                                                 TRUE ~ Spp_Name))
+  photo <- photo1 |> mutate(CoverCode = case_when(CoverCode %in% c("ALGRED", "CHOMAS") ~ "REDGRP",
+                                                 CoverCode %in% c("FUCSPP", "FUCEPI") ~ "FUCSPP",
+                                                 CoverCode %in% c("ASCNOD", "ASCEPI") ~ "ASCNOD",
+                                                 TRUE ~ CoverCode),
+                            CoverType = case_when(CoverCode %in% "REDGRP" ~ "Red algae group",
+                                                 CoverCode %in% "FUCSPP" ~ "Fucus spp. (Rockweed)",
+                                                 CoverCode %in% "ASCNOD" ~ "A. nodosum (knotted wrack)",
+                                                 TRUE ~ CoverType))
 
   # combine cover for red group
-  photo_sum1 <- photo |> group_by(Site_Code, Loc_Code, Year, Spp_Code, Plot_Name,
-                                 Target_Species, Bolt_MLLW_Elev) |>
-                         summarize(tot_cov = sum(Perc_Cover, na.rm = T),
+  photo_sum1 <- photo |> group_by(UnitCode, SiteCode, Year, CoverCode, CoverType, PlotName,
+                                 CommunityType, Bolt_MLLW_Elev) |>
+                         summarize(tot_cov = sum(PercentCover, na.rm = T),
                                    .groups = 'drop') |> ungroup()
 
   # summarize median cover
-  photo_sum <- photo_sum1 |> group_by(Site_Code, Loc_Code, Year, Target_Species, Spp_Code) |>
+  photo_sum <- photo_sum1 |> group_by(UnitCode, SiteCode, Year, CommunityType, CoverCode) |>
     summarize(avg_cover = mean(tot_cov, na.rm = T),
               med_cover = median(tot_cov, na.rm = T),
               elev = median(Bolt_MLLW_Elev, na.rm = T),
               .groups = 'drop')
 
   # Compile species PI data
-  spdat1 <- suppressWarnings(force(sumPISpecies(location = location, plotName = 'all',
+  spdat1 <- suppressWarnings(force(sumPISpecies(site = site, plotName = 'all',
                                                years = years,
                                                QAQC = FALSE,
                                                species = c("ASCNOD", "BARSPP", "FUCSPP",#"ALGGRE",
                                                            "MUSSPP", "ALGRED", "CHOMAS", "NONCOR"))))
 
   # Combine ALGRED and CHOMAS
-  spdat <- spdat1 |> mutate(Spp_Code = ifelse(Spp_Code %in% c("ALGRED", "CHOMAS"), "REDGRP", Spp_Code),
-                            Spp_Name = ifelse(Spp_Code %in% "REDGRP", "Red algae group", Spp_Name))
+  spdat <- spdat1 |> mutate(CoverCode = ifelse(CoverCode %in% c("ALGRED", "CHOMAS"), "REDGRP", CoverCode),
+                            CoverType = ifelse(CoverCode %in% "REDGRP", "Red algae group", CoverType))
 
   #OUTBRE smooth is really funky, so only smoothing one transect
-  trdat <- if(location == "OUTBRE"){
+  trdat <- if(site == "OUTBRE"){
     spdat |> filter(Plot_Name == "T1") |>
-    select(Site_Code, Loc_Code, Year, Plot_Name,
+    select(UnitCode, SiteCode, Year, PlotName,
            elev = PI_Elevation, dist = PI_Distance) |>
     unique() |> na.omit() |> arrange(elev)
   } else{
     spdat |> arrange(PI_Elevation) |>
-      select(Site_Code, Loc_Code,
+      select(UnitCode, SiteCode,
              elev = PI_Elevation, dist = PI_Distance) |>
       unique() |> na.omit() |> arrange(elev)
   }
 
 
   # Smooth contours across all transects and years
-  span_loc <- ifelse(location == "OUTBRE", 0.5, 0.6)
+  span_loc <- ifelse(site == "OUTBRE", 0.5, 0.6)
   trsm <- loess(dist ~ elev, data = trdat, span = span_loc, degree = 1)
 
   trsm_dat <- cbind(trdat, dist_pred = predict(trsm, trdat))
@@ -184,17 +185,17 @@ plotSpeciesContours <- function(location = "BASHAR",
   max_dist <- max(trsm_dat$dist_pred, na.rm = T)
   shidist <- 0.553
 
-  photo_dist$dist[is.na(photo_dist$dist) & photo_dist$Target_Species == "Red Algae"] <- max_dist
-  photo_dist$dist[is.na(photo_dist$dist) & photo_dist$Target_Species == "Ascophyllum" &
-    photo_dist$Loc_Code == "SHIHAR"] <- shidist
+  photo_dist$dist[is.na(photo_dist$dist) & photo_dist$CommunityType == "Red Algae"] <- max_dist
+  photo_dist$dist[is.na(photo_dist$dist) & photo_dist$CommunityType == "Ascophyllum" &
+    photo_dist$SiteCode == "SHIHAR"] <- shidist
 
-  photo_dist_wide <- photo_dist |> select(Site_Code, Loc_Code, Year, Target_Species,
-                                          Spp_Code, avg_cover, elev, dist) |>
-                                   pivot_wider(names_from = Spp_Code,
+  photo_dist_wide <- photo_dist |> select(UnitCode, SiteCode, Year, CommunityType,
+                                          CoverCode, avg_cover, elev, dist) |>
+                                   pivot_wider(names_from = CoverCode,
                                                values_from = avg_cover, values_fill = 0)
 
   # Summarize species PIs, then predict distance from elevations
-  sp_sum <- spdat |> group_by(Site_Code, Loc_Code, Year, Spp_Code, Spp_Name) |>
+  sp_sum <- spdat |> group_by(UnitCode, SiteCode, Year, CoverCode, CoverType) |>
     summarize(elev_min = min(PI_Elevation, na.rm = T),
               elev_max = max(PI_Elevation, na.rm = T),
               elev_med = median(PI_Elevation, na.rm = T),
@@ -205,11 +206,11 @@ plotSpeciesContours <- function(location = "BASHAR",
               .groups = 'drop')
 
   # Create new datasets for prediction for each stat
-  sp_min <- sp_sum |> select(Site_Code:Spp_Name, elev = elev_min)
-  sp_med <- sp_sum |> select(Site_Code:Spp_Name, elev = elev_med)
-  sp_max <- sp_sum |> select(Site_Code:Spp_Name, elev = elev_max)
-  sp_l25 <- sp_sum |> select(Site_Code:Spp_Name, elev = elev_l25)
-  sp_u75 <- sp_sum |> select(Site_Code:Spp_Name, elev = elev_u75)
+  sp_min <- sp_sum |> select(UnitCode:CoverType, elev = elev_min)
+  sp_med <- sp_sum |> select(UnitCode:CoverType, elev = elev_med)
+  sp_max <- sp_sum |> select(UnitCode:CoverType, elev = elev_max)
+  sp_l25 <- sp_sum |> select(UnitCode:CoverType, elev = elev_l25)
+  sp_u75 <- sp_sum |> select(UnitCode:CoverType, elev = elev_u75)
 
   # Predict distances for each stat based on its elevation
   sp_dist <- cbind(sp_sum,
@@ -219,61 +220,20 @@ plotSpeciesContours <- function(location = "BASHAR",
                    dist_l25 = predict(trsm, newdata = sp_l25),
                    dist_u75 = predict(trsm, newdata = sp_u75))
 
-  # Plotting will be elevation (y) ~ distance (x), but needed the reverse to predict dist
-  # in the loess model. Need to predict intermediate elev. between min-max/mid50, so can
-  # fit them on the loess curve
-  # min_max <- sp_dist |> group_by(Spp_Code) |>
-  #   select(Site_Code:Spp_Code, elev_min, elev_max) |>
-  #   pivot_longer(cols = c("elev_min", "elev_max"),
-  #                names_to = "stat", values_to = "elev")
-  #
-  # mid_50 <- sp_dist |> group_by(Spp_Code) |>
-  #   select(Site_Code:Spp_Code, elev_l25, elev_u75) |>
-  #   pivot_longer(cols = c("elev_l25", "elev_u75"),
-  #                names_to = 'stat', values_to = 'elev')
-  #
-  # # Function to expand 10 more elevations between min/max or l25 u75
-  # exp_elev <- function(df, site_code, loc_code, year, spp_code){
-  #   df1 <- df |> filter(Site_Code %in% site_code &
-  #                       Loc_Code %in% loc_code &
-  #                       Year %in% year &
-  #                       Spp_Code %in% spp_code)
-  #   new_elev <-  c(range(df1$elev)[1],
-  #                seq(range(df1$elev)[1], range(df1$elev)[2], length.out = 10),
-  #                range(df1$elev)[2])
-  #   new_df <- unique(data.frame(df1[,c(1:4)], elev = new_elev))
-  #   return(new_df)
-  #   }
-  #
-  # # Matrix of site x loc x year x spp combos
-  # exp_mat <- sp_dist |> select(Site_Code, Loc_Code, Year, Spp_Code) |> unique()
-  #
-  # # expand out 10 elevations per range
-  # minmax <- pmap_dfr(exp_mat, ~exp_elev(df = min_max, ..1, ..2, ..3, ..4))
-  # mid50 <- pmap_dfr(exp_mat, ~exp_elev(df = mid_50, ..1, ..2, ..3, ..4))
-  #
-  # # Predict distances for those new elevations
-  # minmax_spp <- data.frame(minmax,
-  #                          dist_pred_mm = predict(trsm, newdata = minmax))
-  # mid50_spp <- data.frame(mid50,
-  #                         dist_pred_50 = predict(trsm, newdata = mid50))
-  #
-  # # pie_size <- diff(range(trsm_dat$dist_pred))/diff(range(trsm_dat$elev)) * 0.2
-
-  pie_size <- case_when(location %in% c("BASHAR") ~ 3,
-                        location %in% c("LITHUN") ~ 6,
-                        location %in% c("LITMOO") ~ 3,
-                        location %in% c("OTTPOI") ~ 3.5,
-                        location %in% c("SCHPOI") ~ 3.5,
-                        location %in% c("SHIHAR") ~ 1.75,
-                        location %in% c("CALISL") ~ 3,
-                        location %in% c("GREISL") ~ 4,
-                        location %in% c("OUTBRE") ~ 5
+  pie_size <- case_when(site %in% c("BASHAR") ~ 3,
+                        site %in% c("LITHUN") ~ 6,
+                        site %in% c("LITMOO") ~ 3,
+                        site %in% c("OTTPOI") ~ 3.5,
+                        site %in% c("SCHPOI") ~ 3.5,
+                        site %in% c("SHIHAR") ~ 1.75,
+                        site %in% c("CALISL") ~ 3,
+                        site %in% c("GREISL") ~ 4,
+                        site %in% c("OUTBRE") ~ 5
                         )
 
-  pie_ynudge <- case_when(location %in% c("LITHUN") ~ 2,
-                          location %in% c("SHIHAR") ~ 4,
-                          location %in% c("CALISL", "GREISL") ~ 3,
+  pie_ynudge <- case_when(site %in% c("LITHUN") ~ 2,
+                          site %in% c("SHIHAR") ~ 4,
+                          site %in% c("CALISL", "GREISL") ~ 3,
                           TRUE ~ pie_size
   )
 
@@ -282,13 +242,13 @@ plotSpeciesContours <- function(location = "BASHAR",
  p1 <-
   ggplot(trsm_dat, aes(y = elev, x = dist_pred)) + theme_rocky() +
    geom_line(color = '#676767')+
-   geom_jitter(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = Spp_Code,
-                                       fill = Spp_Code, group = Spp_Code),
+   geom_jitter(data = spdat_smooth, aes(x = dist_pred, y = PI_Elevation, color = CoverCode,
+                                       fill = CoverCode, group = CoverCode),
               position = position_jitter(height = 1), alpha = 0.7) + #,
               #shape = 21, color = '#797979') +
    geom_point(data = sp_dist, aes(x = dist_med, y = elev_med,
-                                  fill = Spp_Code, group = Spp_Code,
-                                  shape = Spp_Code),
+                                  fill = CoverCode, group = CoverCode,
+                                  shape = CoverCode),
               position = position_dodge2(width = 1), size = 2, color = 'black',
               stroke = 1.3) +
    scale_shape_manual(values = shps, name = "Species", breaks = names(shps),
@@ -298,7 +258,7 @@ plotSpeciesContours <- function(location = "BASHAR",
    scale_fill_manual(values = cols, name = "Species",
                      breaks = names(cols), labels = labels) +
    {if(length(years) > 1)facet_wrap(~Year, ncol = 1)} +
-   {if(plot_title == TRUE)labs(title = location)} +
+   {if(plot_title == TRUE)labs(title = site)} +
    theme(legend.position = 'right', #+
          plot.margin = unit(c(0, 1.5, 0, 1), 'cm') )
          #legend.margin = margin(r = 1, l = 1, unit = 'cm')) #+
@@ -308,25 +268,25 @@ plotSpeciesContours <- function(location = "BASHAR",
 
   p_leg <- ggpubr::as_ggplot(ggpubr::get_legend(p1))
 
-  # Manually nudge ASCNOD and FUSSPP photoplot pies where they're both present at the location
+  # Manually nudge ASCNOD and FUSSPP photoplot pies where they're both present at the site
   photo_dist_wide <- photo_dist_wide |>
-    mutate(dist_nudge = case_when(Loc_Code == "LITMOO" & Target_Species == "Ascophyllum" ~ dist - pie_size/2,
-                                  Loc_Code == "LITMOO" & Target_Species == "Fucus" ~ dist + pie_size/2,
+    mutate(dist_nudge = case_when(SiteCode == "LITMOO" & CommunityType == "Ascophyllum" ~ dist - pie_size/2,
+                                  SiteCode == "LITMOO" & CommunityType == "Fucus" ~ dist + pie_size/2,
 
-                                  Loc_Code == "LITHUN" & Target_Species == "Mussel" ~ dist + 2,#pie_size/6,
-                                  Loc_Code == "LITHUN" & Target_Species == "Ascophyllum" ~ dist + 0.5, #pie_size/4,
+                                  SiteCode == "LITHUN" & CommunityType == "Mussel" ~ dist + 2,#pie_size/6,
+                                  SiteCode == "LITHUN" & CommunityType == "Ascophyllum" ~ dist + 0.5, #pie_size/4,
 
-                                  Loc_Code == "OTTPOI" & Target_Species == "Ascophyllum" ~ dist + pie_size/2,
-                                  Loc_Code == "OTTPOI" & Target_Species == "Fucus" ~ dist - pie_size/2,
+                                  SiteCode == "OTTPOI" & CommunityType == "Ascophyllum" ~ dist + pie_size/2,
+                                  SiteCode == "OTTPOI" & CommunityType == "Fucus" ~ dist - pie_size/2,
 
-                                  Loc_Code == "SCHPOI" & Target_Species == "Ascophyllum" ~ dist - pie_size/2,
-                                  Loc_Code == "SCHPOI" & Target_Species == "Fucus" ~ dist + pie_size/2,
+                                  SiteCode == "SCHPOI" & CommunityType == "Ascophyllum" ~ dist - pie_size/2,
+                                  SiteCode == "SCHPOI" & CommunityType == "Fucus" ~ dist + pie_size/2,
 
-                                  Loc_Code == "CALISL" & Target_Species == "Ascophyllum" ~ dist - pie_size/2,
-                                  Loc_Code == "CALISL" & Target_Species == "Fucus" ~ dist + pie_size/2,
+                                  SiteCode == "CALISL" & CommunityType == "Ascophyllum" ~ dist - pie_size/2,
+                                  SiteCode == "CALISL" & CommunityType == "Fucus" ~ dist + pie_size/2,
 
-                                  Loc_Code == "GREISL" & Target_Species == "Ascophyllum" ~ dist + 1.5,
-                                  Loc_Code == "GREISL" & Target_Species == "Fucus" ~ dist - 1.5,
+                                  SiteCode == "GREISL" & CommunityType == "Ascophyllum" ~ dist + 1.5,
+                                  SiteCode == "GREISL" & CommunityType == "Fucus" ~ dist - 1.5,
 
                                   TRUE ~ dist
                                   ))

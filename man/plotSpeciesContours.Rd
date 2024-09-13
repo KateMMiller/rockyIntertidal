@@ -5,7 +5,7 @@
 \title{plotSpeciesContours: plots point intercept species ranges and photocover as pie charts}
 \usage{
 plotSpeciesContours(
-  location = "BASHAR",
+  site = "BASHAR",
   palette = c("default"),
   xlab = "Distance (m)",
   ylab = "Elevation MLLW (m)",
@@ -15,7 +15,7 @@ plotSpeciesContours(
 )
 }
 \arguments{
-\item{location}{Must choose a location to plot
+\item{site}{Must choose a site to plot
 \describe{
 \item{"BASHAR"}{Bass Harbor, ACAD (default)}
 \item{"LITHUN"}{Little Hunter, ACAD}
@@ -25,7 +25,7 @@ plotSpeciesContours(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{palette}{Choices are "default" or "viridis". Default assigns logical colors to common species.
@@ -34,28 +34,29 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
 
-\item{plot_title}{Logical. If TRUE (default), plots location code as plot title. If FALSE, doesn't include a title.}
+\item{plot_title}{Logical. If TRUE (default), plots site code as plot title. If FALSE, doesn't include a title.}
 }
 \value{
 Returns a ggplot object of point intercept and percent cover data filtered by function arguments
 }
 \description{
-This function plots a loess smoothed contour averaging the transects across all years specified.
-Point intercept minimum and maximum elevation ranges are plotted along the contours by year for each of the main species groups
-(REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP, NONCOR). Photoplot cover is plotted as median cover and median elevation
-for each target species plot.
+This function plots a loess smoothed contour averaging the transects
+across all years specified. Point intercept minimum and maximum elevation ranges
+are plotted along the contours by year for each of the main species groups:
+(REDGRP, ASCNOD, FUCSPP, MUSSPP, BARSPP, NONCOR). Photoplot cover is plotted as
+median cover and median elevation for each target species plot.
 }
 \examples{
 \dontrun{
 
 importData()
 
-# Default filter returns a plot faceted on location and target species group
-plotSpeciesContours(location = "OTTPOI")
+# Default filter returns a plot faceted on site and target species group
+plotSpeciesContours(site = "OTTPOI")
 
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-plotSpeciesContours(location = "CALISL", palette = "default", title = FALSE,
+plotSpeciesContours(site = "CALISL", palette = "default", title = FALSE,
                    species = spp)
 
 }

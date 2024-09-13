@@ -6,11 +6,11 @@
 \usage{
 plotPhotoCover(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   category = "all",
-  target_species = "all",
+  community = "all",
   heatmap = FALSE,
   top_spp = NULL,
   palette = c("default"),
@@ -33,9 +33,9 @@ plotPhotoCover(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -44,7 +44,7 @@ plotPhotoCover(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name (transect). Options include: c("all", "T1", "T2", and "T3")}
@@ -62,7 +62,7 @@ The viridis palette will work with new species without adaptation, but labels wi
 \item{category}{Filter on category. Options include:
 c("all", "Genus", "Species", "Species Group", and "Substrate")}
 
-\item{target_species}{Filter on target species (ie photoplot). Options include:
+\item{community}{Filter on target species (ie photoplot). Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{heatmap}{Logical. If FALSE (Default), will plot species cover (y) by year (x) as points with error bars,
@@ -89,7 +89,7 @@ are specified, this argument will override it and only plot main species groups.
 
 \item{nrow}{Number of rows in the heatmap facet. Default is 1. Only used when 1 site is selected and heatmap = T.}
 
-\item{plot_title}{If specified, plots the title on the figure. If NULL, no plot title included.}
+\item{plot_title}{Character. If specified, adds the specified text as a title on the figure. If NULL, no plot title included.}
 
 \item{QAQC}{Logical. If FALSE (Default), does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
@@ -98,10 +98,10 @@ returns all events, including QAQC events.}
 Returns a ggplot object of percent cover from photos filtered by function arguments
 }
 \description{
-This function plots median percent cover by species for a given park, location, years and
+This function plots median percent cover by species for a given park, site, years and
 target species. The point for each species is the median cover across the photoplots that site, year
 and target species. The error bars are the minimum and maximum cover recorded in photoplots for a target
-species. Note that if more than 1 location is specified, more than one target species is specified, or both,
+species. Note that if more than 1 site is specified, more than one target species is specified, or both,
 the resulting figure will facet on those variables. If elev = TRUE, data will be plotted by elevation
 instead of plot name.
 }
@@ -110,26 +110,26 @@ instead of plot name.
 
 importData()
 
-# Default filter returns a plot faceted on location and target species group
+# Default filter returns a plot faceted on site and target species group
 plotPhotoCover()
 
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
-plotPhotoCover(location = "CALISL", palette = "default", title = FALSE,
+plotPhotoCover(site = "CALISL", palette = "default", title = FALSE,
                species = spp)
 
 # Return only the top 3 species for barnacle photo plots
-plotPhotoCover(location = "SHIHAR", palette = "default",
-               target_species = "Barnacle", top_spp = 3)
+plotPhotoCover(site = "SHIHAR", palette = "default",
+               community = "Barnacle", top_spp = 3)
 
 # Only plot main 5 species groups for BOHA sites
 plotPhotoCover(park = "BOHA", main_groups = TRUE)
 
 # Plot heatmap for main species groups for Green Island
-plotPhotoCover(location = "GREISL", main_groups = TRUE, heatmap = TRUE)
+plotPhotoCover(site = "GREISL", main_groups = TRUE, heatmap = TRUE)
 
 # Plot top 4 species in barnacle photoplots only
-plotPhotoCover(park = "ACAD", top_spp = 4, target_species = "Barnacle")
+plotPhotoCover(park = "ACAD", top_spp = 4, community = "Barnacle")
 
 }
 

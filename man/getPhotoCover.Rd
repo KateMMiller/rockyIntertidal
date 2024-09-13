@@ -9,6 +9,7 @@ getPhotoCover(
   site = "all",
   plotName = "all",
   species = "all",
+  category = "all",
   community = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE
@@ -48,6 +49,9 @@ c("all", "ALGBRO",  "ALGGRE", "ALGRED", "ARTCOR", "ASCEPI", "ASCNOD", "BARSPP",
 "ULVINT", "ULVLAC", "UNIDEN"). If a new species is added, the function will warn the user
 that an unrecognized species was specified in case it was an error.}
 
+\item{category}{Filter on category. Options include:
+c("all", "Genus", "Species", "Species Group", and "Substrate")}
+
 \item{community}{Filter on target community. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
@@ -56,9 +60,6 @@ Can specify a vector of years.}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
-
-\item{category}{Filter on category. Options include:
-c("all", "Genus", "Species", "Species Group", and "Substrate")}
 }
 \value{
 Returns a data frame of photo plot percent cover data filtered by function arguments

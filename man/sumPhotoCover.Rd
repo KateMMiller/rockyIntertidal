@@ -6,11 +6,11 @@
 \usage{
 sumPhotoCover(
   park = "all",
-  location = "all",
+  site = "all",
   plotName = "all",
   species = "all",
   category = "all",
-  target_species = "all",
+  community = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE
 )
@@ -23,9 +23,9 @@ sumPhotoCover(
 \item{'BOHA'}{Includes only sites in Boston Harbor Islands National Recreation Area}
 }}
 
-\item{location}{Include data from all locations, or choose specific locations based on location code.
+\item{site}{Include data from all sites, or choose specific sites based on site code.
 \describe{
-\item{'all'}{Includes all locations returned by other filter arguments in function}
+\item{'all'}{Includes all sites returned by other filter arguments in function}
 \item{"BASHAR"}{Bass Harbor, ACAD}
 \item{"LITHUN"}{Little Hunter, ACAD}
 \item{"LITMOO"}{Little Moose, ACAD}
@@ -34,7 +34,7 @@ sumPhotoCover(
 \item{"SHIHAR"}{Ship Harbor, ACAD}
 \item{"CALISL"}{Calf Island, BOHA}
 \item{"GREISL"}{Green Island, BOHA}
-\item{"OUTBRE"}{Outer Brewster}
+\item{"OUTBRE"}{Outer Brewster, BOHA}
 }}
 
 \item{plotName}{Filter on plot name. Options include:
@@ -52,7 +52,7 @@ that an unrecognized species was specified in case it was an error.}
 \item{category}{Filter on category. Options include:
 c("all", "Genus", "Species", "Species Group", and "Substrate")}
 
-\item{target_species}{Filter on target species (ie photoplot). Options include:
+\item{community}{Filter on target species. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
@@ -62,11 +62,11 @@ Can specify a vector of years.}
 returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
 }
 \value{
-Returns a data frame of location-level photo plot percent cover data filtered by function arguments
+Returns a data frame of site-level photo plot percent cover data filtered by function arguments
 }
 \description{
-This function summarizes location-level average, min and max percent
-cover data by park, location, plot name, and species.
+This function summarizes site-level average, min and max percent
+cover data by park, site, plot name, and species.
 }
 \examples{
 \dontrun{
@@ -81,12 +81,11 @@ cov <- sumPhotoCover(park = "ACAD")
 
 # Species detections for specific sites, plots, species, and years
 
-cov_t3 <- sumPhotoCover(park = "ACAD", plotName = "T3")
-cov_BOHA2 <- sumPhotoCover(location = c("CALISL", "GREISL"))
+cov_t3 <- sumPhotoCover(park = "ACAD", plotName = "A3")
+cov_BOHA2 <- sumPhotoCover(site = c("CALISL", "GREISL"))
 cov_ab <- sumPhotoCover(park = "BOHA", species = c("ALGBRO"))
 cov_5yr <- sumPhotoCover(years = 2016:2021)
-cov_first_last <- sumPhotoCover(years = c(2013, 2021))
-cov21_with_qaqc <- sumPhotoCover(years = 2021, QAQC = TRUE)
+cov23_with_qaqc <- sumPhotoCover(site = "SHIHAR", years = 2023, QAQC = TRUE)
 
 }
 

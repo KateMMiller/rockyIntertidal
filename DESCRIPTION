@@ -56,4 +56,5 @@ Collate:
     'plotPhotoCover.R'
     'plotSpeciesContours.R'
     'plotWaterTemp.R'
+    'sumBarnacleRecruitment.R'
     'theme_rocky.R'

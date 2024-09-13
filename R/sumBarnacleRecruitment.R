@@ -1,8 +1,8 @@
-#' @title getBarnacleRecruitment: get Barnacle recruitment count data
+#' @title sumBarnacleRecruitment: sum Barnacle recruitment count data
 #'
-#' @importFrom dplyr filter select
+#' @importFrom dplyr group_by summarize
 #'
-#' @description This function filters barnacle recruitment count data by park, site, and plot name.
+#' @description This function filters barnacle recruitment count data by park, site, and plot name and summarizes counts for summer and winter settlement periods.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -40,18 +40,18 @@
 #' importData()
 #'
 #' # Default filter returns all records
-#' barn <- getBarnacleRecruitment()
+#' barn <- sumBarnacleRecruitment()
 #'
-#' # Barnacle counts for ACAD only sites
-#' barn_acad <- getBarnacleRecruitment(park = "ACAD")
+#' # sum barnacle counts for ACAD only sites
+#' barn_acad <- sumBarnacleRecruitment(park = "ACAD")
 #'
-#' # Barnacle counts for specific sites, plots, and years
+#' # sum barnacle counts for specific sites, plots,and years
 #'
-#' barn_summer <- getBarnacleRecruitment(park = "ACAD", plotName = "summer")
-#' barn_BOHA <- getBarnacleRecruitment(site = c("CALISL", "GREISL"))
-#' barn_5yr <- getBarnacleRecruitment(years = 2016:2021)
-#' barn_first_last <- getBarnacleRecruitment(years = c(2013, 2021))
-#' barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
+#' barn_summer <- sumBarnacleRecruitment(park = "ACAD", plotName = "summer")
+#' barn_BOHA <- sumBarnacleRecruitment(site = c("CALISL", "GREISL"))
+#' barn_5yr <- sumBarnacleRecruitment(years = 2016:2021)
+#' barn_first_last <- sumBarnacleRecruitment(years = c(2013, 2021))
+#' barn21_qaqc <- sumBarnacleRecruitment(years = 2024, QAQC = TRUE)
 #'
 #' }
 #'
@@ -59,7 +59,7 @@
 #' @return Returns a data frame of barnacle recruitment count data.
 #' @export
 
-getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
+sumBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
                                    QAQC = FALSE, years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -76,32 +76,27 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
   if(any(plotName %in% "summer")){plotName = c("S1", "S2", "S3", "S4", "S5")}
   if(any(plotName %in% "winter")){plotName = c("U1", "U2", "U3", "U4", "U5")}
 
-  env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
+  barn <- getBarnacleRecruitment(park = park, site = site, plotName = plotName, QAQC = QAQC,
+                                 years = years)
 
-  tryCatch(barn <- get("Barnacle_Recruitment", envir = env) |>
-             dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
-           error = function(e){
-             stop("Barnacle_Recruitment data frame not found. Please import rocky intertidal data.")})
+  barn$plot_type <- ifelse(barn$PlotName %in% c("S1", "S2", "S3", "S4", "S5"), "summer", "winter")
 
-  barn_park <- if(any(park %in% 'all')){ barn
-  } else {filter(barn, UnitCode %in% park)}
+  # barntbl <- barn |> group_by(SiteCode, Year, QAQC, PlotName) |>
+  #   summarize(num_records = sum(!is.na(Count))) |> filter(!num_records == 1)
+  #
+  # barntbl2 <- barn |> group_by(SiteCode, Year, QAQC, plot_type) |>
+  #   summarize(num_plots = sum(!is.na(Count))) |> filter(!num_plots == 5)
+  #
+  # write.csv(barntbl, "./testing_scripts/Barnacle_recruitment_duplicate_records.csv", row.names = F)
+  # write.csv(barntbl2, "./testing_scripts/Barnacle_recruitment_duplicate_plots.csv", row.names = F)
+  #
 
-  barn_loc <- if(any(site %in% 'all')){ barn_park
-  } else {filter(barn_park, SiteCode %in% site)}
+  barnsum <- barn |>
+    group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate,
+             Year, QAQC, QAQCType, plot_type) |>
+    summarize(sum_count = sum(Count),
+              num_plots = sum(!is.na(PlotName)),
+              .groups = 'drop')
 
-  barn_pname <- if(any(plotName %in% 'all')){barn_loc
-  } else {filter(barn_loc, PlotName %in% plotName)}
-
-  barn_year <- filter(barn_pname, Year %in% years)
-
-  barn_qaqc <- if(QAQC == TRUE){barn_year
-  } else {filter(barn_year, QAQC == FALSE)}
-
-  barn2 <- barn_qaqc |>
-    select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
-           PlotName, Count)
-
-  if(nrow(barn2) == 0){stop("Specified arguments returned an empty data frame.")}
-
-  return(barn2)
+  return(barnsum)
 }

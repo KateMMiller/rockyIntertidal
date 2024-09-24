@@ -20,14 +20,14 @@
 #' ODBC driver on your computer.}
 #' }
 #'
-#' @param odbc DSN of the database when using type = DSN. If not specified will default to "NETNWQ_DP",
+#' @param odbc DSN of the database when using type = DSN. If not specified will default to "rocky_FE",
 #' which should represent the database that generates the data package views.
 #'
 #' @param filepath Quoted filepath where data package database (if type = "dbfile") or the csvs
 #' (if type = "csv" or type = "zip") live.
 #'
 #' @param new_env Logical. Specifies which environment to store views in. If \code{TRUE}(Default), stores
-#' views in VIEWS_WQ environment. If \code{FALSE}, stores views in global environment
+#' views in ROCKY environment. If \code{FALSE}, stores views in global environment
 #'
 #' @examples
 #' \dontrun{
@@ -199,7 +199,7 @@ importData <- function(type = "DSN",
     # Set the names of dp_files as the shorter dp_list2 names
     dp_files <- setNames(dp_files, dp_names)
 
-    # Takes every element of the dp_files list and saves it to the VIEWS_WQ or global
+    # Takes every element of the dp_files list and saves it to the ROCKY or global
     # environment as separate, named objects.
     list2env(dp_files, envir = env)
 

@@ -80,7 +80,7 @@ getEvents <- function(park = "all", site = "all", plotName = "all", plotType = '
                             "R1", "R2", "R3", "R4", "R5", "REF",
                             "S1", "S2", "S3", "S4", "S5",
                             "T1", "T2", "T3",
-                            "TEMP1", "TEMP1 ", # Delete after cleaned up
+                            "TEMP1", #"TEMP1 ", # Delete after cleaned up
                             "TEMP2", "TEMP3",
                             "U1", "U2", "U3", "U4", "U5",
                             "X1", "X2", "X3"))
@@ -92,7 +92,7 @@ getEvents <- function(park = "all", site = "all", plotName = "all", plotType = '
              dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
            error = function(e){stop("Event_Notes data frame not found. Please import rocky intertidal data.")})
 
-  events_park <- if(any(park %in% 'all')){ filter(events, UnitCode %in% c("ACAD", "BOHA"))
+  events_park <- if(any(park %in% 'all')){events
   } else {filter(events, UnitCode %in% park)}
 
   events_loc <- if(any(site %in% 'all')){ events_park

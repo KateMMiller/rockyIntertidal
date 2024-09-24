@@ -23,14 +23,14 @@ must provide the filepath and name of the zip file. This option that does not re
 ODBC driver on your computer.}
 }}
 
-\item{odbc}{DSN of the database when using type = DSN. If not specified will default to "NETNWQ_DP",
+\item{odbc}{DSN of the database when using type = DSN. If not specified will default to "rocky_FE",
 which should represent the database that generates the data package views.}
 
 \item{filepath}{Quoted filepath where data package database (if type = "dbfile") or the csvs
 (if type = "csv" or type = "zip") live.}
 
 \item{new_env}{Logical. Specifies which environment to store views in. If \code{TRUE}(Default), stores
-views in VIEWS_WQ environment. If \code{FALSE}, stores views in global environment}
+views in ROCKY environment. If \code{FALSE}, stores views in global environment}
 }
 \value{
 Rocky intertidal database views in specified environment

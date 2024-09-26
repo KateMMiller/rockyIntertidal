@@ -5,3 +5,5 @@
 .DS_Store
 testing_scripts/
 data/
+*.svg
+*.docx

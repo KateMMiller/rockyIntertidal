@@ -4,3 +4,5 @@
 ^temp_scripts$
 ^data$
 ^logger_scripts$
+^.*\.svg
+^.*\.docx

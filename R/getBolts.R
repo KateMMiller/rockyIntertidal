@@ -46,13 +46,15 @@
 #' @param coords Specify which GPS coordinates to return, Lat/Long, UTM Zone 19N, or both. Options:
 #' c("latlong", "utm", "all")
 #'
+#' @param dropNA Logical. If TRUE (default), blank X/Y coordinates and elevations are removed.
+#' If FALSE, all records are returned.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default, returns all records
+#' # Default, returns all records except blank X/Y, or elevations
 #' bolts <- getBolts()
 #'
 #' # Return photo plot bolts for all sites in BOHA
@@ -100,6 +102,7 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
                             "TEMP1", "TEMP1 ", "TEMP2", "TEMP3",
                             "U1", "U2", "U3", "U4", "U5",
                             "X1", "X2", "X3"))
+  stopifnot(class(dropNA) == "logical")
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -122,24 +125,29 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
   bolts_pname <- if(any(plotName %in% 'all')){ bolts_species
   } else {filter(bolts_species, PlotName %in% plotName)}
 
+  bolts_na <- if(dropNA == TRUE){
+    bolts_pname |> filter(!is.na(BoltLatitude)) |> filter(!is.na(BoltLongitude)) |> filter(!is.na(Bolt_MLLW_Elev))
+  } else {bolts_pname}
+
   bolts_final <-
     if(coords == "all"){
-    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, CommunityType, Datum,
-                          BoltLatitude, BoltLongitude, Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
-                          Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
-                          Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
+    bolts_na |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                       Label, PlotName, PlotType, CommunityType,
+                       BoltLatitude, BoltLongitude, LatLong_Datum,
+                       Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
+                       Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
+                       Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
   } else if(coords == "latlong"){
-    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, CommunityType, Datum,
-                          BoltLatitude, BoltLongitude, Bolt_NAVD88_Elev,
-                          Bolt_MLLW_Elev, Notes, IsBoltCUI)
+    bolts_na |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                       Label, PlotName, PlotType, CommunityType, LatLong_Datum,
+                       BoltLatitude, BoltLongitude, Bolt_NAVD88_Elev,
+                       Bolt_MLLW_Elev, Notes, IsBoltCUI)
   } else if(coords == "utm"){
-    bolts_pname |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
-                          Label, PlotName, PlotType, CommunityType, Datum,
-                          Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
-                          Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
-                          Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
+    bolts_na |> select(GroupCode, GroupName, UnitCode, UnitName, SiteName, SiteCode,
+                       Label, PlotName, PlotType, CommunityType, LatLong_Datum,
+                       Bolt_UTM_E = BM_UTM_E, Bolt_UTM_N = BM_UTM_N,
+                       Bolt_UTM_Zone = BM_UTM_Zone, Bolt_UTM_Datum = BM_UTM_Datum,
+                       Bolt_NAVD88_Elev, Bolt_MLLW_Elev, Notes, IsBoltCUI)
 
   }
 

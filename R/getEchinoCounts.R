@@ -40,12 +40,15 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
+#' @param dropNA Logical. If TRUE (default), blank counts in the Damage and No.Damage columns are removed.
+#' If FALSE, all records are returned.
+#'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank counts
 #' ech <- getEchinoCounts()
 #'
 #' # Echino counts for ACAD only sites
@@ -67,7 +70,8 @@
 
 getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
                             species = "all", QAQC = FALSE,
-                            years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
+                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                            dropNA = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -76,7 +80,7 @@ getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "X1", "X2", "X3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
-
+  stopifnot(class(dropNA) == "logical")
   unmatch_spp <- setdiff(species, c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO"))
   if(length(unmatch_spp) > 0){
     warning(paste0("Unrecognized species were specified in the species argument: ",
@@ -110,9 +114,9 @@ getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
 
   echino2 <- echino_qaqc |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
-           PlotName, ScientificName, SpeciesCode, Count)
+           PlotName, ScientificName, SpeciesCode, Count, IsPointCUI)
 
-  echino_final <- if(species %in% 'all'){echino2
+  echino_final <- if(any(species %in% 'all')){echino2
     } else {filter(echino2, SpeciesCode %in% species)}
 
   if(nrow(echino_final) == 0){stop("Specified arguments returned an empty data frame.")}

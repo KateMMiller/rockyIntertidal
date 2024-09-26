@@ -10,7 +10,8 @@ getEchinoCounts(
   plotName = "all",
   species = "all",
   QAQC = FALSE,
-  years = 2013:as.numeric(format(Sys.Date(), "\%Y"))
+  years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ returns all events, including QAQC events.}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{dropNA}{Logical. If TRUE (default), blank counts in the Damage and No.Damage columns are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of echinoderm count data in long form filtered by function arguments.
@@ -61,7 +65,7 @@ HENSAN = Henricia sanguinolenta (blood sea star); STRDRO = Strongylocentrotus dr
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records except QAQC visits and blank counts
 ech <- getEchinoCounts()
 
 # Echino counts for ACAD only sites

@@ -11,7 +11,8 @@ getMotileInvertCounts(
   species = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   community = "all",
-  QAQC = FALSE
+  QAQC = FALSE,
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -51,8 +52,11 @@ Can specify a vector of years.}
 \item{community}{Filter on target community. Options include:
 c("all", "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 
-\item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
+\item{QAQC}{Logical. If FALSE (default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
+
+\item{dropNA}{Logical. If TRUE (default), blank counts in the Damage and No.Damage columns are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of motile invertebrate count data filtered by function arguments.
@@ -65,7 +69,7 @@ This function filters motile invertebrate count data by park, site, and plot nam
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records except QAQC visits and blank counts
 minv <- getMotileInvertCounts()
 
 # Motile Invert counts for ACAD only sites

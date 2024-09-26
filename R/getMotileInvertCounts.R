@@ -42,15 +42,18 @@
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
-#' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
+#' @param QAQC Logical. If FALSE (default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
+#'
+#' @param dropNA Logical. If TRUE (default), blank counts in the Damage and No.Damage columns are removed.
+#' If FALSE, all records are returned.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank counts
 #' minv <- getMotileInvertCounts()
 #'
 #' # Motile Invert counts for ACAD only sites
@@ -73,10 +76,10 @@
 
 getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
                                   species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                  community = 'all', QAQC = FALSE){
+                                  community = 'all', QAQC = FALSE, dropNA = TRUE){
 
 
-  # Match args and class; match.args only checks first match in vector, so have to do it more manually.
+ # Error handling
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
   stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
@@ -84,6 +87,8 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
                                    "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
                                    "R1", "R2", "R3", "R4", "R5"))
   stopifnot(community %in% c('all', "Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae"))
+  stopifnot(class(dropNA) == "logical")
+  stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
   unmatch_spp <- setdiff(species, c("all", "CARMAE", "HEMISAN", "LITLIT", "LITOBT", "LITSAX", "NUCLAP", "TECTES"))
   if(length(unmatch_spp) > 0){
@@ -92,9 +97,6 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
                    "\n",
                    "Check that this wasn't a typo."))
   }
-
-
-  stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -136,6 +138,9 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
   motinv_comb <- left_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
                                            BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev) |> unique(),
                            motinv_qaqc, by = c("UnitCode", "SiteCode", "PlotName", "CommunityType"))
+
+  motinv_comb2 <- if(dropNA == TRUE){motinv_comb |> filter(!is.na(Damage)) |> filter(!is.na(No.Damage))
+    } else {motinv_comb}
 
   motinv_final <- motinv_comb |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, PlotName, CommunityType,

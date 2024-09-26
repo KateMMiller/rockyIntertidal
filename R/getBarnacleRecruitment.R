@@ -34,12 +34,15 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
+#' @param dropNA Logical. If TRUE (default), blank counts are removed.
+#' If FALSE, all records are returned.
+#'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank counts
 #' barn <- getBarnacleRecruitment()
 #'
 #' # Barnacle counts for ACAD only sites
@@ -60,7 +63,8 @@
 #' @export
 
 getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
-                                   QAQC = FALSE, years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
+                                   QAQC = FALSE, years = 2013:as.numeric(format(Sys.Date(), "%Y")),
+                                   dropNA = TRUE){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -70,6 +74,7 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
                             "S1", "S2", "S3", "S4", "S5",
                             "U1", "U2", "U3", "U4", "U5"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+  stopifnot(class(dropNA) == "logical")
 
   # set up plot name list and catch if summer and winter are both specified when should be 'all' instead
   if(any(plotName %in% "summer" & any(plotName %in% "winter"))){plotName = "all"}
@@ -97,9 +102,11 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
   barn_qaqc <- if(QAQC == TRUE){barn_year
   } else {filter(barn_year, QAQC == FALSE)}
 
-  barn2 <- barn_qaqc |>
+  barn_na <- if(dropNA == TRUE){barn_qaqc |> filter(!is.na(Count))} else {barn_qaqc}
+
+  barn2 <- barn_na |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
-           PlotName, Count)
+           PlotName, Count, DateScored, Scorer, IsPointCUI)
 
   if(nrow(barn2) == 0){stop("Specified arguments returned an empty data frame.")}
 

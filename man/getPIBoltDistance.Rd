@@ -9,7 +9,8 @@ getPIBoltDistance(
   site = "all",
   plotName = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  QAQC = FALSE
+  QAQC = FALSE,
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ Can specify a vector of years.}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
+
+\item{dropNA}{Logical. If TRUE (default), blank distances are removed. If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of point intercept bolt data filtered by function arguments
@@ -53,7 +56,7 @@ This function filters point intercept bolt data by park, site, plot name, and sp
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records excelt QAQC visits and blank distances
 bolt <- getPIBoltDistance()
 
 # PI Bolt distances for ACAD only sites

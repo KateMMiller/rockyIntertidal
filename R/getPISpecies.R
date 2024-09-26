@@ -41,12 +41,15 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
+#' @param dropNA Logical. If TRUE (default), blank CoverCode, CoverType
+#' If FALSE, all records are returned.
+#'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank CoverCodes
 #' spp <- getPISpecies()
 #'
 #' # Species detections for ACAD only sites
@@ -69,7 +72,7 @@
 
 getPISpecies <- function(park = "all", site = "all", plotName = "all",
                          species = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                         QAQC = FALSE){
+                         QAQC = FALSE, dropNA = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -91,6 +94,7 @@ getPISpecies <- function(park = "all", site = "all", plotName = "all",
 
   stopifnot(plotName %in% c("all", "T1", "T2", "T3"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+  stopifnot(class(dropNA) == "logical")
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -114,7 +118,9 @@ getPISpecies <- function(park = "all", site = "all", plotName = "all",
   sppdet_qaqc <- if(QAQC == TRUE){sppdet_year
     } else {filter(sppdet_year, QAQC == FALSE)}
 
-  sppdet_final <- sppdet_qaqc |>
+  sppdet_na <- if(dropNA == TRUE){sppdet_qaqc |> filter(!is.na(CoverCode)) |> filter(!is.na(CoverType))} else {sppdet_qaqc}
+
+  sppdet_final <- sppdet_na |>
     select(GroupCode, GroupName, UnitName, UnitCode, SiteName, SiteCode, StartDate, Year, QAQC,
            PlotName, PiDistance, CoverCode, CoverType, ScientificName, IsPointCUI)
 

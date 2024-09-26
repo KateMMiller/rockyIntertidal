@@ -9,7 +9,8 @@ getBarnacleRecruitment(
   site = "all",
   plotName = "all",
   QAQC = FALSE,
-  years = 2013:as.numeric(format(Sys.Date(), "\%Y"))
+  years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ returns all events, including QAQC events.}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
+
+\item{dropNA}{Logical. If TRUE (default), blank counts are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of barnacle recruitment count data.
@@ -54,7 +58,7 @@ This function filters barnacle recruitment count data by park, site, and plot na
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records except QAQC visits and blank counts
 barn <- getBarnacleRecruitment()
 
 # Barnacle counts for ACAD only sites

@@ -107,9 +107,12 @@ getEvents <- function(park = "all", site = "all", plotName = "all", plotType = '
     } else {filter(events_year, QAQC == FALSE)}
 
   events_final <- events_qaqc |>
-    select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, BM_Latitude, BM_Longitude, LatLong_Datum,
-           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp, IsPointCUI) #|>
-    #unique()
+    select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate,
+           Year, QAQC, BM_Latitude, BM_Longitude, LatLong_Datum,
+           Conditions_Swell, Conditions_Wind, Conditions_Rain, Conditions_RecentRain,
+           Substrate_Sediment, Substrate_Scour, Substrate_RockMvmnt,
+           Debris_PlantWrack, Debris_Driftwood, Debris_Shells, Debris_DeadAnimals, Debris_Trash, Debris_OilTar,
+           Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp, IsPointCUI)
 
   if(nrow(events_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

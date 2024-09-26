@@ -31,8 +31,9 @@
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
-#' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
-#' returns all events, including QAQC events.
+#' @param QAQC Logical. If FALSE (Default) does not return QAQC records. If TRUE,
+#' returns all records, including QAQC scoring records. This differs from other functions in that
+#' QAQC is determined at the record level, not the visit level.
 #'
 #' @param dropNA Logical. If TRUE (default), blank counts are removed.
 #' If FALSE, all records are returned.
@@ -42,7 +43,7 @@
 #'
 #' importData()
 #'
-#' # Default filter returns all records except QAQC visits and blank counts
+#' # Default filter returns all records except QAQC records and blank counts
 #' barn <- getBarnacleRecruitment()
 #'
 #' # Barnacle counts for ACAD only sites
@@ -100,13 +101,13 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
   barn_year <- filter(barn_pname, Year %in% years)
 
   barn_qaqc <- if(QAQC == TRUE){barn_year
-  } else {filter(barn_year, QAQC == FALSE)}
+  } else {barn_year |> filter(QAQCType == "NA") |> filter(QAQC == FALSE)}
 
   barn_na <- if(dropNA == TRUE){barn_qaqc |> filter(!is.na(Count))} else {barn_qaqc}
 
   barn2 <- barn_na |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
-           PlotName, Count, DateScored, Scorer, IsPointCUI)
+           PlotName, Count, Notes, DateScored, Scorer, IsPointCUI)
 
   if(nrow(barn2) == 0){stop("Specified arguments returned an empty data frame.")}
 

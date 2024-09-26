@@ -1,6 +1,8 @@
 #' @title sumBarnacleRecruitment: sum Barnacle recruitment count data
 #'
-#' @importFrom dplyr group_by summarize
+#' @include getBarnacleRecruitment.R
+#'
+#' @importFrom dplyr filter group_by select slice summarize
 #'
 #' @description This function filters barnacle recruitment count data by park, site, and plot name and summarizes counts for summer and winter settlement periods.
 #'
@@ -17,7 +19,7 @@
 #' \item{"BASHAR"}{Bass Harbor, ACAD}
 #' \item{"LITHUN"}{Little Hunter, ACAD}
 #' \item{"LITMOO"}{Little Moose, ACAD}
-#' \item{"OTTPOI"}{Otter Point, ACAD}
+#' \item{"OTTPOI"}{Otter Point, ACAD}ed+56
 #' \item{"SCHPOI"}{Schoodic Point, ACAD}
 #' \item{"SHIHAR"}{Ship Harbor, ACAD}
 #' \item{"CALISL"}{Calf Island, BOHA}
@@ -31,8 +33,9 @@
 #' @param years Filter on year of data collected. Default is 2013 to current year.
 #' Can specify a vector of years.
 #'
-#' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
-#' returns all events, including QAQC events.
+#' @param QAQC Logical. If FALSE (Default) does not return QAQC records. If TRUE,
+#' returns all records, including QAQC scoring records. This differs from other functions in that
+#' QAQC is determined at the record level, not the visit level.
 #'
 #' @examples
 #' \dontrun{
@@ -77,24 +80,35 @@ sumBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
   if(any(plotName %in% "winter")){plotName = c("U1", "U2", "U3", "U4", "U5")}
 
   barn <- getBarnacleRecruitment(park = park, site = site, plotName = plotName, QAQC = QAQC,
-                                 years = years)
+                                 years = years, dropNA = TRUE)
 
   barn$plot_type <- ifelse(barn$PlotName %in% c("S1", "S2", "S3", "S4", "S5"), "summer", "winter")
 
-  # barntbl <- barn |> group_by(SiteCode, Year, QAQC, PlotName) |>
-  #   summarize(num_records = sum(!is.na(Count))) |> filter(!num_records == 1)
-  #
-  # barntbl2 <- barn |> group_by(SiteCode, Year, QAQC, plot_type) |>
-  #   summarize(num_plots = sum(!is.na(Count))) |> filter(!num_plots == 5)
-  #
-  # write.csv(barntbl, "./testing_scripts/Barnacle_recruitment_duplicate_records.csv", row.names = F)
-  # write.csv(barntbl2, "./testing_scripts/Barnacle_recruitment_duplicate_plots.csv", row.names = F)
-  #
-
-  barnsum <- barn |>
+  #++++ Update when there's a logical way to select the correct count per plot/visit +++++
+  # Check for and handle duplicate plot counts
+  dup_check <- barn |>
     group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate,
              Year, QAQC, QAQCType, plot_type) |>
-    summarize(sum_count = sum(Count),
+    summarize(num_plots = sum(!is.na(PlotName)), .groups = 'drop') |>
+    filter(num_plots > 5)
+
+  if(nrow(dup_check) > 0){warning(paste0("There were ", nrow(dup_check), " plots with more than one count per visit. ",
+                                         "Only taking the first count, and/or dropping records with 'Winter' in the notes field."))}
+
+  # Drop duplicate counts in 2023
+  barn1 <- barn |> filter(!grepl("Winter", Notes))
+
+  # Drop other duplicates by slicing only the first record
+  barn2 <- barn1 |> group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName,
+                             StartDate, Year, QAQC, QAQCType, PlotName, IsPointCUI, plot_type) |>
+    slice(1)
+
+  barnsum <- barn2 |>
+    group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate,
+             Year, QAQC, QAQCType, plot_type) |>
+    summarize(median_count = median(Count),
+              max_count = max(Count),
+              min_count = min(Count),
               num_plots = sum(!is.na(PlotName)),
               .groups = 'drop')
 

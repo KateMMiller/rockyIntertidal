@@ -38,8 +38,9 @@ getBarnacleRecruitment(
 \item{plotName}{Filter on plot name. Options include:
 c("all", "summer", "winter", "S1", "S2", "S3", "S4", "S5", "U1", "U2", "U3", "U4", "U5")}
 
-\item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
-returns all events, including QAQC events.}
+\item{QAQC}{Logical. If FALSE (Default) does not return QAQC records. If TRUE,
+returns all records, including QAQC scoring records. This differs from other functions in that
+QAQC is determined at the record level, not the visit level.}
 
 \item{years}{Filter on year of data collected. Default is 2013 to current year.
 Can specify a vector of years.}
@@ -58,7 +59,7 @@ This function filters barnacle recruitment count data by park, site, and plot na
 
 importData()
 
-# Default filter returns all records except QAQC visits and blank counts
+# Default filter returns all records except QAQC records and blank counts
 barn <- getBarnacleRecruitment()
 
 # Barnacle counts for ACAD only sites

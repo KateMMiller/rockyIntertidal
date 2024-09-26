@@ -81,7 +81,8 @@
 #' @export
 
 getBolts <- function(park = "all", site = "all", plotType = "all",
-                     plotName = "all", community = "all_records", coords = c("all")){
+                     plotName = "all", community = "all_records", coords = c("all"),
+                     dropNA = TRUE){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))

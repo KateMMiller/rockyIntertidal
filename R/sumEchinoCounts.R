@@ -91,7 +91,7 @@ sumEchinoCounts <- function(park = "all", site = "all", plotName = "all",
   stopifnot(exists("ROCKY") | exists("Bolts")) # Checks that ROCKY env exists, or Bolts view is in global env.
 
   cnt <- force(getEchinoCounts(park = park, site = site, plotName = plotName,
-                               species = species, years = years, QAQC = QAQC)) |>
+                               species = species, years = years, QAQC = QAQC, dropNA = TRUE)) |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, PlotName,
            SpeciesCode, ScientificName, Count) |>
     filter(!is.na(Count))

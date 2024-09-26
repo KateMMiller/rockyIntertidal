@@ -109,7 +109,7 @@ sumPhotoCover <- function(park = "all", site = "all", plotName = "all",
   cover <- force(getPhotoCover(park = park, site = site, plotName = plotName,
                                species = species, community = community,
                                category = category,
-                               years = years, QAQC = QAQC))
+                               years = years, QAQC = QAQC, dropNA = TRUE))
 
   cover$ScientificName <- ifelse(cover$ScientificName == "NA", cover$CoverType, cover$ScientificName)
 

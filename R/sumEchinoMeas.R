@@ -1,5 +1,7 @@
 #' @title sumEchinoMeas: summarize Echinoderm measurement data by species and 5mm size clases
 #'
+#' @include getEchinoMeas.R
+#'
 #' @importFrom dplyr filter mutate rename select
 #'
 #' @description This function summarizes number of individuals in each 5 mm size class by park, site, and species.
@@ -86,7 +88,7 @@ sumEchinoMeas <- function(park = "all", site = "all", plotName = "all",
                    "Check that this wasn't a typo."))
   }
   echo <- force(getEchinoMeas(park = park, site = site, plotName = plotName,
-                              species = species, years = years, QAQC = QAQC)) |>
+                              species = species, years = years, QAQC = QAQC, dropNA = TRUE)) |>
     arrange(Measurement)
 
   echo$Measurement[echo$Measurement == 0] <- NA_real_

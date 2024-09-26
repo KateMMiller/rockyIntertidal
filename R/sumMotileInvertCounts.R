@@ -102,7 +102,7 @@ sumMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
 
   cnt <- force(getMotileInvertCounts(park = park, site = site, plotName = plotName,
                                species = species, community = community,
-                               years = years, QAQC = QAQC)) |>
+                               years = years, QAQC = QAQC, dropNA = TRUE)) |>
     mutate(Total_Count = No.Damage + Damage)
 
 

@@ -102,7 +102,7 @@ sumMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
 
   motinv <- force(getMotileInvertMeas(park = park, site = site, plotName = plotName,
                                       species = species, community = community,
-                                      years = years, QAQC = QAQC)) |>
+                                      years = years, QAQC = QAQC, dropNA = TRUE)) |>
     arrange(Measurement)
 
   motinv$Meas_5mm <- floor(motinv$Measurement/5)*5

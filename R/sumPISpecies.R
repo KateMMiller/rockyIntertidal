@@ -106,7 +106,8 @@ sumPISpecies <- function(park = "all", site = "all", plotName = "all",
 
   boltdist1 <- force(getPIBoltDistance(park = park, site = site,
                                        plotName = plotName,
-                                       years = years, QAQC = QAQC))
+                                       years = years, QAQC = QAQC,
+                                       dropNA = TRUE))
 
   boltdist2 <- if(drop_missing == TRUE){
     boltdist1 |> filter(!is.na(Elevation_MLLW_m)) |> # Can't use bolts that don't have elevations

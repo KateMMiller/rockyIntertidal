@@ -1,6 +1,7 @@
 #' @title plotSpeciesContours: plots point intercept species ranges and photocover as pie charts
 #'
-#' @include getPhotoCover.R sumPISpecies.R
+#' @include getPhotoCover.R
+#' @include sumPISpecies.R
 #'
 #' @import ggplot2
 #' @importFrom dplyr case_when filter group_by mutate select summarize

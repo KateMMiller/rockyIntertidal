@@ -1,6 +1,7 @@
 #' @title plotPISpecies: plots species detections by elevation and year for individual sites.
 #'
 #' @include sumPISpecies.R
+#' @include theme_rocky.R
 #'
 #' @import ggplot2
 #' @importFrom dplyr desc filter group_by left_join mutate summarize ungroup

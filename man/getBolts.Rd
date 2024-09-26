@@ -10,7 +10,8 @@ getBolts(
   plotType = "all",
   plotName = "all",
   community = "all_records",
-  coords = c("all")
+  coords = c("all"),
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -55,6 +56,9 @@ c("all_records", "All", "Ascophyllum", "Barnacle", "Echinoderms", "Fucus", "Muss
 
 \item{coords}{Specify which GPS coordinates to return, Lat/Long, UTM Zone 19N, or both. Options:
 c("latlong", "utm", "all")}
+
+\item{dropNA}{Logical. If TRUE (default), blank X/Y coordinates and elevations are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of bolt data filtered by function arguments
@@ -67,7 +71,7 @@ This function filters bolt data by park, site, plot type or plot name.
 
 importData()
 
-# Default, returns all records
+# Default, returns all records except blank X/Y, or elevations
 bolts <- getBolts()
 
 # Return photo plot bolts for all sites in BOHA

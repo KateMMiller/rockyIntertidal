@@ -142,7 +142,7 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
   motinv_comb2 <- if(dropNA == TRUE){motinv_comb |> filter(!is.na(Damage)) |> filter(!is.na(No.Damage))
     } else {motinv_comb}
 
-  motinv_final <- motinv_comb |>
+  motinv_final <- motinv_comb2 |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, PlotName, CommunityType,
            BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
            ScientificName, CommonName, SpeciesCode, Damage, No.Damage, Subsampled, IsPointCUI)

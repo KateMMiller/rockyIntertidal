@@ -112,7 +112,9 @@ getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
   echino_qaqc <- if(QAQC == TRUE){echino_year
   } else {filter(echino_year, QAQC == FALSE)}
 
-  echino2 <- echino_qaqc |>
+  echino_na <- if(dropNA == TRUE){echino_qaqc |> filter(!is.na(Count))} else {echino_qaqc}
+
+  echino2 <- echino_na |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
            PlotName, ScientificName, SpeciesCode, Count, IsPointCUI)
 

@@ -47,12 +47,15 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
+#' @param dropNA Logical. If TRUE (default), blank measurements are removed.
+#' If FALSE, all records are returned.
+#'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank measurements
 #' minv <- getMotileInvertMeas()
 #'
 #' # Motile Invert measurement data for ACAD only sites
@@ -75,7 +78,7 @@
 
 getMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
                                 years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE,
-                                species = 'all', community = 'all'){
+                                species = 'all', community = 'all', dropNA = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -95,6 +98,7 @@ getMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
   }
 
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+  stopifnot(class(dropNA) == "logical")
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -123,7 +127,9 @@ getMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
   motinv_qaqc <- if(QAQC == TRUE){motinv_year
   } else {filter(motinv_year, QAQC == FALSE)}
 
-  motinv_final <- motinv_qaqc |>
+  motinv_na <- if(dropNA == TRUE){motinv_qaqc |> filter(!is.na(Measurement))} else {motinv_qaqc}
+
+  motinv_final <- motinv_na |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, PlotName,
            CommunityType, ScientificName, CommonName, SpeciesCode, Measurement, IsPointCUI)
 

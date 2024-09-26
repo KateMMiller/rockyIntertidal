@@ -11,7 +11,8 @@ getMotileInvertMeas(
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   QAQC = FALSE,
   species = "all",
-  community = "all"
+  community = "all",
+  dropNA = TRUE
 )
 }
 \arguments{
@@ -53,6 +54,9 @@ the function will warn the user that an unrecognized species was specified in ca
 
 \item{community}{Filter on target community. Options include:
 c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
+
+\item{dropNA}{Logical. If TRUE (default), blank measurements are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of motile invertebrate measurement data filtered by function arguments.
@@ -69,7 +73,7 @@ LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogw
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records except QAQC visits and blank measurements
 minv <- getMotileInvertMeas()
 
 # Motile Invert measurement data for ACAD only sites

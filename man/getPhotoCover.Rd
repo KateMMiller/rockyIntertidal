@@ -12,7 +12,8 @@ getPhotoCover(
   category = "all",
   community = "all",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
-  QAQC = FALSE
+  QAQC = FALSE,
+  dropNA = T
 )
 }
 \arguments{
@@ -59,7 +60,10 @@ c("Ascophyllum", "Barnacle", "Fucus", "Mussel", "Red Algae")}
 Can specify a vector of years.}
 
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
-returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.}
+returns all events, including QAQC events. If TRUE, also returns "Same Grid" and "New Grid" fields.}
+
+\item{dropNA}{Logical. If TRUE (default), blank percent cover records are removed.
+If FALSE, all records are returned.}
 }
 \value{
 Returns a data frame of photo plot percent cover data filtered by function arguments
@@ -73,7 +77,7 @@ site, plot name, and species.
 
 importData()
 
-# Default filter returns all records
+# Default filter returns all records except QAQC visits and blank cover records
 cov <- getPhotoCover()
 
 # Photoplot cover for ACAD only sites

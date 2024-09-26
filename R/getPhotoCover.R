@@ -50,14 +50,17 @@
 #' Can specify a vector of years.
 #'
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
-#' returns all events, including QAQC events. If TRUE, also returns QAQC_SameGrid and QAQC_NewGrid fields.
+#' returns all events, including QAQC events. If TRUE, also returns "Same Grid" and "New Grid" fields.
+#'
+#' @param dropNA Logical. If TRUE (default), blank percent cover records are removed.
+#' If FALSE, all records are returned.
 #'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank cover records
 #' cov <- getPhotoCover()
 #'
 #' # Photoplot cover for ACAD only sites
@@ -81,7 +84,8 @@
 getPhotoCover <- function(park = "all", site = "all", plotName = "all",
                           species = "all", category = "all",
                           community = 'all',
-                          years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE){
+                          years = 2013:as.numeric(format(Sys.Date(), "%Y")), QAQC = FALSE,
+                          dropNA = T){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -106,6 +110,7 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
                             "F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5",
                             "R1", "R2", "R3", "R4", "R5"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
+  stopifnot(class(dropNA) == "logical")
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
@@ -143,14 +148,17 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
   cov_qaqc <- if(QAQC == TRUE){cov_year
   } else {cov_year |> filter(QAQC == FALSE) }
 
+  cov_na <- if(dropNA == TRUE){cov_qaqc |> filter(!is.na(PercentCover))} else {cov_qaqc}
+
   # Join bolt elevation with cover data
   cov_comb <- right_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
                                         BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev) |> unique(),
-                    cov_qaqc,
-                    by = c("UnitCode", "SiteCode", "PlotName", "CommunityType")) |>
-              select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
-              PlotName, CommunityType, BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
-              CoverType, ScientificName, CoverCode, PercentCover, IsPointCUI)
+                         cov_na,
+                         by = c("UnitCode", "SiteCode", "PlotName", "CommunityType")) |>
+              select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
+                     PlotName, CommunityType, BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev,
+                     CoverType, ScientificName, CoverCode, PercentCover, Notes, DateScored, Scorer, IsPointCUI)
+
 
   if(nrow(cov_comb) == 0){stop("Specified arguments returned an empty data frame.")}
 

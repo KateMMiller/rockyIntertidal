@@ -36,12 +36,15 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
+#' @param dropNA Logical. If TRUE (default), blank  measurements are removed.
+#' If FALSE, all records are returned.
+#'
 #' @examples
 #' \dontrun{
 #'
 #' importData()
 #'
-#' # Default filter returns all records
+#' # Default filter returns all records except QAQC visits and blank measurements
 #' ech <- getEchinoMeas()
 #'
 #' # Echino counts for ACAD only sites
@@ -64,7 +67,7 @@
 
 getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
                           species = 'all', years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                          QAQC = FALSE){
+                          QAQC = FALSE, dropNA = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -72,9 +75,8 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
   stopifnot(site %in% c("all","BASHAR", "LITHUN", "LITMOO", "OTTPOI",
                             "SCHPOI", "SHIHAR", "CALISL", "GREISL", "OUTBRE"))
   stopifnot(plotName %in% c("all", "X1", "X2", "X3"))
-
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
-
+  stopifnot(class(dropNA) == "logical")
   spp_list <- c("all", "ASTFOR", "ASTRUB", "HENSAN", "STRDRO")
 
   unmatch_spp <- setdiff(species, c(spp_list, NA))
@@ -111,7 +113,9 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
   echino_qaqc <- if(QAQC == TRUE){echino_year
   } else {filter(echino_year, QAQC == FALSE)}
 
-  echino_final <- echino_qaqc |>
+  echino_na <- if(dropNA == TRUE){echino_qaqc |> filter(!is.na(Measurement))} else {echino_qaqc}
+
+  echino_final <- echino_na |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
            PlotName, ScientificName, CommonName, SpeciesCode, Measurement, IsPointCUI)
 

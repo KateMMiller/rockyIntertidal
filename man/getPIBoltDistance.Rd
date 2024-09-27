@@ -56,7 +56,7 @@ This function filters point intercept bolt data by park, site, plot name, and sp
 
 importData()
 
-# Default filter returns all records excelt QAQC visits and blank distances
+# Default filter returns all records except QAQC visits and blank distances
 bolt <- getPIBoltDistance()
 
 # PI Bolt distances for ACAD only sites

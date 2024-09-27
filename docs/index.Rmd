@@ -353,7 +353,7 @@ ech21_ASTFOR <- getEchinoMeas(species = "ASTFOR")
 
 
 ### Summarize Data {.tabset}
-For every get function, there's a sum function that summarizes the data. This is typically at the location level for a given species and year. For example, averaging across the 3 point intercept transects, or averaging percent cover across the 5 barnacle photoplots. Summary functions are demonstrated below. 
+For every get function, there's a sum function that summarizes the data. This is typically at the site level for a given species and year. For example, averaging across the 3 point intercept transects, or averaging percent cover across the 5 barnacle photoplots. Summary functions are demonstrated below. 
 
 #### Barnacle Recruitment {.tabset}
 The barnacle recruitment summary function calculates the median, min and max of counts for a given plot type (ie summer or winter) for each visit. If there are multiple records for a given site x visit x plot type, you will receive a warning in the console with a description of how the duplicates were handled by the function.

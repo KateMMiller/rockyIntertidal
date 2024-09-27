@@ -6,7 +6,7 @@ title: "Using rockyIntertidal R pkg."
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
 options(width = 10)
 ```
 
@@ -75,36 +75,57 @@ install_github("KateMMiller/rockyIntertidal")
 library(rockyIntertidal)
 ```
 <h4><b>Step 5.</b> Import rocky monitoring data</h4>
-Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). Currently, the `importData()` function only imports queries from the rocky intertidal backend database. Once the data package is completed, the import function will be updated to be able to import csvs, either as individual files or as a zipped file. The latest backend (as far as I know) is on the MS Team here: NPS ACAD Intertidal Zone > Data_Pipeline > Files > <a href="https://doimspp.sharepoint.com/:f:/s/NPSACADIntertidalZone/EsF2TueyuqFFkJ9IMcOV7-gB1pBmw5JreVZ3QJ5NWR4sPQ?e=7n0eyI">NETN_RockyIntertidal_Database_be_20231011.mdb.</a> Note that this is the link to the folder, not the actual database. You'll need to download the database (or move it to the Z drive).
+Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). The default option for importing data will add the data package views (i.e., flatfiles) to an environment called ROCKY to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`). To import data using the default settings (i.e. run `importData()` with no arguments), you must have the rocky intertidal front end set as a User DSN called rocky_FE. The database front end must also be linked with the latest rocky intertidal backend to pull in the latest data (see "Setting up DSN" tab for more details).  
 
-The default option for importing data adds the data package views (i.e., flatfiles) to an environment called ROCKY to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
 ```{r echo = F, results = 'hide', include = F}
 importData()
 ```
 <p class = 'indent'>
-<span style='color:#1942B5;'><b>Option 1.</b> Import data via data package database file on your computer</span></p>
-```{r eval = F, class.source = "indent"}
-importData(type = 'file',
-           path = "C:/NETN/R_Dev/data/rocky/NETN_RockyIntertidal_Database_be_20231011.mdb")
+<span style='color:#1942B5;'><b>Option 1.</b> Import data via .csv files. The file path should be where csvs are on your machine or server.</span></p>
+```{r, eval = F, class.source = "indent"}
+importData(type = 'csv',
+           filepath = "C:/NETN/R_Dev/data") # update filepath to your computer
 ```
 <p class = 'indent'>
-<span style='color:#1942B5;'><b>Option 2.</b> Import data via data package database DSN (Data Source Name) on your computer. </span>
-Note that this is the default setting. As long as you have a named DSN called "rocky_BE" that links to the latest rocky backend database, the code below will run. See <i>Setting up DSN</i> tab for how to set up DSN.</p>
+<span style='color:#1942B5;'><b>Option 2.</b> Import data via zip file of csvs. The filepath should be the location and name of the zip file.</span></p>
+```{r eval = F, class.source = "indent"}
+importData(type = 'zip',
+           filepath = "C:/NETN/R_Dev/data/NETN_RockyIntertidal_Data_Package_20240927.zip")
+```
+<p class = 'indent'>
+<span style='color:#1942B5;'><b>Option 3.</b> Import data via data package database file on your computer</span></p>
+```{r eval = F, class.source = "indent"}
+importData(type = 'dbfile',
+           filepath = "C:/NETN/R_Dev/data/NETN_RockyIntertidal_Database_fe_20240919.accdb")
+```
+<p class = 'indent'>
+<span style='color:#1942B5;'><b>Option 4.</b> Import data via data package database DSN (Data Source Name) on your computer. </span>
+Note that this is the default setting. As long as you have a named DSN called "rocky_FE" that links to the data package database, and that database links to the latest rocky intertidal backend database, the code below will run. See <i>Setting up DSN</i> tab for how to set up DSN.</p>
 ```{r eval = F, class.source = "indent"}
 importData() # easiest
-importData(type = 'DSN', odbc = "rocky_BE") # equivalent to line above
+importData(type = 'DSN', odbc = "rocky_FE") # equivalent to line above
+```
+<h4><b>Step 6.</b> (Optional) Export data package to zip </h4>
+You can export all of the csvs to a zip file with the day's date stamped on the file name. This allows you to import the tables from the database, then export the csvs as one zip file.
+```{r eval = F, class.source = "indent"}
+exportData(filepath = "./data", zip = TRUE) 
 ```
 
-<h4><b>Step 5b.</b>Import water temperature data</h4>
+```{r eval = F, echo = F, class.source = "indent"}
+exportData(filepath = "../data", zip = TRUE) 
+```
+
+<h4><b>Step 6b.</b>Import water temperature data *NOTE: NOT RECENTLY TESTED* </h4>
 The water temperature data is stored as separate csvs and so has a different import function and process. 
 The temp logger files will go into your ROCKY environment named the 6 letter location code. The `buoy = T` loads the buoy data for each park to the ROCKY environment. The `simplify = T` simplifies the datasets to include only 1 logger measurement per high tide event (for water temp) and 1 buoy record per day. All plotting functions require the simplified data.
 The latest compiled files are on the Z drive here: "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/".  This reminds me that I need to update the data to include 2023.
 ```{r, results = 'hide'}
-path = "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+#path = "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
+path = "C:/NETN/R_Dev/data/rocky/temp_data/Compiled_HT_water_temps"
 importWaterTemp(path = path, buoy = T, simplify = T)
 ```
 
-<h4><b>Step 6.</b> Play with the data </h4>
+<h4><b>Step 7.</b> Play with the data </h4>
 The functions in the `rockyIntertidal` package are designed to work with the views, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to view the raw data, and you imported the data into the ROCKY environment, you can access them with the code below:
 ```{r eval = F}
 # See list of the views
@@ -112,6 +133,12 @@ names(ROCKY)
 
 # View one of the views
 View(ROCKY$Bolts)
+
+# See top 6 records 
+head(ROCKY$Echinoderm_Counts)
+
+# Check structure of view
+str(ROCKY$Echinoderm_Counts)
 
 # Assign a view to a data frame named bolts in R. Interact with bolts the way you would work with any normal data frame in R. 
 bolts <- ROCKY$Bolts
@@ -188,186 +215,373 @@ knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step
 </ol>
 
 ### get Data functions {.tabset}
-<details open><summary class = 'drop'><h3>Bolt data </h3></summary>
+#### Bolt data
+<p class = 'fxn'>Get bolt data for ACAD barnacle recruitment plots </p>
 ```{r}
-print_head(getBolts(location = "CALISL", plotType = "Photoplot"))
+print_head(getBolts(park = "ACAD", plotType = "Recruitment Plot"))
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Point Intercept Data </h3></summary>
-These are the transect point intercept distances before elevation is determined. Elevation is calculated in `sumPISpecies()`
+<p class = 'fxn'>Get bolt data for Calf Island photoplots </p>
 ```{r}
-print_head(getPIBoltDistance()) # PointIntercept_BoltDist_C
-print_head(getPISpecies(location = c("BASHAR", "OTTPOI"))) # PointIntercept_SppDetections
+print_head(getBolts(site = "CALISL", plotType = "Photoplot"))
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+#### Barnacle Recruitment
+<p class = 'fxn'>Default filter returns all summer records except QAQC records and blank counts.</p>
 ```{r}
-print_head(getPhotoCover(location = c("BASHAR", "OTTPOI"), target_species = "Barnacle"))
+print_head(getBarnacleRecruitment())
 ```
-</details>
-
-<details open><summary class = 'drop'><h3>Motile Invert Counts</h3></summary>
+<p class = 'fxn'> Barnacle counts for ACAD only sites </p>
 ```{r}
-print_head(getMotileInvertCounts(park = "ACAD", years = 2013:2021, species = c("LITLIT", "LITOBT", "LITSAX")))
+print_head(getBarnacleRecruitment(park = "ACAD"))
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Motile Invert Meas</h3></summary>
+<p class = 'fxn'>Barnacle counts for different combinations of parks, sites, plots, and years</p>
 ```{r}
-print_head(getMotileInvertMeas(location = "SHIHAR", years = 2013:2019))
+barn_sumwin <- getBarnacleRecruitment(park = "ACAD", plotName = "all") # summer and winter counts 
+barn_BOHA <- getBarnacleRecruitment(park = "BOHA")
+barn_5yr <- getBarnacleRecruitment(years = 2016:2021)
+barn_first_last <- getBarnacleRecruitment(years = c(2013, 2021))
+barn24_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
+barn_na <- getBarnacleRecruitment(dropNA = F) # returns NA records too
 ```
-</details>
+<br>
 
+#### Point Intercept Data
+Note that the getter functions only return the raw data from the views. Elevation is calculated in `sumPISpecies()`
 
-<details open><summary class = 'drop'><h3>Echinoderm Counts </h3></summary>
+<h3>PI Bolt Distance</h3>
+<p class = 'fxn'>Default returns all records except QAQC visits and blank distances</p>
 ```{r}
-print_head(getEchinoCounts(park = "ACAD", years = 2013:2021, species = "STRDRO"))
+print_head(getPIBoltDistance())
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Echinoderm Meas </h3></summary>
+<p class = 'fxn'>PI Bolt distances for different combinations of parks, sites, plots, and years</p>
 ```{r}
-print_head(getEchinoMeas(location = "SHIHAR", years = 2013:2019))
+bolt_na <- getPIBoltDistance(dropNA = F) # return NA records too
+bolt_t3 <- getPIBoltDistance(park = "ACAD", plotName = "T3")
+bolt_BOHA2 <- getPIBoltDistance(site = c("CALISL", "GREISL"))
+bolt_5yr <- getPIBoltDistance(years = 2016:2021)
+bolt_first_last <- getPIBoltDistance(years = c(2013, 2021))
+bolt_with_qaqc <- getPIBoltDistance(years = 2021, QAQC = TRUE)
 ```
-</details>
+<br>
 
-### Summarize Data
+#### PhotoPlot Cover
+<p class = 'fxn'>Default returns all records except QAQC visits and blank Cover values</p>
+```{r}
+print_head(getPhotoCover())
+```
+
+<p class = 'fxn'>Photoplot cover for different combinations of parks, sites, plots, years, etc.</p>
+```{r}
+cov_na <- getPhotoCover(dropNA = F) # returns NA records too
+cov_a1 <- getPhotoCover(park = "ACAD", plotName = "A1")
+cov_BOHA2 <- getPhotoCover(site = c("CALISL", "GREISL"))
+cov_ab <- getPhotoCover(park = "BOHA", species = c("ALGBRO"))
+cov_5yr <- getPhotoCover(years = 2016:2021)
+cov_first_last <- getPhotoCover(years = c(2013, 2021))
+cov21_with_qaqc <- getPhotoCover(years = 2021, QAQC = TRUE)
+```
+
+#### Motile Invert Counts
+<p class = 'fxn'>Default returns all records except QAQC visits and blank counts</p>
+```{r}
+print_head(getMotileInvertCounts())
+```
+
+<p class = 'fxn'>Motile Invertebrate counts for different combinations of parks, sites, plots, years, etc.</p>
+```{r}
+minv_acad <- getMotileInvertCounts(dropNA = F) # return NA counts too
+minv_r <- getMotileInvertCounts(park = "ACAD", plotName = c("R1", "R2", "R3", "R4", "R5"))
+minv_BOHA2 <- getMotileInvertCounts(site = c("CALISL", "GREISL"))
+minv_lit <- getMotileInvertCounts(species = c("LITLIT", "LITOBT", "LITSAX"))
+minv_5yr <- getMotileInvertCounts(years = 2016:2021)
+minv_first_last <- getMotileInvertCounts(years = c(2013, 2021))
+minv21_qaqc <- getMotileInvertCounts(years = 2021, QAQC = TRUE)
+```
+
+#### Motile Invert Meas
+<p class = 'fxn'>Default returns all records except QAQC visits and blank counts</p>
+```{r}
+print_head(getMotileInvertMeas())
+```
+
+<p class = 'fxn'>Motile Invertebrate measurements for different combinations of parks, sites, plots, years, etc.</p>
+```{r}
+minv_acad <- getMotileInvertMeas(park = "ACAD", dropNA = F) # include NA measurements too
+minv_r <- getMotileInvertMeas(park = "ACAD", plotName = c("R1", "R2", "R3", "R4", "R5"))
+minv_BOHA2 <- getMotileInvertMeas(site = c("CALISL", "GREISL"))
+minv_lit <- getMotileInvertMeas(species = c("LITLIT", "LITOBT", "LITSAX"))
+minv_5yr <- getMotileInvertMeas(years = 2016:2021)
+minv_first_last <- getMotileInvertMeas(years = c(2013, 2021))
+minv21_qaqc <- getMotileInvertMeas(years = 2021, QAQC = TRUE)
+```
+
+#### Echinoderm Counts
+<p class = 'fxn'>Default returns all records except QAQC visits and blank counts</p>
+```{r}
+print_head(getEchinoCounts())
+```
+
+<p class = 'fxn'>Echinoderm counts for different combinations of parks, sites, plots, years, etc.</p>
+```{r}
+ech_acad <- getEchinoCounts(park = "ACAD", dropNA = F) # return NA counts too
+ech_t3 <- getEchinoCounts(park = "ACAD", plotName = "X3")
+ech_BOHA2 <- getEchinoCounts(site = c("CALISL", "GREISL"))
+ech_5yr <- getEchinoCounts(years = 2016:2021)
+ech_first_last <- getEchinoCounts(years = c(2013, 2021))
+ech21_qaqc <- getEchinoCounts(years = 2021, QAQC = TRUE)
+```
+
+#### Echinoderm Meas 
+<p class = 'fxn'>Default returns all records except QAQC visits and blank measurements</p>
+```{r}
+print_head(getEchinoMeas())
+```
+
+<p class = 'fxn'>Echinoderm measurements for different combinations of parks, sites, years, etc.</p>
+```{r}
+ech_acad <- getEchinoMeas(park = "ACAD", dropNA = F) #returns NAs too
+ech_t3 <- getEchinoMeas(park = "ACAD", plotName = "X3")
+ech_BOHA2 <- getEchinoMeas(site = c("CALISL", "GREISL"))
+ech_5yr <- getEchinoMeas(years = 2016:2021)
+ech_first_last <- getEchinoMeas(years = c(2013, 2021))
+ech21_qaqc <- getEchinoMeas(years = 2021, QAQC = TRUE)
+ech21_ASTFOR <- getEchinoMeas(species = "ASTFOR")
+```
+
+
+### Summarize Data {.tabset}
 For every get function, there's a sum function that summarizes the data. This is typically at the location level for a given species and year. For example, averaging across the 3 point intercept transects, or averaging percent cover across the 5 barnacle photoplots. Summary functions are demonstrated below. 
 
-<details open><summary class = 'drop'><h3>Point Intercept Data </h3></summary>
-This the function where elevation is calculated for point intercept distances along the transects.
-```{r}
-print_head(sumPISpecies(location = c("BASHAR", "OTTPOI"))) 
-```
-</details>
+#### Barnacle Recruitment {.tabset}
+The barnacle recruitment summary function calculates the median, min and max of counts for a given plot type (ie summer or winter) for each visit. If there are multiple records for a given site x visit x plot type, you will receive a warning in the console with a description of how the duplicates were handled by the function.
 
-<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all years, all species, summer-only, non-QAQC visits/QAQC types, and complete records.</p>
 ```{r}
-print_head(sumPhotoCover(location = c("BASHAR", "OTTPOI"), target_species = c("Ascophyllum", "Barnacle")))
+print_head(sumBarnacleRecruitment())
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Motile Invert Counts</h3></summary>
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
 ```{r}
-print_head(sumMotileInvertCounts(park = "ACAD", years = 2013:2021, species = c("CARMAE", "HEMISAN")))
+barn_acad <- sumBarnacleRecruitment(park = "ACAD")
+barn_summer <- sumBarnacleRecruitment(park = "ACAD", plotName = "summer")
+barn_BOHA <- sumBarnacleRecruitment(site = c("CALISL", "GREISL"))
+barn_5yr <- sumBarnacleRecruitment(years = 2016:2021)
+barn_first_last <- sumBarnacleRecruitment(years = c(2013, 2021))
+barn21_qaqc <- sumBarnacleRecruitment(years = 2024, QAQC = TRUE)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Motile Invert Meas</h3></summary>
-Measurements are summarized into 5mm bins.
+#### Point Intercept Data {.tabset}
+This is the function where elevation is calculated for point intercept distances along the transects. <b>Note: you will get a warning if there are impossible distance/elevation combinations in the console and an object called bolt_checks will show up in your workspace environment.</b>
+
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all years, all species, non-QAQC visits, and complete records.</p>
 ```{r}
-print_head(sumMotileInvertMeas(location = "SHIHAR", years = 2013:2019))
+print_head(sumPISpecies()) 
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Echinoderm Counts </h3></summary>
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
 ```{r}
-print_head(sumEchinoCounts(park = "ACAD", years = 2013:2021, species = "STRDRO"))
+spp_ACAD <- sumPISpecies(park = "ACAD")
+spp_t3 <- sumPISpecies(park = "ACAD", plotName = "T3")
+spp_BOHA2 <- sumPISpecies(site = c("CALISL", "GREISL"))
+spp_fuc <- sumPISpecies(park = "BOHA", species = c("FUCEPI", "FUCSPP"))
+spp_5yr <- sumPISpecies(years = 2016:2021)
+spp_first_last <- sumPISpecies(years = c(2013, 2021))
+spp21_with_qaqc <- sumPISpecies(years = 2021, QAQC = TRUE)
+spp_no_drops <- sumPISpecies(drop_missing = FALSE)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Echinoderm Meas </h3></summary>
-Measurements are summarized into 5mm bins.
+
+#### PhotoPlot Cover {.tabset}
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all plots, all species, all categories, all communities, non-QAQC visits, and complete records.</p>
 ```{r}
-print_head(sumEchinoMeas(location = "SHIHAR", years = 2013:2019))
+print_head(sumPhotoCover())
 ```
-</details>
 
-### Plot Data
-For most getter and summary functions, there are plotting functions with the same suffix. Examples are below. 
-<details open><summary class = 'drop'><h3>Species Contours </h3></summary>
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
+```{r}
+cov_ACAD <- sumPhotoCover(park = "ACAD")
+cov_t3 <- sumPhotoCover(park = "ACAD", plotName = "A3")
+cov_BOHA2 <- sumPhotoCover(site = c("CALISL", "GREISL"))
+cov_ab <- sumPhotoCover(park = "BOHA", species = c("ALGBRO"))
+cov_5yr <- sumPhotoCover(years = 2016:2021)
+cov23_with_qaqc <- sumPhotoCover(site = "SHIHAR", years = 2023, QAQC = TRUE)
+
+```
+
+#### Motile Invert Counts {.tabset}
+This function summarizes site-level average, median, min and max counts by park, site, plot name, and species.
+
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all plots, all species, all communities, non-QAQC visits, and complete records.</p>
+```{r}
+print_head(sumMotileInvertCounts())
+```
+
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
+```{r}
+cnts_acad <- sumMotileInvertCounts (park = "ACAD")
+cnt_a1 <- sumMotileInvertCounts (park = "ACAD", plotName = "A1")
+cnt_BOHA2 <- sumMotileInvertCounts (site = c("CALISL", "GREISL"))
+cnt_gc <- sumMotileInvertCounts (park = "BOHA", species = c("CARMAE"))
+cnt_5yr <- sumMotileInvertCounts (years = 2016:2021)
+cnt_first_last <- sumMotileInvertCounts (years = c(2013, 2021))
+cnt21_with_qaqc <- sumMotileInvertCounts (years = 2021, QAQC = TRUE)
+```
+
+#### Motile Invert Meas. {.tabset}
+This function summarizes number of individuals in each 5 mm size class by park, site, and species.
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all plots, all species, all communities, non-QAQC visits, and complete records.</p>
+```{r}
+print_head(sumMotileInvertMeas())
+```
+
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
+```{r}
+minv_acad <- sumMotileInvertMeas(park = "ACAD")
+minv_r <- sumMotileInvertMeas(park = "ACAD", plotName = c("R1", "R2", "R3", "R4", "R5"))
+minv_BOHA2 <- sumMotileInvertMeas(site = c("CALISL", "GREISL"))
+minv_lit <- sumMotileInvertMeas(species = c("LITLIT", "LITOBT", "LITSAX"))
+minv_5yr <- sumMotileInvertMeas(years = 2016:2021)
+minv_first_last <- sumMotileInvertMeas(years = c(2013, 2021))
+minv21_qaqc <- sumMotileInvertMeas(years = 2021, QAQC = TRUE)
+```
+
+#### Echinoderm Counts {.tabset}
+This function summarizes site-level average, median, min and max counts by park, site, plot name, and species.
+
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all plots, all species, non-QAQC visits, and complete records.</p>
+```{r}
+print_head(sumEchinoCounts())
+```
+
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
+```{r}
+cnts_ACAD <- sumEchinoCounts (park = "ACAD")
+cnt_a1 <- sumEchinoCounts (park = "ACAD", plotName = "X1")
+cnt_BOHA2 <- sumEchinoCounts (site = c("CALISL", "GREISL"))
+cnt_af <- sumEchinoCounts (park = "BOHA", species = c("ASTFOR"))
+cnt_5yr <- sumEchinoCounts (years = 2016:2021)
+cnt_first_last <- sumEchinoCounts (years = c(2013, 2021))
+cnt21_with_qaqc <- sumEchinoCounts (years = 2021, QAQC = TRUE)
+```
+
+#### Echinoderm Meas {.tabset}
+This function summarizes number of individuals in each 5 mm size class by park, site, and species.
+
+<p class = 'fxn'>Summarize defaults, which is all parks, all sites, all plots, all species, non-QAQC visits, and complete records.</p>
+```{r}
+print_head(sumEchinoMeas())
+```
+
+<p class = 'fxn'>Summarize different combinations of parks, sites, years, species, etc.</p>
+```{r}
+minv_acad <- sumEchinoMeas(park = "ACAD")
+minv_r <- sumEchinoMeas(park = "ACAD", plotName = c("X1", "X2"))
+minv_BOHA2 <- sumEchinoMeas(site = c("CALISL", "GREISL"))
+minv_lit <- sumEchinoMeas(species = c("ASTFOR", "ASTRUB"))
+minv_5yr <- sumEchinoMeas(years = 2016:2021)
+minv_first_last <- sumEchinoMeas(years = c(2013, 2021))
+minv21_qaqc <- sumEchinoMeas(years = 2021, QAQC = TRUE)
+```
+
+### Plot Data {.tabset}
+For most getter and summary functions, there are plotting functions with the same suffix. Some examples are below. See also the examples in the help files for each function.
+ 
+#### Barnacle Recruitment {.tabset}
+This function plots median barnacle recruitment counts across the five summer plots per site and year, with error bars representing min and max counts among the five plots. If only 1 plot is specified, then the raw counts will be plotted. If both summer and winter plots are specified, resulting plot will be color-coded by season. If more than one site and year is specified, results will be faceted by site. <b>Note that you will receive a warning if there are duplicate count records for a given site, plot name, and visit.
+
+<p class='fxn'>Plot summer recruitment for all years faceted on ACAD sites</p>
+```{r warning = F, message = F}
+plotBarnacleRecruitment(park = 'ACAD')
+```
+
+#### Species Contours {.tabset}
 These plots combine the point intercept data (dots and symbols on the graph) and the photoplot cover data (pie charts) to compare changes across years.
 ```{r fig.height = 12, fig.width = 10, warning = FALSE, message = FALSE}
-plotSpeciesContours(location = "BASHAR", years = 2013:2018)
+plotSpeciesContours(site = "BASHAR", years = 2013:2018)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Point Intercept Transect </h3></summary>
+#### Point Intercept Transect {.tabset}
 Plot the transect contours faceted on transect number
 ```{r, warning = FALSE, message = FALSE}
-plotPITransects(location = "SHIHAR", years = 2013:2019)
+plotPITransects(site = "SHIHAR", years = 2013:2019)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Point Intercept Species </h3></summary>
+#### Point Intercept Species {.tabset}
 Plot point intercept species detections summarized as median and middle 50% distribution of elevation. There are a lot of arguments to produce different plots and figures. Some of the ones I find most useful are below. Note when years aren't specified, all years are included by default.
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPISpecies(location = "BASHAR", facet = T, main_groups = T, plotly = T)
+plotPISpecies(site = "BASHAR", facet = T, main_groups = T, plotly = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
 plotPISpecies(park = "BOHA", facet = T, main_groups = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPISpecies(location = "SHIHAR", rev_axis = T, facet = T)
+plotPISpecies(site = "SHIHAR", rev_axis = T, facet = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPISpecies(location = "OTTPOI", species = c("FUCSPP", "ASCNOD"), plotly = T)
+plotPISpecies(site = "OTTPOI", species = c("FUCSPP", "ASCNOD"), plotly = T)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>PhotoPlot Cover </h3></summary>
+#### PhotoPlot Cover {.tabset}
 Plots the photoplot cover summarized as median cover and middle 50% distribution of cover across the photoplots within a target species. Note that there are a lot of arguments that produce different plots and figures (all explained in the help). Here are a few I tend to use the most.
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(park = "ACAD", target_species = "Barnacle", plotly = T)
+plotPhotoCover(park = "ACAD", community = "Barnacle", plotly = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(location = "LITHUN", main_groups = T) 
+plotPhotoCover(site = "LITHUN", main_groups = T) 
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(location = "LITHUN", top_spp = 3)
+plotPhotoCover(site = "LITHUN", top_spp = 3)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 8}
-plotPhotoCover(location = "LITHUN", top_spp = 3, plotly = T, xlab = NULL, plot_title = "Little Hunter")
+plotPhotoCover(site = "LITHUN", top_spp = 3, plotly = T, xlab = NULL, plot_title = "Little Hunter")
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(location = "LITHUN", main_groups = T, target_species = "Fucus", plotly = T)
+plotPhotoCover(site = "LITHUN", main_groups = T, community = "Fucus", plotly = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(location = "BASHAR", main_groups = T, heatmap = TRUE)
+plotPhotoCover(site = "BASHAR", main_groups = T, heatmap = TRUE)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Motile Inverts</h3></summary>
-Plot the Counts
+
+#### Motile Invert Counts {.tabset}
 ```{r fig.height = 10, fig.width = 12, warning = FALSE, message = FALSE}
-plotMotileInvertCounts(location = "OUTBRE", years = 2013:2021)
+plotMotileInvertCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotMotileInvertCounts(location = "OUTBRE", years = 2013:2021, plotly = T)
+plotMotileInvertCounts(site = "OUTBRE", years = 2013:2021, plotly = T)
 ```
 
-Plot the measurements
+#### Motile Invet Meas. {.tabset}
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotMotileInvertMeas(location = "SHIHAR", years = 2013:2019)
+plotMotileInvertMeas(site = "SHIHAR", years = 2013:2019)
 ```
-</details>
-
-<details open><summary class = 'drop'><h3>Echinoderms </h3></summary>
-Plot the Counts
+ 
+#### Echinoderm Counts {.tabset}
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotEchinoCounts(location = "OUTBRE", years = 2013:2021)
+plotEchinoCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotEchinoCounts(location = "OUTBRE", years = 2013:2021, plotly = T)
+plotEchinoCounts(site = "OUTBRE", years = 2013:2021, plotly = T)
 ```
 
-
-Plot the measurements
+#### Echinoderm Meas {.tabset}
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotEchinoMeas(location = "SHIHAR", years = 2013:2019)
+plotEchinoMeas(site = "SHIHAR", years = 2013:2019)
 ```
-</details>
 
-<details open><summary class = 'drop'><h3>Water temp </h3></summary>
+#### Water and Buoy Data  {.tabset}
+<details open><summary class = 'drop'><h3>Water temp.</h3></summary>
+<b>Note the data and functions have not been checked recently, and may not be fully functional</b>
 ```{r fig.height = 8, fig.width = 10}
 plotWaterTemp(park = "ACAD", years = 2022, facet_col = 1)
 ```
 ```{r, warning = FALSE, message = FALSE}
-plotWaterTemp(location = "BASHAR", years = 2011:2022)
+plotWaterTemp(site = "BASHAR", years = 2011:2022)
 ```
 </details>
 
@@ -381,10 +595,10 @@ plotBuoyData(park = "ACAD", metric = "temp", year = 2022)
 ```
 </details>
 
-<details open><summary class = 'drop'><h3>Rocky ggplot theme</h3></summary>
+#### Rocky ggplot theme {.tabset}
 The default ggplot aesthetics are too busy, and require several lines of code to turn off. For every package, I create a theme that turns those off and can just be run with the ggplot code. For this package use `theme_rocky()` as shown below.
 ```{r}
-dat <- sumPhotoCover(location = "SHIHAR", target_species = "Ascophyllum", species = "ASCNOD")
+dat <- sumPhotoCover(site = "SHIHAR", community = "Ascophyllum", species = "ASCNOD")
 
 library(ggplot2)
 ggplot(dat, aes(x = Year, y = median_cover)) +

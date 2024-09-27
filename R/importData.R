@@ -154,20 +154,14 @@ importData <- function(type = "DSN",
     close(pb)
   }
 
-
-
-  #----- CSV import -----
+#----- CSV import -----
   if(type == "csv"){
     # List csvs in filepath folder
-    dp_list <- list.files(filepath, pattern = ".csv")
-    # Drop csvs that don't matching names in the views
-    dp_list <- dp_list[grepl(paste0(views, collapse = "|"), dp_list)]
-    # Drop date stamp (if it exists) from file name if exists in 2 steps
-    dp_list_names <- gsub("[[:digit:]]+|.csv", "", dp_list)
-    dp_list_names <- gsub("_$","", dp_list_names)
-    dp_names <- gsub("qryR_DataPackage_", "", dp_list_names)
+    dp_list1 <- list.files(filepath, pattern = ".csv")
+    csv_list <- paste0(view_list, ".csv")
+    dp_list <- dp_list1[dp_list1 %in% c(csv_list)]
 
-    miss_vws <- setdiff(dp_list_names, views)
+    miss_vws <- setdiff(dp_list_names, view_list)
 
     # Check for missing views
     if(length(miss_vws) > 0){stop("Missing the following views from the specified filepath: ",
@@ -215,15 +209,11 @@ importData <- function(type = "DSN",
       },
       error = function(e){stop(paste0("Unable to import specified zip file."))})
 
-    z_list = zfiles[grepl(paste0(views, collapse = "|"), zfiles)]
+    z_list = zfiles[grepl(paste0(view_list, collapse = "|"), zfiles)]
 
     # Drop date stamp (if it exists) from file name if exists in 2 steps
     z_list_names <- gsub("[[:digit:]]+|.csv", "", z_list)
-    z_list_names <- gsub("./", "", z_list_names)
-    z_list_names <- gsub("_$","", z_list_names)
-    z_names <- gsub("qryR_DataPackage_", "", z_list_names)
-
-    miss_vws <- setdiff(z_list_names, views)
+    miss_vws <- setdiff(z_list_names, view_list)
 
     # Check for missing views
     if(length(miss_vws) > 0){stop("Missing the following views from the specified filepath: ",
@@ -248,7 +238,7 @@ importData <- function(type = "DSN",
         setTxtProgressBar(pb,x)
         read.csv(zviews[x], na.string = "NA", check.names = FALSE)})
 
-    zfiles <- setNames(zfiles, z_names)
+    zfiles <- setNames(zfiles, z_list_names)
     list2env(zfiles, envir = env)
     # Close progress bar
     close(pb)

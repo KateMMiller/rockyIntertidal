@@ -28,6 +28,7 @@ Imports:
     tidyr,
     cowplot
 Collate: 
+    'exportData.R'
     'getBarnacleRecruitment.R'
     'getBolts.R'
     'getEchinoCounts.R'

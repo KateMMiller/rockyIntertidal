@@ -41,7 +41,7 @@
 #' @param QAQC Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 #' returns all events, including QAQC events.
 #'
-#' @param dropNA Logical. If TRUE (default), blank CoverCode, CoverType
+#' @param dropNA Logical. If TRUE (default), blank CoverCode, CoverType records are removed.
 #' If FALSE, all records are returned.
 #'
 #' @examples

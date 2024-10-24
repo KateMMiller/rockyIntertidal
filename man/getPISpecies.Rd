@@ -51,7 +51,7 @@ Can specify a vector of years.}
 \item{QAQC}{Logical. If FALSE (Default) does not return QAQC events. If TRUE,
 returns all events, including QAQC events.}
 
-\item{dropNA}{Logical. If TRUE (default), blank CoverCode, CoverType
+\item{dropNA}{Logical. If TRUE (default), blank CoverCode, CoverType records are removed.
 If FALSE, all records are returned.}
 }
 \value{

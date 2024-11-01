@@ -158,10 +158,11 @@ importData <- function(type = "DSN",
   if(type == "csv"){
     # List csvs in filepath folder
     dp_list1 <- list.files(filepath, pattern = ".csv")
-    csv_list <- paste0(view_list, ".csv")
+    csv_list <- paste0(view_names, ".csv")
     dp_list <- dp_list1[dp_list1 %in% c(csv_list)]
+    dp_names <- gsub(".csv", "", dp_list)
 
-    miss_vws <- setdiff(dp_list_names, view_list)
+    miss_vws <- setdiff(dp_names, view_names)
 
     # Check for missing views
     if(length(miss_vws) > 0){stop("Missing the following views from the specified filepath: ",
@@ -209,11 +210,11 @@ importData <- function(type = "DSN",
       },
       error = function(e){stop(paste0("Unable to import specified zip file."))})
 
-    z_list = zfiles[grepl(paste0(view_list, collapse = "|"), zfiles)]
+    z_list = zfiles[grepl(paste0(view_names, collapse = "|"), zfiles)]
 
     # Drop date stamp (if it exists) from file name if exists in 2 steps
     z_list_names <- gsub("[[:digit:]]+|.csv", "", z_list)
-    miss_vws <- setdiff(z_list_names, view_list)
+    miss_vws <- setdiff(z_list_names, view_names)
 
     # Check for missing views
     if(length(miss_vws) > 0){stop("Missing the following views from the specified filepath: ",
@@ -249,3 +250,4 @@ importData <- function(type = "DSN",
                paste0(" Import complete. Views are located in ROCKY environment."),
                paste0(" Import complete. Views are located in global environment.")), quote = FALSE)
 }
+

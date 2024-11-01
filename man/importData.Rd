@@ -48,7 +48,7 @@ importData(type ='DSN', odbc = "rocky_FE") # this is the same as importData()
 
 # Import views from specified database:
 importData(type ='dbfile',
-  path = 'C:/NETN/R_Dev/data/rocky/Data_Package/DB files/NETN_RockyIntertidal_Database_fe_07112024a.accdb')
+  filepath = 'C:/NETN/R_Dev/data/rocky/Data_Package/DB files/NETN_RockyIntertidal_Database_fe_07112024a.accdb')
 
 # Import views from folder with csvs
 importData(type = 'csv', filepath = "C:/NETN/R_Dev/data/rocky/Data_Package/RI Data Package/")

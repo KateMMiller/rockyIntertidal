@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------
 # Compiling water temperature data from NOAA buoys for ACAD and BOHA
-#   Code written by Kate Miller 9/8/2023
+#   Code written by Kate Miller 11/8/2024
 #------------------------------------------------------------------------
 
 #devtools::install_github("NOAA-EDAB/buoydata")
@@ -39,7 +39,7 @@ dir <- "../data/rocky/temp_data/"
 # GST, DPD, APD, MWD, PRES, DEWP, VIS, and TIDE.
 
 #---- ACAD ----
-get_buoy_data(buoyid = 44034, year = 2013:2022, outDir = dir)
+get_buoy_data(buoyid = 44034, year = 2013:2024, outDir = dir) # 2024 data not available yet
 wtmp <- combine_buoy_data(buoyid = "44034", variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
 wspd <- combine_buoy_data(buoyid = "44034", variable = "WSPD", inDir = dir) |>
@@ -52,13 +52,11 @@ wvht <- combine_buoy_data(buoyid = "44034", variable = "WVHT", inDir = dir) |>
 comb_44034 <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
-write.csv(comb_44034, "../data/rocky/temp_data/Buoy_data_2013-2022_ACAD_44034.csv", row.names = F)
+write.csv(comb_44034, "../data/rocky/temp_data/Buoy_data_2013-2023_ACAD_44034.csv", row.names = F)
 
 # Frenchman Bay Buoy
 b_id <- "ATGM1"
-get_buoy_data(buoyid = b_id, year = c(2013:2016), outDir = dir)
-get_buoy_data(buoyid = b_id, year = 2017, outDir = dir) # kept crashing, so had to split out
-get_buoy_data(buoyid = b_id, year = c(2018:2022), outDir = dir)
+get_buoy_data(buoyid = b_id, year = c(2013:2024), outDir = dir)
 
 wtmp <- combine_buoy_data(buoyid = b_id, variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
@@ -72,7 +70,7 @@ wvht <- combine_buoy_data(buoyid = b_id, variable = "WVHT", inDir = dir) |>
 comb <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
                            full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
-write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2022_ACAD_ATGM1.csv"), row.names = F)
+write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2023_ACAD_ATGM1.csv"), row.names = F)
 
 ggpubr::ggarrange(
   ggplot(comb_44034, aes(x = DATE, y = WTMP_F)) +
@@ -106,7 +104,7 @@ ggpubr::ggarrange(
 )
 
 #---- BOHA----
-get_buoy_data(buoyid = 44013, year = 2013:2022, outDir = dir)
+get_buoy_data(buoyid = 44013, year = 2013:2023, outDir = dir)
 wtmp_44013 <- combine_buoy_data(buoyid = "44013", variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
 wspd_44013 <- combine_buoy_data(buoyid = "44013", variable = "WSPD", inDir = dir) |>
@@ -116,17 +114,14 @@ wdir_44013 <- combine_buoy_data(buoyid = "44013", variable = "WDIR", inDir = dir
 wvht_44013 <- combine_buoy_data(buoyid = "44013", variable = "WVHT", inDir = dir) |>
   add_hour()
 
-table(comb_44013$DATE)
 comb_44013 <- purrr::reduce(list(wtmp_44013, wspd_44013, wdir_44013, wvht_44013),
                             full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
-write.csv(comb_44013, "../data/rocky/temp_data/Buoy_data_2013-2022_BOHA_44013.csv", row.names = F)
+write.csv(comb_44013, "../data/rocky/temp_data/Buoy_data_2013-2023_BOHA_44013.csv", row.names = F)
 
 # Boston Harbor Buoy
 b_id <- "BHBM3"
-get_buoy_data(buoyid = b_id, year = c(2013:2016), outDir = dir)
-get_buoy_data(buoyid = b_id, year = 2017, outDir = dir) # kept crashing, so had to split out
-get_buoy_data(buoyid = b_id, year = c(2018:2022), outDir = dir)
+get_buoy_data(buoyid = b_id, year = c(2013:2023), outDir = dir)
 
 wtmp <- combine_buoy_data(buoyid = b_id, variable = "WTMP", inDir = dir) |>
   add_hour() |> mutate(WTMP_F = WTMP*(9/5)+32)
@@ -140,7 +135,7 @@ wvht <- combine_buoy_data(buoyid = b_id, variable = "WVHT", inDir = dir) |>
 comb <- purrr::reduce(list(wtmp, wspd, wdir, wvht),
                       full_join, by = c("YEAR", "MONTH", "DAY", "DATE", "hour", "timestamp"))
 
-write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2022_BOHA_BHBM3.csv"), row.names = F)
+write.csv(comb, paste0(dir, "Compiled_HT_water_temps/Buoy_data_2013-2023_BOHA_BHBM3.csv"), row.names = F)
 
 ggpubr::ggarrange(
   ggplot(comb_44013, aes(x = DATE, y = WTMP_F)) +

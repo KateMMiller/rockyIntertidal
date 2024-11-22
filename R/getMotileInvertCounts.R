@@ -2,7 +2,7 @@
 #'
 #' @include getBolts.R
 #'
-#' @importFrom dplyr filter left_join mutate select
+#' @importFrom dplyr filter full_join left_join mutate select
 #'
 #' @description This function filters motile invertebrate count data by park, site, and plot name. The returned data frame lists counts of each species detected for each sampling event and plot. Species codes in the data set are: CARMAE = Carcinus maenas (green crab); HEMISAN = Hemigrapsus sanguineus (Asian shore crab); LITLIT = Littorina littorea (common periwinkle); LITOBT = Littorina obtusata (smooth periwinkle); LITSAX = Littorina saxatilis (rough periwinkle); NUCLAP = Nucella lapillus (dogwhelk), TECTES = Tectura testudinalis (limpet).
 #'
@@ -135,7 +135,8 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
   motinv_qaqc <- if(QAQC == TRUE){motinv_year
   } else {filter(motinv_year, QAQC == FALSE)}
 
-  motinv_comb <- left_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
+  # changed from left to full join, because not every photoplot has bolt records
+  motinv_comb <- full_join(bolts |> select(UnitCode, SiteCode, PlotName, CommunityType,
                                            BoltLatitude, BoltLongitude, Bolt_UTM_E, Bolt_UTM_N, Bolt_MLLW_Elev) |> unique(),
                            motinv_qaqc, by = c("UnitCode", "SiteCode", "PlotName", "CommunityType"))
 

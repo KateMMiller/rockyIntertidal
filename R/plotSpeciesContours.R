@@ -153,7 +153,7 @@ plotSpeciesContours <- function(site = "BASHAR",
 
   #OUTBRE smooth is really funky, so only smoothing one transect
   trdat <- if(site == "OUTBRE"){
-    spdat |> filter(Plot_Name == "T1") |>
+    spdat |> filter(PlotName == "T1") |>
     select(UnitCode, SiteCode, Year, PlotName,
            elev = PI_Elevation, dist = PI_Distance) |>
     unique() |> na.omit() |> arrange(elev)

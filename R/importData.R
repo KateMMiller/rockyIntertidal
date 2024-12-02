@@ -92,6 +92,7 @@ importData <- function(type = "DSN",
 
   # Vector of view names
   views <- c("qryR_DataPackage_Barnacle_Recruitment",
+             "qryR_DataPackage_BirdsMammals",
              "qryR_DataPackage_Bolts",
              "qryR_DataPackage_Echinoderm_Counts",
              "qryR_DataPackage_Echinoderm_Measurements",
@@ -100,7 +101,8 @@ importData <- function(type = "DSN",
              "qryR_DataPackage_MotileInvert_Measurements",
              "qryR_DataPackage_PhotoQuadrats_Cover",
              "qryR_DataPackage_PointIntercept_SppDetections",
-             "qryR_DataPackage_PointIntercept_BoltDist")
+             "qryR_DataPackage_PointIntercept_BoltDist",
+             "qryR_DataPackage_SppConditions")
 
   view_names <- gsub("qryR_DataPackage_", "", views)
 

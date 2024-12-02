@@ -30,6 +30,7 @@ Imports:
 Collate: 
     'exportData.R'
     'getBarnacleRecruitment.R'
+    'getBirdsMammals.R'
     'getBolts.R'
     'getEchinoCounts.R'
     'getEchinoMeas.R'

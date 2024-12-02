@@ -39,9 +39,18 @@ exportData <- function(filepath = NA, zip = FALSE){
   }
 
   # Make sure all the views are loaded. If anything is missing, function stops.
-  view_list <- c("PointIntercept_SppDetections", "Bolts", "PointIntercept_BoltDist", "Echinoderm_Counts",
-                 "MotileInvert_Measurements", "MotileInvert_Counts", "Events", "Echinoderm_Measurements",
-                 "Barnacle_Recruitment", "PhotoQuadrats_Cover")
+  view_list <- c("Barnacle_Recruitment",
+                 "BirdsMammals",
+                 "Bolts",
+                 "Echinoderm_Counts",
+                 "Echinoderm_Measurements",
+                 "Events",
+                 "MotileInvert_Counts",
+                 "MotileInvert_Measurements",
+                 "PhotoQuadrats_Cover",
+                 "PointIntercept_BoltDist",
+                 "PointIntercept_SppDetections",
+                 "SppConditions")
 
   files <- if(exists("ROCKY")){ls(envir = ROCKY)} else {ls()}
 

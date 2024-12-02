@@ -1,6 +1,6 @@
 #' @title getBarnacleRecruitment: get Barnacle recruitment count data
 #'
-#' @importFrom dplyr filter select
+#' @importFrom dplyr filter group_by select summarize
 #'
 #' @description This function filters barnacle recruitment count data by park, site, and plot name.
 #'
@@ -38,6 +38,9 @@
 #' @param dropNA Logical. If TRUE (default), blank counts are removed.
 #' If FALSE, all records are returned.
 #'
+#' @param timeTaken Filter on whether barnacle counts are from early (summer) or late (winter) photos from S-labeled plots.
+#' Note that this filter is only valid for years 2019 and later. Options are "all", "early", and "late" (default).
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -57,6 +60,9 @@
 #' barn_first_last <- getBarnacleRecruitment(years = c(2013, 2021))
 #' barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
 #'
+#' # Barnacle counts for winter-only photos taken of S plots.
+#' barn_late <- getBarnacleRecruitment(years = 2019:2024, timeTaken = 'late')
+#'
 #' }
 #'
 #'
@@ -65,7 +71,7 @@
 
 getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
                                    QAQC = FALSE, years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                   dropNA = TRUE){
+                                   dropNA = TRUE, timeTaken = "late"){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -76,6 +82,7 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
                             "U1", "U2", "U3", "U4", "U5"))
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(class(dropNA) == "logical")
+  timeTaken <- match.arg(timeTaken, c("all", "early", "late"))
 
   # set up plot name list and catch if summer and winter are both specified when should be 'all' instead
   if(any(plotName %in% "summer" & any(plotName %in% "winter"))){plotName = "all"}
@@ -89,8 +96,26 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
            error = function(e){
              stop("Barnacle_Recruitment data frame not found. Please import rocky intertidal data.")})
 
-  barn_park <- if(any(park %in% 'all')){ barn
-  } else {filter(barn, UnitCode %in% park)}
+  # Handle summer plot photos with a early and late count starting in 2019
+  # Note: Have to wait until Date_Taken is populated.
+  # barn_sum2 <- barn |> group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName,
+  #                               PlotName, QAQCType, QAQC, Year) |>
+  #   summarize(num_samps = sum(!is.na(Count)),
+  #             num_dates = length(unique(StartDate)),
+  #             first_date = first(StartDate),
+  #             last_date = last(StartDate),
+  #             .groups = 'drop') |>
+  #   filter(Year >= 2019)
+
+  # Until DateTaken is populated, use notes field
+  barn2 <- barn |> mutate(time_taken =
+                            ifelse(grepl("S", PlotName) & Year >= 2019 & grepl("winter", Notes, ignore.case = T),
+                                   "late",
+                              ifelse(grepl("S", PlotName) & Year >= 2019 & !grepl("winter", Notes, ignore.case = T),
+                                   "early", NA_character_)))
+
+  barn_park <- if(any(park %in% 'all')){ barn2
+  } else {filter(barn2, UnitCode %in% park)}
 
   barn_loc <- if(any(site %in% 'all')){ barn_park
   } else {filter(barn_park, SiteCode %in% site)}
@@ -105,11 +130,14 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
 
   barn_na <- if(dropNA == TRUE){barn_qaqc |> filter(!is.na(Count))} else {barn_qaqc}
 
-  barn2 <- barn_na |>
+  barn_time <- if(any(timeTaken %in% 'all')){barn_na
+    } else {barn_na |> filter(time_taken %in% timeTaken)}
+
+  barn_final <- barn_time |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
-           PlotName, Count, Notes, DateScored, Scorer, IsPointCUI)
+           PlotName, Count, Notes, DateScored, time_taken, Scorer, IsPointCUI)
 
-  if(nrow(barn2) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(barn_final) == 0){stop("Specified arguments returned an empty data frame.")}
 
-  return(barn2)
+  return(barn_final)
 }

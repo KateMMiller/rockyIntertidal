@@ -40,6 +40,7 @@ Collate:
     'getPIBoltDistance.R'
     'getPISpecies.R'
     'getPhotoCover.R'
+    'getSppConditions.R'
     'importData.R'
     'importWaterTemp.R'
     'theme_rocky.R'

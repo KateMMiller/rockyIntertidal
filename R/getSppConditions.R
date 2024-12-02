@@ -1,8 +1,8 @@
-#' @title: getBirdsMammals
+#' @title: getSppConditions
 #'
 #' @importFrom dplyr filter select
 #'
-#' @description This function filters bird and mammal detections by park, site, and year.
+#' @description This function filters recorded species conditions by park, site, and year.
 #'
 #' @param park Include data from all parks, or choose one.
 #' \describe{
@@ -33,22 +33,22 @@
 #'
 #' importData()
 #'
-#' # get mammal/bird observations for BOHA in 2024
+#' # get species condition observations for BOHA in 2024
 #'
-#' boha24 <- getBirdsMammals(park = "BOHA", years = 2024)
+#' boha24 <- getSppConditions(park = "BOHA", years = 2024)
 #'
 #' # get observations for Bass Harbor all years
 #'
-#' bass <- getBirdsMammals(site = "BASHAR")
+#' bass <- getSppConditions(site = "BASHAR")
 #'
 #' }
 #'
-#' @return Data frame with bird and mammal observations
+#' @return Dataframe with species conditions
 #'
 #' @export
 #'
 
-getBirdsMammals <- function(park = "all", site = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
+getSppConditions <- function(park = "all", site = "all", years = 2013:as.numeric(format(Sys.Date(), "%Y"))){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -58,20 +58,22 @@ getBirdsMammals <- function(park = "all", site = "all", years = 2013:as.numeric(
 
   env <- if(exists("ROCKY")){ROCKY} else {.GlobalEnv}
 
-  tryCatch(birdmam <- get("BirdsMammals", envir = env) |>
+  tryCatch(spp <- get("SppConditions", envir = env) |>
              dplyr::mutate(Year = as.numeric(format(StartDate, "%Y"))),
-           error = function(e){stop("BirdsMammals data frame not found. Please import the rocky intertidal data, and check that you're using the latest data package.")})
+           error = function(e){stop(
+             "SppConditions data frame not found. Please import the rocky intertidal data, and check that you're using the latest data package.")
+             })
 
-  bm_park <- if(any(park %in% 'all')){birdmam
-  } else {dplyr::filter(birdmam, UnitCode %in% park)}
+  spp_park <- if(any(park %in% 'all')){spp
+  } else {dplyr::filter(spp, UnitCode %in% park)}
 
-  bm_loc <- if(any(site %in% 'all')){bm_park
-  } else {dplyr::filter(bm_park, SiteCode %in% site)}
+  spp_loc <- if(any(site %in% 'all')){spp_park
+  } else {dplyr::filter(spp_park, SiteCode %in% site)}
 
-  bm_year <- dplyr::filter(bm_loc, Year %in% years)
+  spp_year <- dplyr::filter(spp_loc, Year %in% years)
 
-  if(nrow(bm_year) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(spp_year) == 0){stop("Specified arguments returned an empty data frame.")}
 
-  return(bm_year)
+  return(spp_year)
 
 }

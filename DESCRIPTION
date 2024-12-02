@@ -30,6 +30,7 @@ Imports:
 Collate: 
     'exportData.R'
     'getBarnacleRecruitment.R'
+    'getBirdsMammals.R'
     'getBolts.R'
     'getEchinoCounts.R'
     'getEchinoMeas.R'
@@ -39,6 +40,7 @@ Collate:
     'getPIBoltDistance.R'
     'getPISpecies.R'
     'getPhotoCover.R'
+    'getSppConditions.R'
     'importData.R'
     'importWaterTemp.R'
     'theme_rocky.R'

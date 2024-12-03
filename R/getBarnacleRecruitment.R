@@ -1,6 +1,6 @@
 #' @title getBarnacleRecruitment: get Barnacle recruitment count data
 #'
-#' @importFrom dplyr filter group_by select summarize
+#' @importFrom dplyr filter mutate select
 #'
 #' @description This function filters barnacle recruitment count data by park, site, and plot name.
 #'
@@ -39,7 +39,8 @@
 #' If FALSE, all records are returned.
 #'
 #' @param timeTaken Filter on whether barnacle counts are from early (summer) or late (winter) photos from S-labeled plots.
-#' Note that this filter is only valid for years 2019 and later. Options are "all", "early", and "late" (default).
+#' Note that this filter is only valid for years 2019 and later. Options are "all" (default), "early", and "late". If early
+#' or late is specified, records prior to 2019 will not be included in the results.
 #'
 #' @examples
 #' \dontrun{
@@ -56,8 +57,8 @@
 #'
 #' barn_summer <- getBarnacleRecruitment(park = "ACAD", plotName = "summer")
 #' barn_BOHA <- getBarnacleRecruitment(site = c("CALISL", "GREISL"))
-#' barn_5yr <- getBarnacleRecruitment(years = 2016:2021)
-#' barn_first_last <- getBarnacleRecruitment(years = c(2013, 2021))
+#' barn_5yr <- getBarnacleRecruitment(years = 2019:2024)
+#' barn_first_last <- getBarnacleRecruitment(years = c(2013, 2024))
 #' barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
 #'
 #' # Barnacle counts for winter-only photos taken of S plots.
@@ -71,7 +72,7 @@
 
 getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
                                    QAQC = FALSE, years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                                   dropNA = TRUE, timeTaken = "late"){
+                                   dropNA = TRUE, timeTaken = "all"){
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
   stopifnot(park %in% c("all", "ACAD", "BOHA"))
@@ -97,22 +98,19 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
              stop("Barnacle_Recruitment data frame not found. Please import rocky intertidal data.")})
 
   # Handle summer plot photos with a early and late count starting in 2019
-  # Note: Have to wait until Date_Taken is populated.
-  # barn_sum2 <- barn |> group_by(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName,
-  #                               PlotName, QAQCType, QAQC, Year) |>
-  #   summarize(num_samps = sum(!is.na(Count)),
-  #             num_dates = length(unique(StartDate)),
-  #             first_date = first(StartDate),
-  #             last_date = last(StartDate),
-  #             .groups = 'drop') |>
-  #   filter(Year >= 2019)
+  # Note: Most records still require the Date_Taken field to be populated.
+  # Until DateTaken is fully populated, have to also use notes field for records missing dates
 
-  # Until DateTaken is populated, use notes field
-  barn2 <- barn |> mutate(time_taken =
-                            ifelse(grepl("S", PlotName) & Year >= 2019 & grepl("winter", Notes, ignore.case = T),
-                                   "late",
-                              ifelse(grepl("S", PlotName) & Year >= 2019 & !grepl("winter", Notes, ignore.case = T),
-                                   "early", NA_character_)))
+  barn2 <- barn |>
+    mutate(month = as.numeric(format(as.Date(DateTaken, "%Y-%m-%d", tz = "America/New_York"), "%m")),
+           time_taken1 = ifelse(Year >= 2019 & month >= 10, "late", ifelse(Year >= 2019 & month < 10, "early", NA_character_)),
+           time_taken =  ifelse(is.na(time_taken1) & grepl("S", PlotName) & Year >= 2019 &
+                                     grepl("winter", Notes, ignore.case = T), "late",
+                           ifelse(is.na(time_taken1) & grepl("S", PlotName) & Year >= 2019 &
+                                    !grepl("winter", Notes, ignore.case = T), "early",
+                              ifelse(!is.na(time_taken1), time_taken1, NA_character_)))) |>
+    select(-time_taken1)
+
 
   barn_park <- if(any(park %in% 'all')){ barn2
   } else {filter(barn2, UnitCode %in% park)}

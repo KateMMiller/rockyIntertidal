@@ -11,7 +11,7 @@ getBarnacleRecruitment(
   QAQC = FALSE,
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   dropNA = TRUE,
-  timeTaken = "late"
+  timeTaken = "all"
 )
 }
 \arguments{
@@ -50,7 +50,8 @@ Can specify a vector of years.}
 If FALSE, all records are returned.}
 
 \item{timeTaken}{Filter on whether barnacle counts are from early (summer) or late (winter) photos from S-labeled plots.
-Note that this filter is only valid for years 2019 and later. Options are "all", "early", and "late" (default).}
+Note that this filter is only valid for years 2019 and later. Options are "all" (default), "early", and "late". If early
+or late is specified, records prior to 2019 will not be included in the results.}
 }
 \value{
 Returns a data frame of barnacle recruitment count data.
@@ -73,8 +74,8 @@ barn_acad <- getBarnacleRecruitment(park = "ACAD")
 
 barn_summer <- getBarnacleRecruitment(park = "ACAD", plotName = "summer")
 barn_BOHA <- getBarnacleRecruitment(site = c("CALISL", "GREISL"))
-barn_5yr <- getBarnacleRecruitment(years = 2016:2021)
-barn_first_last <- getBarnacleRecruitment(years = c(2013, 2021))
+barn_5yr <- getBarnacleRecruitment(years = 2019:2024)
+barn_first_last <- getBarnacleRecruitment(years = c(2013, 2024))
 barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
 
 # Barnacle counts for winter-only photos taken of S plots.

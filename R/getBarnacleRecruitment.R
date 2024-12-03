@@ -57,7 +57,7 @@
 #'
 #' barn_summer <- getBarnacleRecruitment(park = "ACAD", plotName = "summer")
 #' barn_BOHA <- getBarnacleRecruitment(site = c("CALISL", "GREISL"))
-#' barn_5yr <- getBarnacleRecruitment(years = 2019:2024)
+#' barn_5yr <- getBarnacleRecruitment(years = 2016:2024)
 #' barn_first_last <- getBarnacleRecruitment(years = c(2013, 2024))
 #' barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
 #'
@@ -133,7 +133,7 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
 
   barn_final <- barn_time |>
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
-           PlotName, Count, Notes, DateScored, time_taken, Scorer, IsPointCUI)
+           PlotName, Count, Notes, DateScored, DateTaken, time_taken, Scorer, IsPointCUI)
 
   if(nrow(barn_final) == 0){stop("Specified arguments returned an empty data frame.")}
 

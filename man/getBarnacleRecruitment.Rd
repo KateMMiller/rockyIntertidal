@@ -74,7 +74,7 @@ barn_acad <- getBarnacleRecruitment(park = "ACAD")
 
 barn_summer <- getBarnacleRecruitment(park = "ACAD", plotName = "summer")
 barn_BOHA <- getBarnacleRecruitment(site = c("CALISL", "GREISL"))
-barn_5yr <- getBarnacleRecruitment(years = 2019:2024)
+barn_5yr <- getBarnacleRecruitment(years = 2016:2024)
 barn_first_last <- getBarnacleRecruitment(years = c(2013, 2024))
 barn21_qaqc <- getBarnacleRecruitment(years = 2024, QAQC = TRUE)
 

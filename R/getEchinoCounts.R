@@ -121,7 +121,7 @@ getEchinoCounts <- function(park = "all", site = "all", plotName = "all",
   echino_final <- if(any(species %in% 'all')){echino2
     } else {filter(echino2, SpeciesCode %in% species)}
 
-  if(nrow(echino_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(echino_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(echino_final)
 }

@@ -119,7 +119,7 @@ getEchinoMeas <- function(park = "all", site = "all", plotName = "all",
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC,
            PlotName, ScientificName, CommonName, SpeciesCode, Measurement, IsPointCUI)
 
-  if(nrow(echino_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(echino_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(echino_final)
 

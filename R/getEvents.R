@@ -114,7 +114,7 @@ getEvents <- function(park = "all", site = "all", plotName = "all", plotType = '
            Debris_PlantWrack, Debris_Driftwood, Debris_Shells, Debris_DeadAnimals, Debris_Trash, Debris_OilTar,
            Notes_Conditions, Notes_Marker, Notes_Other, Notes_Additional_Spp, IsPointCUI)
 
-  if(nrow(events_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(events_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(events_final)
 

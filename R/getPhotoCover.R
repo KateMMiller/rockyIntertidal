@@ -160,7 +160,7 @@ getPhotoCover <- function(park = "all", site = "all", plotName = "all",
                      CoverType, ScientificName, CoverCode, PercentCover, Notes, DateScored, Scorer, IsPointCUI)
 
 
-  if(nrow(cov_comb) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(cov_comb) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(cov_comb)
 

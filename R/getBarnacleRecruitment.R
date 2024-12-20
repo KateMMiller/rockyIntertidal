@@ -135,7 +135,7 @@ getBarnacleRecruitment <- function(park = "all", site = "all", plotName = "all",
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, QAQCType,
            PlotName, Count, Notes, DateScored, DateTaken, time_taken, Scorer, IsPointCUI)
 
-  if(nrow(barn_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(barn_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(barn_final)
 }

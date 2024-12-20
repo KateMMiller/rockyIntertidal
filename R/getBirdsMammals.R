@@ -70,7 +70,7 @@ getBirdsMammals <- function(park = "all", site = "all", years = 2013:as.numeric(
 
   bm_year <- dplyr::filter(bm_loc, Year %in% years)
 
-  if(nrow(bm_year) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(bm_year) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(bm_year)
 

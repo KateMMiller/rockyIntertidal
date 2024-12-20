@@ -124,7 +124,7 @@ getPISpecies <- function(park = "all", site = "all", plotName = "all",
     select(GroupCode, GroupName, UnitName, UnitCode, SiteName, SiteCode, StartDate, Year, QAQC,
            PlotName, PiDistance, CoverCode, CoverType, ScientificName, IsPointCUI)
 
-  if(nrow(sppdet_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(sppdet_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(sppdet_final)
 

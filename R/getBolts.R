@@ -152,7 +152,7 @@ getBolts <- function(park = "all", site = "all", plotType = "all",
 
   }
 
-  if(nrow(bolts_final) == 0){stop("Specified arguments returned an empty data frame.")}
+  if(nrow(bolts_final) == 0){warning("Specified arguments returned an empty data frame.")}
 
   return(bolts_final)
 

@@ -133,7 +133,7 @@ getMotileInvertMeas <- function(park = "all", site = "all", plotName = "all",
     select(GroupCode, GroupName, UnitCode, UnitName, SiteCode, SiteName, StartDate, Year, QAQC, PlotName,
            CommunityType, ScientificName, CommonName, SpeciesCode, Measurement, IsPointCUI)
 
-  if(nrow(motinv_final) == 0){stop("Specified arguments returned an empty data frame. If filtering on species, make sure the code was spelled correctly.")}
+  if(nrow(motinv_final) == 0){warning("Specified arguments returned an empty data frame. If filtering on species, make sure the code was spelled correctly.")}
 
   return(motinv_final)
 

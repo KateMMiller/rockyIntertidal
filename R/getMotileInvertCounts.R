@@ -149,7 +149,7 @@ getMotileInvertCounts <- function(park = "all", site = "all", plotName = "all",
            ScientificName, CommonName, SpeciesCode, Damage, No.Damage, Subsampled, IsPointCUI)
 
   if(nrow(motinv_final) == 0){
-    stop("Specified arguments returned an empty data frame. If filtering on species, make sure the code was spelled correctly.")}
+    warning("Specified arguments returned an empty data frame. If filtering on species, make sure the code was spelled correctly.")}
 
   return(motinv_final)
 

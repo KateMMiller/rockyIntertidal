@@ -11,7 +11,8 @@ plotSpeciesContours(
   ylab = "Elevation MLLW (m)",
   years = 2013:as.numeric(format(Sys.Date(), "\%Y")),
   plot_title = TRUE,
-  QAQC = FALSE
+  QAQC = FALSE,
+  include_photoplots = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ Viridis uses a color-blind friendly palette of blues, purples and yellows.}
 Can specify a vector of years.}
 
 \item{plot_title}{Logical. If TRUE (default), plots site code as plot title. If FALSE, doesn't include a title.}
+
+\item{include_photoplots}{Logical. If TRUE (default), includes pie charts of photoplot cover by elevation and distance.
+If FALSE, only plots species contours.}
 }
 \value{
 Returns a ggplot object of point intercept and percent cover data filtered by function arguments
@@ -54,6 +58,9 @@ importData()
 # Default filter returns a plot faceted on site and target species group
 plotSpeciesContours(site = "OTTPOI")
 
+
+# Drop photoplots from plot
+plotSpeciesContours(site = "CALISL", include_photoplots = F)
 # Other variations
 spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
 plotSpeciesContours(site = "CALISL", palette = "default", title = FALSE,

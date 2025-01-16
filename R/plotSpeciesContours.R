@@ -39,6 +39,9 @@
 #'
 #' @param plot_title Logical. If TRUE (default), plots site code as plot title. If FALSE, doesn't include a title.
 #'
+#' @param include_photoplots Logical. If TRUE (default), includes pie charts of photoplot cover by elevation and distance.
+#' If FALSE, only plots species contours.
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -47,6 +50,9 @@
 #' # Default filter returns a plot faceted on site and target species group
 #' plotSpeciesContours(site = "OTTPOI")
 #'
+#'
+#' # Drop photoplots from plot
+#' plotSpeciesContours(site = "CALISL", include_photoplots = F)
 #' # Other variations
 #' spp = c("ALGRED", "ASCNOD", "BARSPP", "NONCOR", "FUCSPP", "ULVLAC")
 #' plotSpeciesContours(site = "CALISL", palette = "default", title = FALSE,
@@ -62,7 +68,7 @@ plotSpeciesContours <- function(site = "BASHAR",
                            palette = c('default'),
                            xlab = "Distance (m)", ylab = "Elevation MLLW (m)",
                            years = 2013:as.numeric(format(Sys.Date(), "%Y")),
-                           plot_title = TRUE, QAQC = FALSE){
+                           plot_title = TRUE, QAQC = FALSE, include_photoplots = TRUE){
 
 
   # Match args and class; match.args only checks first match in vector, so have to do it more manually.
@@ -71,6 +77,7 @@ plotSpeciesContours <- function(site = "BASHAR",
   stopifnot(class(years) == "numeric" | class(years) == "integer", years >= 2013)
   stopifnot(palette %in% c("default", "viridis"))
   stopifnot(is.logical(plot_title))
+  stopifnot(is.logical(include_photoplots))
 
   if(length(site) > 1){stop("Multiple sites specified. Function can only plot one site at a time.")}
 
@@ -109,6 +116,7 @@ plotSpeciesContours <- function(site = "BASHAR",
                 "CALISL" = "Calf Island", "GREISL" = "Green Island", "OUTBRE" = "Outer Brewster")
 
   # Compile photo data
+  if(include_photoplots == TRUE){
   photo1 <- suppressWarnings(force(getPhotoCover(site = site, plotName = 'all',
                                                category = 'all', years = years, QAQC = FALSE,
                                                species = c("ASCNOD",  "ASCEPI", "BARSPP",
@@ -140,6 +148,7 @@ plotSpeciesContours <- function(site = "BASHAR",
               elev = median(Bolt_MLLW_Elev, na.rm = T),
               .groups = 'drop')
 
+  }
   # Compile species PI data
   spdat1 <- suppressWarnings(force(sumPISpecies(site = site, plotName = 'all',
                                                years = years,
@@ -177,8 +186,9 @@ plotSpeciesContours <- function(site = "BASHAR",
   #   geom_line(data = spdat1, aes(y = PI_Elevation, x = PI_Distance), color = 'lightgreen')
 
   # Predict distance for photo plots
+  if(include_photoplots == TRUE){
   photo_dist <- cbind(photo_sum, dist = predict(trsm, newdata = photo_sum$elev)) #|> filter(!is.na(dist))
-
+  }
   # Red algae photo plots are sometimes lower elevation than the transect, and loess smoother
   # won't predict a distance value for those elevations. Replacing NA with farthest distance in trsm_dat
   # SHIHAR Ascophyllum photoplots are higher than the transect elevations. Adjusting by changing the max
@@ -186,6 +196,7 @@ plotSpeciesContours <- function(site = "BASHAR",
   max_dist <- max(trsm_dat$dist_pred, na.rm = T)
   shidist <- 0.553
 
+  if(include_photoplots == TRUE){
   photo_dist$dist[is.na(photo_dist$dist) & photo_dist$CommunityType == "Red Algae"] <- max_dist
   photo_dist$dist[is.na(photo_dist$dist) & photo_dist$CommunityType == "Ascophyllum" &
     photo_dist$SiteCode == "SHIHAR"] <- shidist
@@ -194,7 +205,7 @@ plotSpeciesContours <- function(site = "BASHAR",
                                           CoverCode, avg_cover, elev, dist) |>
                                    pivot_wider(names_from = CoverCode,
                                                values_from = avg_cover, values_fill = 0)
-
+  }
   # Summarize species PIs, then predict distance from elevations
   sp_sum <- spdat |> group_by(UnitCode, SiteCode, Year, CoverCode, CoverType) |>
     summarize(elev_min = min(PI_Elevation, na.rm = T),
@@ -258,6 +269,7 @@ plotSpeciesContours <- function(site = "BASHAR",
                       breaks = names(cols), labels = labels) +
    scale_fill_manual(values = cols, name = "Species",
                      breaks = names(cols), labels = labels) +
+   labs(x = "Distance (m)", y = "Elevation MLLW (m)") +
    {if(length(years) > 1)facet_wrap(~Year, ncol = 1)} +
    {if(plot_title == TRUE)labs(title = site)} +
    theme(legend.position = 'right', #+
@@ -270,6 +282,7 @@ plotSpeciesContours <- function(site = "BASHAR",
   p_leg <- ggpubr::as_ggplot(ggpubr::get_legend(p1))
 
   # Manually nudge ASCNOD and FUSSPP photoplot pies where they're both present at the site
+  if(include_photoplots == TRUE){
   photo_dist_wide <- photo_dist_wide |>
     mutate(dist_nudge = case_when(SiteCode == "LITMOO" & CommunityType == "Ascophyllum" ~ dist - pie_size/2,
                                   SiteCode == "LITMOO" & CommunityType == "Fucus" ~ dist + pie_size/2,
@@ -294,14 +307,16 @@ plotSpeciesContours <- function(site = "BASHAR",
 
   #photo_dist_wide$elev_hor <- max(trsm_dat$elev + pie_size * 1.5)
   photo_dist_wide$pie_ynudge = photo_dist_wide$elev + photo_dist_wide$dist_nudge
-
-  p2 <- p1 +
+  }
+  p2 <-
+  if(include_photoplots == TRUE){
+  p1 +
    geom_scatterpie(data = photo_dist_wide, aes(x = dist_nudge, y = pie_ynudge),
                    pie_scale = pie_size,
                    cols = c("ASCNOD", "BARSPP", "FUCSPP", "MUSSPP", "REDGRP")) +
-   coord_equal(expand = TRUE) + labs(x = "Distance (m)", y = "Elevation MLLW (m)") +
-    theme(legend.position = 'none')
-
+   coord_equal(expand = TRUE) +
+   theme(legend.position = 'none')
+  } else p1
   # if(length(years == 1)){
   #   # p <- gridExtra::grid.arrange(p2, p_leg, nrow = 2, ncol = 1, heights = c(7, 1.5),
   #   #                              layout_matrix = (cbind(c(1), c(2))))
@@ -319,8 +334,9 @@ plotSpeciesContours <- function(site = "BASHAR",
     #                         #rel_heights = c(10, 1))
     #                         #align = 'hv')
 
-  p <- gridExtra::grid.arrange(p2, p_leg, nrow = 1, ncol = 2, widths = c(4, 1))
-  # }
+  p <- if(include_photoplots == TRUE){
+    gridExtra::grid.arrange(p2, p_leg, nrow = 1, ncol = 2, widths = c(4, 1))
+   } else {p2}
   return(p)
   #print(p)
 

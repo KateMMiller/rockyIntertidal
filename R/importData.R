@@ -68,7 +68,7 @@ importData <- function(type = "DSN",
   }
 
   if(type == 'csv'){
-    if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
+    if(is.na(filepath)){stop(paste0("Must specify a filepath to the database type = 'csv"))
     } else if(!file.exists(filepath)){
       stop(paste0("Specified file path does not exist. ",
                   ifelse(grepl("sharepoint", filepath), " Note that file paths from Sharepoint or Teams are not accessible.",

@@ -54,6 +54,8 @@ print_head <- function(df){
 library(tidyverse)
 ```
 
+<h3 style='color:red;'>This website has been moved to <a href="https://doi-nps.github.io/rockyIntertidal">https://doi-nps.github.io/rockyIntertidal</a> and will no longer be updated on this site. The code repo for this site is <a href="https://github.com/DOI-NPS/rockyIntertidal">https://github.com/DOI-NPS/rockyIntertidal</a>.</h3>
+
 ## Using the rockyIntertidal R package {.tabset .tabset-pills}
 
 ### Getting started {.tabset}
@@ -115,11 +117,11 @@ exportData(filepath = "./data", zip = TRUE)
 exportData(filepath = "../data", zip = TRUE) 
 ```
 
-<h4><b>Step 6b.</b>Import water temperature data *NOTE: NOT RECENTLY TESTED* </h4>
+<h4><b>Step 6b.</b>Import water temperature data *NOTE: NOT RECENTLY TESTED/NOT CURRENTLY ACTIVE* </h4>
 The water temperature data is stored as separate csvs and so has a different import function and process. 
 The temp logger files will go into your ROCKY environment named the 6 letter location code. The `buoy = T` loads the buoy data for each park to the ROCKY environment. The `simplify = T` simplifies the datasets to include only 1 logger measurement per high tide event (for water temp) and 1 buoy record per day. All plotting functions require the simplified data.
 The latest compiled files are on the Z drive here: "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/".  This reminds me that I need to update the data to include 2023.
-```{r, results = 'hide'}
+```{r, results = 'hide', eval = F}
 #path = "Z:/PROJECTS/MONITORING/Rocky_Intertidal/NETN/5_Data/Data_Files/Temperature/Compiled_HT_water_temps_2011-2022/"
 path = "C:/NETN/R_Dev/data/rocky/temp_data/Compiled_HT_water_temps"
 importWaterTemp(path = path, buoy = T, simplify = T)
@@ -170,7 +172,7 @@ Sys.setenv(BINPREF = "C:\\PROGRA~1\\Rtools44\\mingw_$(WIN)\\bin\\")
 <h4><b>Getting (and improving) help</b></h4>
 The functions in `rockyIntertidal` have help documentation like any R package. To view the help, you can go to the Packages tab and click on rockyIntertidal (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
 ```{r echo = F, out.height = '95px', out.width = '551px', fig.align = 'center'}
-knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/finding_R_package.jpg")
+knitr::include_graphics("../testing_scripts/finding_R_package.jpg")
 ```
 
 <p class = 'fxn'>You can also see the help of a function by running, for example: </p>
@@ -198,17 +200,17 @@ Finally, if you ever want to peak under the hood at the function, you can view i
 <li>Go to Windows Start Menu and search ODBC. Click on ODBC Data Sources (64-bit) </li>
 
 ```{r echo = F, out.height = '457px', out.width = '564px', fig.align = 'center'}
-knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_1.jpg")
+knitr::include_graphics("../testing_scripts/ODBC_step_1.jpg")
 ```
 <li>Click on <i>Add</i>, then select <i>Microsoft Access Driver (\*.mdb, \*.accdb)</i> then click <i>Finish</i> in next menu.</li>
 
 ```{r echo = F, out.height = '450px', out.width = '1018px', fig.align = 'center'}
-knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_2.jpg")
+knitr::include_graphics("../testing_scripts/ODBC_step_2.jpg")
 ```
 
 <li>Enter <b>rocky_BE</b> into the Data Source Name (red arrow), click on Select (red circle). In new window, click on C:/ (orange arrow) and find the path to your database. If it's on the Z drive, then click on the Drives window and select correct Drive. Click on the data package database (yellow arrow). When complete, click OK. Finally, add the name of the database file to the Description (blue arrow), so it's easier to check whether you're using the latest version.  </li>
 ```{r echo = F, out.height = '486px', out.width = '600px', fig.align = 'center'}
-knitr::include_graphics("C:/NETN/R_Dev/rockyIntertidal/testing_scripts/ODBC_step_3.jpg")
+knitr::include_graphics("../testing_scripts/ODBC_step_3.jpg")
 ```
 
 <li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
@@ -512,7 +514,7 @@ plotPITransects(site = "SHIHAR", years = 2013:2019)
 #### Point Intercept Species {.tabset}
 Plot point intercept species detections summarized as median and middle 50% distribution of elevation. There are a lot of arguments to produce different plots and figures. Some of the ones I find most useful are below. Note when years aren't specified, all years are included by default.
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPISpecies(site = "BASHAR", facet = T, main_groups = T, plotly = T)
+plotPISpecies(site = "BASHAR", facet = T, main_groups = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
 plotPISpecies(park = "BOHA", facet = T, main_groups = T)
@@ -521,13 +523,13 @@ plotPISpecies(park = "BOHA", facet = T, main_groups = T)
 plotPISpecies(site = "SHIHAR", rev_axis = T, facet = T)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPISpecies(site = "OTTPOI", species = c("FUCSPP", "ASCNOD"), plotly = T)
+plotPISpecies(site = "OTTPOI", species = c("FUCSPP", "ASCNOD"))
 ```
 
 #### PhotoPlot Cover {.tabset}
 Plots the photoplot cover summarized as median cover and middle 50% distribution of cover across the photoplots within a target species. Note that there are a lot of arguments that produce different plots and figures (all explained in the help). Here are a few I tend to use the most.
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(park = "ACAD", community = "Barnacle", plotly = T)
+plotPhotoCover(park = "ACAD", community = "Barnacle")
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
 plotPhotoCover(site = "LITHUN", main_groups = T) 
@@ -536,10 +538,10 @@ plotPhotoCover(site = "LITHUN", main_groups = T)
 plotPhotoCover(site = "LITHUN", top_spp = 3)
 ```
 ```{r, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 8}
-plotPhotoCover(site = "LITHUN", top_spp = 3, plotly = T, xlab = NULL, plot_title = "Little Hunter")
+plotPhotoCover(site = "LITHUN", top_spp = 3, xlab = NULL, plot_title = "Little Hunter")
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
-plotPhotoCover(site = "LITHUN", main_groups = T, community = "Fucus", plotly = T)
+plotPhotoCover(site = "LITHUN", main_groups = T, community = "Fucus")
 ```
 ```{r, warning = FALSE, message = FALSE, fig.height = 8, fig.width = 10}
 plotPhotoCover(site = "BASHAR", main_groups = T, heatmap = TRUE)
@@ -552,7 +554,7 @@ plotMotileInvertCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotMotileInvertCounts(site = "OUTBRE", years = 2013:2021, plotly = T)
+plotMotileInvertCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 #### Motile Invet Meas. {.tabset}
@@ -566,7 +568,7 @@ plotEchinoCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 ```{r fig.height = 8, fig.width = 10, warning = FALSE, message = FALSE}
-plotEchinoCounts(site = "OUTBRE", years = 2013:2021, plotly = T)
+plotEchinoCounts(site = "OUTBRE", years = 2013:2021)
 ```
 
 #### Echinoderm Meas {.tabset}
@@ -576,20 +578,20 @@ plotEchinoMeas(site = "SHIHAR", years = 2013:2019)
 
 #### Water and Buoy Data  {.tabset}
 <details open><summary class = 'drop'><h3>Water temp.</h3></summary>
-<b>Note the data and functions have not been checked recently, and may not be fully functional</b>
-```{r fig.height = 8, fig.width = 10}
+<b>Note the data and functions have not been checked recently. Functions in this section not currently active.</b>
+```{r fig.height = 8, fig.width = 10, eval = F}
 plotWaterTemp(park = "ACAD", years = 2022, facet_col = 1)
 ```
-```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE, eval = F}
 plotWaterTemp(site = "BASHAR", years = 2011:2022)
 ```
 </details>
 
 <details open><summary class = 'drop'><h3>Buoy Data </h3></summary>
-```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE, eval = F}
 plotBuoyData(park = "ACAD", metric = 'all')
 ```
-```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE, eval = F}
 plotBuoyData(park = "ACAD", metric = "temp", year = 2022)
 
 ```
